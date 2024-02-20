@@ -9,14 +9,16 @@ from .ControllerConfig import ControllerConfig
 
 class Controller:
 
+    __controller = None
+    __buttonDict = None
+
     def __init__(self, config: ControllerConfig):
         self.__conf = config
-        self.__deviceVendor = int(config.DeviceVendorID)
-        self.defineButtonConfig(config)
-        self.__controller = None
+        self.__deviceVendor = config.DeviceVendorID
+        self.__defineButtonConfig(config)
         self.__initController()
 
-    def defineButtonConfig(self, config: ControllerConfig) -> None:
+    def __defineButtonConfig(self, config: ControllerConfig) -> None:
         """Defining the values of the buttons. Button-IDs can be changed in the config-file"""
         """ORDER OF THE DICTIONARY DOES MATTER FOR RobotController.ino ON ROBOT!!!"""
         self.__buttonDict = {config.RTrigger: 0,
@@ -61,23 +63,26 @@ class Controller:
         """
         self.__controller.grab()  # makes the controller only listen to this Code
         for event in self.__controller.read_loop():
-            # if event.code == self.__conf.LBtn or event.code == self.__conf.RBtn:
-            #     self.__buttonDict[event.code] = (0 if not event.value else 1)
-            # else:
-            #     if event.value < 0:
-            #         self.__buttonDict[event.code][1] = abs(event.value)
-            #     if type(self.__buttonDict.get(event.code)) is list:
-            #         self.__buttonDict[event.code][0] = event.value
-            #     else:
-            #         self.__buttonDict[event.code] = event.value
-            self.__processControllerValues(event)
+            self.__processControllerValues(event, callbackMethod)
 
-    def __processControllerValues(self, event: InputDevice.Event) -> None:
-        match event.code:
-            case self.__buttonDict.keys()[0]:
+    def __processControllerValues(self, event: InputDevice.Event, callbackMethod: callable) -> None:
+        """
+        Method for analyzing the events on the controller and delivering the right data to the transmitter-method.
+        :param event: Controller-Event that will be analyzed.
+        :param callbackMethod: Method that will be used to send the current event-data to.
+        """
+        if event.code == self.__conf.LBtn or event.code == self.__conf.RBtn:
+            self.__buttonDict[event.code] = (0 if not event.value else 1)
+        else:
+            if event.value < 0:
+                self.__buttonDict[event.code][1] = abs(event.value)
+            if type(self.__buttonDict.get(event.code)) is list:
+                self.__buttonDict[event.code][0] = event.value
+            else:
+                self.__buttonDict[event.code] = event.value
+        self.__transmitControllerValues(callbackMethod)
 
-    @property
-    def getControllerValues(self) -> str:
+    def __transmitControllerValues(self, callbackMethod: callable) -> None:
         """
         Method for retrieving controller-values and returning them in a csv-style.
         :return: string with controller-values in csv-format.
@@ -93,4 +98,4 @@ class Controller:
                 tempList.append(keyValue)
         contValues = ','.join(str(element) for element in tempList)
         # returning controller-output
-        return contValues
+        callbackMethod(contValues)

@@ -31,8 +31,8 @@ class BusFactory:
         Method for creating an instance of a serial-bus transceiver that connects to arduino.
         """
         encoding = EncodingFactory.arduinoSerialEncoding
-        busModule = BusPluginFactory.produceSerialBusArduinoPlugin()
-        return cls.produceBusTransceiver(busModule, encoding)
+        busPlugin = BusPluginFactory.produceSerialBusArduinoPlugin()
+        return cls.produceBusTransceiver(busPlugin, encoding)
 
     @classmethod
     def produceUDP_Transceiver(cls) -> BusInterface:
@@ -41,5 +41,5 @@ class BusFactory:
         :return:
         """
         encoding = EncodingFactory.socketEncoding()
-        busModule = BusPluginFactory.produceUdpSocketPlugin()  # Todo: make check if some socket is already running on that port, could be the wrong location for that here!
-        return cls.produceBusTransceiver(busModule, encoding)
+        busPlugin = BusPluginFactory.produceUdpSocketPlugin()  # Todo: make check if some socket is already running on that port, could be the wrong location for that here!
+        return cls.produceBusTransceiver(busPlugin, encoding)

@@ -7,19 +7,54 @@ import time
 from Runners.runner import Runner
 
 
-class AsyncTasks(Runner):
+class AsyncRunner:
+    """
+    Class for running async tasks.
+    """
 
-    def runTask(self, task: callable, *args) -> None:
-        asyncio.run(self.__asyncTask(task))
+    __tasks: list = []
+    __asyncTasks: list = []
+    __running: bool = False
 
-    async def __runAsync(self, task: callable, *args):
+    def addTask(self, task, *args) -> None:
         """
-        Creating an asynchronous task, that can be awaited.
-        :param task: Task that will be executed.
-        :param args: Parameters that will be passed to that task.
+        Method that adds a task to the list of tasks.
+        :param task:    Method or Function that will be executed by the runner.
+        :param args:    Arguments passed to the Method that will be run.
+                        Needs at least a callback-method if there is any return expected.
         """
-        asyncTask = asyncio.create_task(self.__asyncTask(task, *args))
-        await asyncTask
+        task.args = [*args]
+        self.__tasks.append(task)
+
+    def runTasks(self) -> None:
+        """
+        Method that starts processing all tasks waiting for execution.
+        """
+        if not self.__running:
+            self.__running = True
+            asyncio.run(self.__runAsync())
+
+    def stopTasks(self) -> None:
+        """
+        Method that stops the execution of this module.
+        """
+        if self.__running:
+            self.__running = False
+
+    async def __runAsync(self):
+        """
+        Method that runs all the waiting tasks in a loop until running-flag is set to false and there are no more open tasks to complete.
+        """
+        while self.__running:
+            # converting tasks into async tasks and throwing them into a list.
+            for task in self.__tasks:
+                asyncTask = asyncio.create_task(self.__asyncTask(task, *task.args))
+                self.__asyncTasks.append(asyncTask)
+                self.__tasks.remove(task)
+            # running and awaiting async tasks.
+            for asyncTask in self.__asyncTasks:
+                await asyncTask
+                self.__asyncTasks.remove(asyncTask)
 
     async def __asyncTask(self, task: callable, *args):
         """
@@ -27,21 +62,5 @@ class AsyncTasks(Runner):
         :param task: Task that will be executed.
         :param args: Parameters that will be passed to that task.
         """
-        task(*args)
-
-if __name__ == '__main__':
-    def test1():
-        asyncio.sleep(5)
-
-    def test2():
-        asyncio.sleep(2)
-
-    def test():
-        asyncio.sleep(4)
-
-    obj = AsyncTasks()
-    start = time.time()
-    obj.runTask(test)
-    obj.runTask(test1)
-    obj.runTask(test2)
-    print(time.time() - start)
+        response = await asyncio.to_thread(task, *args)
+        return response

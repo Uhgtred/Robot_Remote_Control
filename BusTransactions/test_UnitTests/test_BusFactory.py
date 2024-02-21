@@ -18,8 +18,7 @@ class MyTestCase(unittest.TestCase):
         encoding = Encoding.EncodingFactory.arduinoSerialEncoding
         bus = BusPluginFactory.produceSerialBusStubPlugin()
         transceiver = self.busFactory.produceBusTransceiver(bus, encoding)
-        assert isinstance(transceiver, Bus)
-
+        self.assertIsInstance(transceiver, Bus)
 
 if __name__ == '__main__':
     unittest.main()

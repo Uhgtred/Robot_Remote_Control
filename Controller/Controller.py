@@ -21,6 +21,7 @@ class Controller:
     def __defineButtonConfig(self, config: ControllerConfig) -> None:
         """Defining the values of the buttons. Button-IDs can be changed in the config-file"""
         """ORDER OF THE DICTIONARY DOES MATTER FOR RobotController.ino ON ROBOT!!!"""
+        """TODO: Change this, so there is no dependance on the structure of the dictionary for the interpretation on the arduino!"""
         self.__buttonDict = {config.RTrigger: 0,
                              config.RBtn: 0,
                              config.LTrigger: 0,
@@ -92,8 +93,9 @@ class Controller:
             keyValue = self.__buttonDict.get(key)
             # Values can be a list if controller-element has axes.
             if type(keyValue) is list:
-                tempList.append(round(keyValue[0] / 128.5) if keyValue[0] != 0 else 0)  # making sure the value is not greater than 255 for analog-sticks
-                tempList.append(round(keyValue[1] / 128.5) if keyValue[1] != 0 else 0)  # making sure the value is not greater than 255 for analog-sticks
+                # making sure the value is not greater than 255 for controller-elements with axes.
+                tempList.append(round(keyValue[0] / 128.5) if keyValue[0] != 0 else 0)
+                tempList.append(round(keyValue[1] / 128.5) if keyValue[1] != 0 else 0)
             else:
                 tempList.append(keyValue)
         contValues = ','.join(str(element) for element in tempList)

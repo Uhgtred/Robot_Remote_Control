@@ -1,0 +1,25 @@
+name: Unit Tests
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.ROBOT_USER }}
+          password: ${{ secrets.ROBOT_TOKEN }}
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: docker build . --file Dockerfile --tag robot_image
+
+      - name: Set PATH environment variable
+        run: echo "PATH=$PATH:/app/venv/bin" >> $GITHUB_ENV
+
+      - name: Run unit tests in Docker container
+        run: docker run --rm robot_image sh -c "python3 -m unittest discover -v"

@@ -4,7 +4,7 @@ LABEL authors="Markus"
 # Install python and pip
 RUN apt-get update && \
     apt-get install -y python3 python3-pip && \
-    pip install evdev && \
+    sudo pip install evdev && \
     apt-get install -y python3-venv && \
     apt-get install -y ffmpeg libsm6 libxext6 && \
     apt-get install -y libgl1-mesa-glx && \

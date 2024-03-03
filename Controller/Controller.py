@@ -2,7 +2,7 @@
 # @author   Markus Kösters
 
 import subprocess
-from evdev import InputDevice
+import libevdev
 
 from .ControllerConfig import ControllerConfig
 
@@ -55,18 +55,18 @@ class Controller:
         for device in deviceList:
             device = f'{path}{device}'
             if 'event' in device:
-                if InputDevice(device).info.vendor == self.__deviceVendor:
-                    self.__controller = InputDevice(device)
+                if libevdev.Device(device).id.get('vendor') == self.__deviceVendor:
+                    self.__controller = libevdev.Device(device)
 
     def readController(self, callbackMethod: callable) -> None:
         """
         Method for reading the controller in a loop.
         """
         self.__controller.grab()  # makes the controller only listen to this Code
-        for event in self.__controller.read_loop():
+        for event in self.__controller.events():
             self.__processControllerValues(event, callbackMethod)
 
-    def __processControllerValues(self, event: InputDevice.Event, callbackMethod: callable) -> None:
+    def __processControllerValues(self, event: libevdev.event, callbackMethod: callable) -> None:
         """
         Method for analyzing the events on the controller and delivering the right data to the transmitter-method.
         :param event: Controller-Event that will be analyzed.

@@ -4,7 +4,6 @@ LABEL authors="Markus"
 # Install python and pip
 RUN apt-get update && \
     apt-get install -y python3 python3-pip && \
-    sudo pip install evdev && \
     apt-get install -y python3-venv && \
     apt-get install -y ffmpeg libsm6 libxext6 && \
     apt-get install -y libgl1-mesa-glx && \
@@ -21,6 +20,7 @@ EXPOSE 2000
 # Install dependencies
 RUN python3 -m venv /app/venv && \
     /app/venv/bin/pip3 install --upgrade pip && \
+    /app/venv/bin/pip3 install evdev && \
     /app/venv/bin/pip3 install -r /app/requirements.txt
 
 # Copy SourceCode to app-folder

@@ -11,15 +11,14 @@ from ..BusPluginInterface import BusPluginInterface
 class UdpSocket(BusPluginInterface):
 
     # Todo: Implement possibility to close Socket. It will be necessary to remove it from the openPorts list as well.
-    #       Also there needs to be a limit on how many sockets can be opened simultaneously!
-    __openSocketPorts: list = []
+    __openSocketPorts: set = set()
 
     def __init__(self, config: SocketConfigs.UdpSocketConfig):
-        sockLibrary = config.busLibrary
         self.sock = None
-        self.__messageSize = config.messageSize
+        self.__maxMessageSize = config.messageSize
         self.__address = config.IPAddress
-        self._setupSocket(sockLibrary)
+        self.__port = config.port
+        self._setupSocket(config.host, config.busLibrary, config.port)
 
     def readBus(self) -> bytes:
         """
@@ -43,20 +42,22 @@ class UdpSocket(BusPluginInterface):
         """
         __msgLength = len(message)
         __message = struct.pack('Q', __msgLength) + message
-        self.sock.sendto(__message, self.__address)
+        self.sock.sendto(__message, (self.__address, self.__port))
 
-    def _setupSocket(self, sock: socket) -> None:
+    def _setupSocket(self, host: bool, sock: socket, port: int) -> None:
         """
         Private Method for setting up UDP-socket.
         :param sock: socket that will be setup and bound.
         """
         # dynamically providing socket-ports for requested sockets.
-        sockPort = 2001
-        while sockPort in self.__openSocketPorts:
-            sockPort += 1
+        if port in self.__openSocketPorts:
+            raise BaseException('Port already in use')
+            # check if the busLibrary-object has already been instanced
         self.sock = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
-        self.sock.bind((self.__address, sockPort))
-        self.__openSocketPorts.append(sockPort)
+        # self.sock = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
+        if host:
+            self.sock.bind((self.__address, port))
+            self.__openSocketPorts.add(port)
 
     def __receiver(self, msgLength: int) -> bytes:
         """
@@ -67,8 +68,8 @@ class UdpSocket(BusPluginInterface):
         """
         data = b''
         while len(data) < msgLength:
-            # varying receive-length to only receive the bytes of this specific message
-            rcvSize = msgLength - len(data)
+            # Varying receive-length to only receive the bytes of this specific message but max. self.__maxMessageSize!
+            rcvSize = self.__maxMessageSize if (msgLength-len(data)) > self.__maxMessageSize else (msgLength - len(data))
             # receiving dynamic size of packets until every byte has been received
             packet = self.sock.recvfrom(rcvSize if rcvSize <= msgLength else msgLength)
             if not packet:

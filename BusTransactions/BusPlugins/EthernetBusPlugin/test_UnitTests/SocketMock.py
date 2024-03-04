@@ -10,6 +10,11 @@ class MockSocket:
     AF_INET = None
     SOCK_STREAM = None
     SOCK_DGRAM = None
+    passedArgs = []
+
+    def __init__(self, *args, **kwargs):
+        self.passedArgs.extend(args)
+        self.passedArgs.extend(kwargs)
 
     @classmethod
     def recvfrom(cls, messageSize):

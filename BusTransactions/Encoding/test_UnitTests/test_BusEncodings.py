@@ -6,7 +6,7 @@ import unittest
 from BusTransactions import EncodingFactory
 
 
-class MyTestCase(unittest.TestCase):
+class test_BusEncodings(unittest.TestCase):
 
     encoding = EncodingFactory
 

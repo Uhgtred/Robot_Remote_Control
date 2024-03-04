@@ -3,15 +3,13 @@
 
 import unittest
 
-from BusTransactions.BusPlugins.EthernetBusPlugin import SocketConfigs, Tcp_Udp_sockets
-from . import SocketMock
+from BusTransactions import BusPluginFactory
 
 
 class MyTestCase(unittest.TestCase):
     # print(MockBus)
-    config = SocketConfigs.UdpSocketConfig('test.test.test.test', 4096, SocketMock.MockSocket)
     # print(config)
-    bus = Tcp_Udp_sockets.UdpSocket(config)
+    bus = BusPluginFactory.produceUdpStubPlugin(host=True, port=2001)
     testString = b'Hello World'
 
     def test_write(self):

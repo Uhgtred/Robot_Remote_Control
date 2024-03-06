@@ -22,11 +22,7 @@ class Model:
 
     def __init__(self, config: ModelConfig):
         self.__rawFrame = None
-        self.__storeFrameinFile(imageData, imageFilePath)
-        frameData = self.__deserializeImageFile(imageFilePath)
-        # self.__updateModel(frameData)
-        self.__updateView(frameData)
-        self.__bus = BusFactory.produceUDP_Transceiver(host=False, port=config.port)
+        self.__imageFilePath = config.imageFilePath
         self.__runner = Runners.ThreadRunner()
 
     def getFrame(self):
@@ -40,7 +36,7 @@ class Model:
 
     def __receiveAndProcessNewFrame(self):
         frame = self.__bus.readSingleMessage()
-        self.storeFrameinFile(frame, self)
+        self.storeFrameinFile(frame, self.__imageFilePath)
 
     def __updateView(self, frameData: numpy.ndarray) -> None:
         """

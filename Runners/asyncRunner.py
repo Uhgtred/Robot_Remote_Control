@@ -12,9 +12,10 @@ class AsyncRunner:
     Class for running async tasks. Can add multiple tasks before running the task-list.
     """
 
-    __tasks: dict = {}
-    __asyncTasks: list = []
-    __running: bool = False
+    def __init__(self):
+        self.__tasks: dict = {}
+        self.__asyncTasks: list = []
+        self.__running: bool = False
 
     def addTask(self, task, *args) -> None:
         """

@@ -5,25 +5,17 @@ import joblib
 import numpy
 
 import Runners
-from BusTransactions.BusFactory import BusFactory
+from .ModelConfig import ModelConfig
 
-
-class Model:
-    def __init__(self):
-        self._data = None
-
-    def store_data(self, data):
-        self._data = data
-
-    def retrieve_data(self):
-        return self._data
 
 class Model:
 
     def __init__(self, config: ModelConfig):
         self.__rawFrame = None
-        self.__imageFilePath = config.imageFilePath
-        self.__runner = Runners.ThreadRunner()
+        self.__processedFrame = None
+        self.__bus: config.bus = config.bus
+        self.__imageFilePath: str = config.imageFilePath
+        self.__runner: Runners = Runners.ThreadRunner()
 
     def getFrame(self):
         """
@@ -34,17 +26,13 @@ class Model:
         self.__runner.runTasks()
         return self.__processedFrame
 
-    def __receiveAndProcessNewFrame(self):
-        frame = self.__bus.readSingleMessage()
-        self.storeFrameinFile(frame, self.__imageFilePath)
-
-    def __updateView(self, frameData: numpy.ndarray) -> None:
+    def __receiveAndProcessNewFrame(self) -> None:
         """
-        Method for updating the GUI-view with the new image.
-        :param frameData: Frame-data used to update the GUI-view.
-        TODO: implement this!
+        Method that controls how to receive and process new frames.
         """
-        pass
+        frame: bytes = self.__bus.readSingleMessage()
+        self.__storeFrameinFile(frame, self.__imageFilePath)
+        self.__processedFrame = self.__deserializeImageFile(self.__imageFilePath)
 
     def __deserializeImageFile(self, imageFilePath: str) -> numpy.ndarray:
         """
@@ -53,9 +41,10 @@ class Model:
         """
         return joblib.load(imageFilePath)
 
-    def storeFrameinFile(self, imageData: bytes, imageFilePath: str) -> None:
+    def __storeFrameinFile(self, imageData: bytes, imageFilePath: str) -> None:
         """
         Method to store the frame into a file.
+        :param imageFilePath: Path in which the image will be stored.
         :param imageData: Data that will be stored in the file.
         """
         with open(imageFilePath, "wb") as file:

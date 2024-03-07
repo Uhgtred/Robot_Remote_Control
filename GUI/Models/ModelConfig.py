@@ -3,7 +3,10 @@
 
 from dataclasses import dataclass
 
+import BusTransactions
+
 
 @dataclass
 class ModelConfig:
-    pass
+    imageFilePath = '/VideoData/robotImage.pkl'
+    bus: BusTransactions.Bus

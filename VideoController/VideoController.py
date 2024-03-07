@@ -4,7 +4,7 @@
 import os.path
 from pathlib import Path
 
-from GUI.Model import Model
+from GUI.Models import Model
 from .VideoControllerConfig import VideoControllerConfig
 from .VideoControllerInterface import VideoControllerInterface
 

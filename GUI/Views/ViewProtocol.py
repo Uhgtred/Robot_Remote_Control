@@ -16,9 +16,3 @@ class ViewProtocol(Protocol):
         Protocol for prescribing the structure of an updateFrame-method.
         :param videoFrame:
         """
-
-    def setVideoLabel(self) -> tkinter.Label:
-        """
-        Protocol for prescribing the structure of a setVideoLabel-method.
-        :return: tkinter.Label
-        """

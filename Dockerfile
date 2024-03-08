@@ -5,8 +5,8 @@ LABEL authors="Markus"
 RUN apt-get update && \
     apt-get install -y python3 python3-pip && \
     apt-get install -y python3-venv && \
-    apt-get install libevdev2 && \
-    apt-get install python3-tk && \
+    apt-get install -y libevdev2 && \
+    apt-get install -y python3-tk && \
     apt-get install -y ffmpeg libsm6 libxext6 && \
     apt-get install -y libgl1-mesa-glx && \
     rm -rf /var/lib/apt/lists/*

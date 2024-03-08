@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
-from tkinter import _Image
 
 import cv2
 import joblib
@@ -44,7 +43,7 @@ class RootModel:
         return joblib.load(imageFilePath)
 
     # Todo: check return-type
-    def __converImageFormat(self, imageFrame: numpy.ndarray) -> _Image:
+    def __converImageFormat(self, imageFrame: numpy.ndarray) -> Image:
         """
         Method for converting the image frame to a format that can be displayed in the GUI (tkinter).
         :param imageFrame: Serialized image frame that will be converted.

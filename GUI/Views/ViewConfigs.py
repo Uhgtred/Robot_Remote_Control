@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
-
+import tkinter
 from dataclasses import dataclass
 
 
 @dataclass
-class ViewConfig:
+class RootViewConfig:
+    window: tkinter.Tk
     title: str
-    width: int
-    height: int
+    geometry: str = '1920x1080'

@@ -9,4 +9,3 @@ import BusTransactions
 @dataclass
 class ModelConfig:
     imageFilePath = '/VideoData/robotImage.pkl'
-    bus: BusTransactions.Bus

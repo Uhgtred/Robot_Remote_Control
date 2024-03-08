@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
+import tkinter
 
-from .View import View
-from .ViewConfig import ViewConfig
+from .RootView import RootView
+from .ViewConfigs import RootViewConfig
 
 
 class ViewFactory:
 
     @staticmethod
-    def produceView():
-        config = ViewConfig('test', 2, 3)
-        return View(config)
+    def produceRootView(window: tkinter.Tk):
+        config = RootViewConfig(window, 'RobotGUI', '1920x1080')
+        return RootView(config)

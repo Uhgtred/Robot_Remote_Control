@@ -1,38 +1,40 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
+from tkinter import _Image
 
+import cv2
 import joblib
 import numpy
+from PIL import ImageTk, Image
 
 import Runners
 from .ModelConfig import ModelConfig
 
 
-class Model:
+class RootModel:
 
     def __init__(self, config: ModelConfig):
-        self.__rawFrame = None
-        self.__processedFrame = None
-        self.__bus: config.bus = config.bus
+        self.__rawFrame: bytes = None
+        self.__processedFrame: Image = None
         self.__imageFilePath: str = config.imageFilePath
         self.__runner: Runners = Runners.ThreadRunner()
 
-    def getFrame(self):
+    def getFrame(self, frame: bytes) -> Image:
         """
         Method for receiving a single video frame.
         :return: Video frame as serialized numpy.ndarray.
         """
-        self.__runner.addTask(self.__receiveAndProcessNewFrame)
+        self.__runner.addTask(self.__receiveAndProcessNewFrame, frame)
         self.__runner.runTasks()
         return self.__processedFrame
 
-    def __receiveAndProcessNewFrame(self) -> None:
+    def __receiveAndProcessNewFrame(self, frame: bytes) -> None:
         """
         Method that controls how to receive and process new frames.
         """
-        frame: bytes = self.__bus.readSingleMessage()
         self.__storeFrameinFile(frame, self.__imageFilePath)
-        self.__processedFrame = self.__deserializeImageFile(self.__imageFilePath)
+        serializedFrame = self.__deserializeImageFile(self.__imageFilePath)
+        self.__processedFrame = self.__converImageFormat(serializedFrame)
 
     def __deserializeImageFile(self, imageFilePath: str) -> numpy.ndarray:
         """
@@ -40,6 +42,15 @@ class Model:
         :param imageFilePath: File path of the image file that will be deserialized.
         """
         return joblib.load(imageFilePath)
+
+    # Todo: check return-type
+    def __converImageFormat(self, imageFrame: numpy.ndarray) -> _Image:
+        """
+        Method for converting the image frame to a format that can be displayed in the GUI (tkinter).
+        :param imageFrame: Serialized image frame that will be converted.
+        :return:
+        """
+        return ImageTk.PhotoImage(Image.fromarray(cv2.cvtColor(imageFrame, cv2.COLOR_BGR2RGB)))
 
     def __storeFrameinFile(self, imageData: bytes, imageFilePath: str) -> None:
         """

@@ -11,9 +11,14 @@ from .Views.ViewProtocol import ViewProtocol
 
 class GUI_Controller:
 
-    __rootWindow = tkinter.Tk()
-    __rootView: ViewProtocol = ViewFactory.produceRootView(__rootWindow)
-    __rootModel: ModelProtocol = ModelFactory.produceRootModel()
+    __rootWindow: tkinter.Tk = None
+    __rootView: ViewProtocol = None
+    __rootModel: ModelProtocol = None
+
+    def __init__(self):
+        self.__rootWindow = tkinter.Tk()
+        self.__rootView: ViewProtocol = ViewFactory.produceRootView(self.__rootWindow)
+        self.__rootModel: ModelProtocol = ModelFactory.produceRootModel()
 
     @classmethod
     def updateRootView(cls, frame: bytes) -> None:

@@ -20,9 +20,8 @@ class GUI_Controller:
         self.__rootView: ViewProtocol = ViewFactory.produceRootView(self.__rootWindow)
         self.__rootModel: ModelProtocol = ModelFactory.produceRootModel()
 
-    @classmethod
-    def updateRootView(cls, frame: bytes) -> None:
+    def updateRootView(self, frame: bytes) -> None:
         """
         Method that updates the view of the GUI based on the current model.
         """
-        cls.__rootView.updateFrame(cls.__rootModel.getFrame(frame))
+        self.__rootView.updateFrame(self.__rootModel.getFrame(frame))

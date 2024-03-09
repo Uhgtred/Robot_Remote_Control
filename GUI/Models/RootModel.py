@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
+import os.path
+from pathlib import Path
 
 import cv2
 import joblib
@@ -15,7 +17,7 @@ class RootModel:
     def __init__(self, config: ModelConfig):
         self.__rawFrame: bytes = None
         self.__processedFrame: Image = None
-        self.__imageFilePath: str = config.imageFilePath
+        self.__imageFilePath: str = str(Path(os.path.abspath(__file__)).parent) + config.imageFilePath
         self.__runner: Runners = Runners.ThreadRunner()
 
     def getFrame(self, frame: bytes) -> Image:
@@ -31,6 +33,7 @@ class RootModel:
         """
         Method that controls how to receive and process new frames.
         """
+        # Todo: bugfix this !!!
         self.__storeFrameinFile(frame, self.__imageFilePath)
         serializedFrame = self.__deserializeImageFile(self.__imageFilePath)
         self.__processedFrame = self.__converImageFormat(serializedFrame)

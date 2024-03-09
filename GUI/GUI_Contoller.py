@@ -16,7 +16,7 @@ class GUI_Controller:
     __rootModel: ModelProtocol = None
 
     def __init__(self):
-        self.__rootWindow = tkinter.Tk()
+        self.__rootWindow: tkinter.Tk = tkinter.Tk()
         self.__rootView: ViewProtocol = ViewFactory.produceRootView(self.__rootWindow)
         self.__rootModel: ModelProtocol = ModelFactory.produceRootModel()
 

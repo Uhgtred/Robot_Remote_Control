@@ -12,9 +12,19 @@ from GUI.GUI_Contoller import GUI_Controller
 class TestGUIController(unittest.TestCase):
     def setUp(self):
         # Setup before each test
-        self.gui_controller = GUI_Controller()
+        from easyprocess import EasyProcess
+        from pyvirtualdisplay.smartdisplay import SmartDisplay
 
-    def test_updateRootView(self):
+        with SmartDisplay() as disp:
+            from GUI.GUI_Contoller import GUI_Controller
+
+            # gui_controller = GUI_Controller()
+            # Your tests here
+
+            self.gui_controller = GUI_Controller()
+            self.updateRootView()
+
+    def updateRootView(self):
         # Now we can test using actual functionality
         imageFrame_rgb = numpy.random.randint(0, 256, (100, 100, 3), numpy.uint8)
         joblib.dump(imageFrame_rgb, "image.pkl")

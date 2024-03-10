@@ -33,8 +33,8 @@ RUN python3 -m venv /app/venv && \
 COPY ../ /app/
 
 # Create a shell script to start xvfb
-RUN echo 'Xvfb :99 &' > start.sh
-RUN echo 'export DISPLAY=:99' >> start.sh
+RUN echo 'Xvfb :99 -screen 0 1024x768x24 &' > start.sh
+RUN echo 'sleep 3' >> start.sh # Delay needed to give xvfb some time to start
 RUN echo 'python your_script.py' >> start.sh
 RUN chmod +x start.sh
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
-
+import os
 import unittest
 
 import joblib
@@ -13,7 +13,6 @@ class TestGUIController(unittest.TestCase):
     def setUp(self):
         # Setup before each test
         self.gui_controller = GUI_Controller()
-        print(self.gui_controller)
 
     def test_updateRootView(self):
         # Now we can test using actual functionality
@@ -22,6 +21,8 @@ class TestGUIController(unittest.TestCase):
         with open('image.pkl', 'rb') as file:
             serializedImage = file.read()
         self.gui_controller.updateRootView(serializedImage)
+        self.assertIsNot(None, self.gui_controller._GUI_Controller__rootModel._RootModel__processedFrame)
+        os.remove('image.pkl')
 
 
 if __name__ == '__main__':

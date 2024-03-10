@@ -11,6 +11,7 @@ RUN apt-get update && \
     apt-get install -y python3-venv && \
     apt-get install libevdev2 && \
     apt-get install -y python3-tk && \
+    apt-get install -y xvfb && \
     apt-get install -y ffmpeg libsm6 libxext6 && \
     apt-get install -y libgl1-mesa-glx && \
     rm -rf /var/lib/apt/lists/*
@@ -26,11 +27,18 @@ EXPOSE 2000
 # Install dependencies
 RUN python3 -m venv /app/venv && \
     /app/venv/bin/pip3 install --upgrade pip && \
-#    /app/venv/bin/pip3 install evdev && \
     /app/venv/bin/pip3 install -r /app/requirements.txt
 
 # Copy SourceCode to app-folder
 COPY ../ /app/
+
+# Create a shell script to start xvfb
+RUN echo 'Xvfb :99 &' > start.sh
+RUN echo 'export DISPLAY=:99' >> start.sh
+RUN echo 'python your_script.py' >> start.sh
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]
 
 ## set environment for python-version
 ENV PATH="/app/venv/bin:${PATH}"

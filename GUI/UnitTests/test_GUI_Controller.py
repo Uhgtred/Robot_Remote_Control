@@ -6,9 +6,7 @@ import unittest
 import joblib
 import numpy
 
-from GUI.GUI_Contoller import GUI_Controller, ViewProtocol, ModelProtocol
-from GUI.Models import ModelFactory
-from GUI.Views import ViewFactory
+from GUI.GUI_Contoller import GUI_Controller
 
 
 class TestGUIController(unittest.TestCase):
@@ -19,10 +17,11 @@ class TestGUIController(unittest.TestCase):
 
     def test_updateRootView(self):
         # Now we can test using actual functionality
-        image = numpy.zeros((10, 10))
-        joblib.dump(image, "image.pkl")
-        loaded_image = joblib.load("image.pkl")
-        self.gui_controller.updateRootView(loaded_image)
+        imageFrame_rgb = numpy.random.randint(0, 256, (100, 100, 3), numpy.uint8)
+        joblib.dump(imageFrame_rgb, "image.pkl")
+        with open('image.pkl', 'rb') as file:
+            serializedImage = file.read()
+        self.gui_controller.updateRootView(serializedImage)
 
 
 if __name__ == '__main__':

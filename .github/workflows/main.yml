@@ -23,4 +23,3 @@ jobs:
 
       - name: Run unit tests in Docker container
         run: docker run --rm robot_image sh -c "xvfb-run --auto-servernum --server-num=99 python3 -m unittest discover -v"
-#        run: docker run --rm robot_image sh -c "python3 -m unittest discover -v"

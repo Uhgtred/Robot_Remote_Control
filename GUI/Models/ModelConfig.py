@@ -3,7 +3,9 @@
 
 from dataclasses import dataclass
 
+import BusTransactions
+
 
 @dataclass
-class VideoControllerConfig:
-    filePath = '/VideoData/robotImage.pkl'
+class ModelConfig:
+    imageFilePath = '/VideoData/robotImage.pkl'

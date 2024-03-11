@@ -11,8 +11,9 @@ class ThreadRunner(Runner):
     Method for organizing threads and keeping track of opened tracks.
     """
 
-    __threads: list = []
-    __running: bool = False
+    def __init__(self):
+        self.__threads: list = []
+        self.__running: bool = False
 
     def addTask(self, task, *args) -> None:
         """

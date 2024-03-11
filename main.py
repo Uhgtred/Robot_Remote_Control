@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # @author   Markus Kösters
-
+from BusTransactions import Bus
 from BusTransactions.BusFactory import BusFactory
 from Controller import ControllerFactory
+from GUI.GUI_Contoller import GUI_Controller
 from Runners import asyncRunner, threadRunner
-from VideoController import VideoControllerFactory
 
 
 # from Remote.MainGUI import MainGUI
@@ -42,9 +42,9 @@ class Main:
         """
         Method for receiving Video from the robot.
         """
-        udpBus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('videoPort'))
-        videoController = VideoControllerFactory.produceVideoController()
-        self.__threadRunner.addTask(udpBus.readBusUntilStopFlag, videoController.processFrame)
+        udpBus: Bus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('videoPort'))
+        videoController: GUI_Controller = GUI_Controller()
+        self.__threadRunner.addTask(udpBus.readBusUntilStopFlag, videoController.updateRootView)
 
 
 if __name__ == '__main__':

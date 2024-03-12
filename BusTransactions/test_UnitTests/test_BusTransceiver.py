@@ -18,6 +18,8 @@ class helperClass:
         self.testKwargs = kwargs
 
     def helperMethodNoArgs(self):
+        # does not need to do anything since this is only used
+        # to check wether the exception is being raised
         pass
 
 

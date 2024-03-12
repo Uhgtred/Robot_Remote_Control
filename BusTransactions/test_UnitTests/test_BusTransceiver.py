@@ -53,7 +53,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_readBusUntilStopFlagFail(self):
         obj = helperClass()
-        udpBus = self.busFactory.produceUDP_TransceiverStub(2007, True)
+        udpBus = self.busFactory.produceUDP_TransceiverStub(2008, True)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         self.assertRaises(TypeError, udpBus.readBusUntilStopFlag, (obj.helperMethodNoArgs, arg), testKwarg='testKwarg')

@@ -18,7 +18,7 @@ class MockSocket:
 
     @classmethod
     def recvfrom(cls, messageSize):
-        print(f'Receiving {messageSize} bytes.')
+        # print(f'Receiving {messageSize} bytes.')
         if cls.buffer:
             message = cls.buffer.pop(0)
             if len(message[messageSize:]) > 0:

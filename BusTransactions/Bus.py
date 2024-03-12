@@ -6,15 +6,17 @@ import threading
 
 from .BusPlugins import BusPluginInterface
 from .Encoding.BusEncodings import EncodingProtocol
+from .BusInterface import BusInterface
 
 
-class Bus:
+class Bus(BusInterface):
     """
     Class for communication with a variety of bus-systems.
     """
 
     def __init__(self, bus: BusPluginInterface, encoding: EncodingProtocol):
         """
+        :param bus: Bus that will be communicated with. Needs to follow the protocol Bus.
         :param bus: Bus that shall be communicated with. Needs to follow the protocol Bus.
         :param encoding: Encoding that will be used to make the messages compliant to the bus.
         """

@@ -9,7 +9,7 @@ from BusTransactions import BusPluginFactory
 class MyTestCase(unittest.TestCase):
     # print(MockBus)
     # print(config)
-    bus = BusPluginFactory.produceUdpStubPlugin(host=True, port=2001)
+    bus = BusPluginFactory.produceUdpStubPlugin(host=True, port=2101)
     testString = b'Hello World'
 
     def test_write(self):

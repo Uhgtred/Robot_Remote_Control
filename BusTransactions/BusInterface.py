@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
 
+from abc import ABC, abstractmethod
+
 from .Encoding.BusEncodings import EncodingProtocol
 from BusTransactions.BusPlugins.BusPluginInterface import BusPluginInterface
 
 
-class Bus:
+class BusInterface(ABC):
     """
     Interface-Class for communication with a variety of bus-systems.
     """
 
+    @abstractmethod
     def readSingleMessage(self) -> EncodingProtocol.decode:
         """
         Read and decode a single message from the bus.
@@ -17,6 +20,7 @@ class Bus:
         """
         pass
 
+    @abstractmethod
     def readBusUntilStopFlag(self, callbackMethod: callable, stopFlag: bool = False) -> None:
         """
         Reading messages from a bus in a loop until stopFlag is raised.
@@ -26,6 +30,7 @@ class Bus:
         """
         pass
 
+    @abstractmethod
     def writeSingleMessage(self, message: any) -> None:
         """
         Sending an encoded message to the bus.
@@ -34,6 +39,7 @@ class Bus:
         pass
 
     @property
+    @abstractmethod
     def stopFlag(self) -> bool:
         """
         Getter-Method for the stop-flag.
@@ -42,6 +48,7 @@ class Bus:
         pass
 
     @stopFlag.setter
+    @abstractmethod
     def stopFlag(self, state: bool) -> None:
         """
         Setter-method for the stop-flag.

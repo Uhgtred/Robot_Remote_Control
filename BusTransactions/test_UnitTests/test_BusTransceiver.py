@@ -6,11 +6,13 @@ import unittest
 from BusTransactions import BusFactory, BusPluginFactory
 from BusTransactions import Encoding
 
+
 class helperClass:
 
-    args = None
-    message = None
-    testKwargs = None
+    def __init__(self):
+        self.args = None
+        self.message = None
+        self.testKwargs = None
 
     def helperMethod(self, message, *args, **kwargs):
         self.args = list(args)
@@ -23,10 +25,9 @@ class helperClass:
         pass
 
 
-class MyTestCase(unittest.TestCase):
-    busFactory = BusFactory.BusFactory()
+class test_BusTransceiver(unittest.TestCase):
     bus = BusPluginFactory.produceSerialBusStubPlugin()
-    serialTransceiver = busFactory.produceBusTransceiver(bus, Encoding.EncodingFactory.arduinoSerialEncoding)
+    serialTransceiver = BusFactory.BusFactory.produceBusTransceiver(bus, Encoding.EncodingFactory.arduinoSerialEncoding)
     testString = 'Test from BusTransceiver'
     messages = []
 
@@ -42,10 +43,12 @@ class MyTestCase(unittest.TestCase):
 
     def test_readBusUntilStopFlag(self):
         obj = helperClass()
-        udpBus = self.busFactory.produceUDP_TransceiverStub(2007, True)
+        udpBus = BusFactory.BusFactory.produceUDP_TransceiverStub(2121, True)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         udpBus.readBusUntilStopFlag(obj.helperMethod, arg, testKwarg='testKwarg')
+        # letting bus init before closing. Otherwise there is an issue that the message is not correctly being received.
+        time.sleep(.0001)
         udpBus.stopFlag = True
         self.assertEqual(obj.message, self.testString)
         self.assertEqual(obj.args[0], arg)
@@ -53,7 +56,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_readBusUntilStopFlagFail(self):
         obj = helperClass()
-        udpBus = self.busFactory.produceUDP_TransceiverStub(2008, True)
+        udpBus = BusFactory.BusFactory.produceUDP_TransceiverStub(2122, True)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         self.assertRaises(TypeError, udpBus.readBusUntilStopFlag, (obj.helperMethodNoArgs, arg), testKwarg='testKwarg')

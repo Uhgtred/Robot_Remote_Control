@@ -26,30 +26,30 @@ class BusFactory:
         transceiver = Bus(bus, encoding)
         return transceiver
 
-    @classmethod
-    def produceSerialTransceiver(cls) -> Bus:
+    @staticmethod
+    def produceSerialTransceiver() -> Bus:
         """
         Method for creating an instance of a serial-bus transceiver that connects to arduino.
         """
         encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusArduinoPlugin()
-        return cls.produceBusTransceiver(busPlugin, encoding)
+        return Bus(busPlugin, encoding)
 
-    @classmethod
-    def produceUDP_Transceiver(cls, port: int, host: bool) -> Bus:
+    @staticmethod
+    def produceUDP_Transceiver(port: int, host: bool) -> Bus:
         """
         Method for creating an instance of an udp-socket.
         :return:
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(host=host, port=port)
-        return cls.produceBusTransceiver(busPlugin, encoding)
+        return Bus(busPlugin, encoding)
 
-    @classmethod
-    def produceUDP_TransceiverStub(cls, port: int, host: bool) -> Bus:
+    @staticmethod
+    def produceUDP_TransceiverStub(port: int, host: bool) -> Bus:
         """
         Method for creating an instance of a UDP socket stub for testing purposes.
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(host=host, port=port)
-        return cls.produceBusTransceiver(busPlugin, encoding)
+        return Bus(busPlugin, encoding)

@@ -70,4 +70,6 @@ class SocketEncoding(EncodingProtocol):
         Method for encoding a message that will be sent to a socket.
         :param message: Message that needs to be encoded.
         """
-        return message.encode()
+        if type(message) is not bytes:
+            return message.encode()
+        return message

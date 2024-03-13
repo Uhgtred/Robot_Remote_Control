@@ -22,10 +22,10 @@ class Controller:
                              config.RBtn: 0,
                              config.LTrigger: 0,
                              config.LBtn: 0,
-                             config.RXAxis: [0, 0],
-                             config.RYAxis: [0, 0],
-                             config.LXAxis: [0, 0],
-                             config.LYAxis: [0, 0],
+                             config.RXAxis: 0,
+                             config.RYAxis: 0,
+                             config.LXAxis: 0,
+                             config.LYAxis: 0,
                              config.L3: 0,
                              config.R3: 0,
                              config.StartBtn: 0,
@@ -34,8 +34,8 @@ class Controller:
                              config.BBtn: 0,
                              config.XBtn: 0,
                              config.YBtn: 0,
-                             config.XCross: [0, 0],
-                             config.YCross: [0, 0]
+                             config.XCross: 0,
+                             config.YCross: 0
                              }
 
     def __initController(self, vendorID: int) -> None:
@@ -80,12 +80,7 @@ class Controller:
         if event.code == self.__conf.LBtn or event.code == self.__conf.RBtn:
             self.__buttonDict[event.code] = (0 if not event.value else 1)
         else:
-            if event.value < 0:
-                self.__buttonDict[event.code][1] = abs(event.value)
-            elif type(self.__buttonDict.get(event.code)) is list:
-                self.__buttonDict[event.code][0] = event.value
-            else:
-                self.__buttonDict[event.code] = event.value
+            self.__buttonDict[event.code] = event.value
         self.__transmitControllerValues(callbackMethod)
 
     def __transmitControllerValues(self, callbackMethod: callable) -> None:

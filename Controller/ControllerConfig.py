@@ -7,7 +7,7 @@ from dataclasses import dataclass
 @dataclass
 class ControllerConfig:
     ControllerPath = '/dev/input/'
-    DeviceVendorID = 12068
+    DeviceVendorID = 1118
     LXAxis = 0  # leftmost value=-32768 rightmost value=32767
     LYAxis = 1  # upmost value=-32768 downmost value=32767
     LTrigger = 2  # max value=255

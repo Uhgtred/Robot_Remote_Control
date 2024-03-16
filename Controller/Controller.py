@@ -14,6 +14,16 @@ class Controller:
         self.__conf = config
         self.__initController(config.DeviceVendorID)
 
+    def controls(self):
+        # Todo: either put this out directly with no filtering or make sth like 10% left,90% right
+        #       or 10 % left, 90% straight, 0% right (like a vector?) etc.
+        # calculating the percentage of speed forward.
+        speed = (lValue + rValue) / 2
+        if lValue < rValue:
+            speedLeft = rValue - lValue / 2
+        elif rValue < lValue:
+            speedRight = lValue - rValue / 2
+
     def __defineButtonConfig(self, config: ControllerConfig) -> None:
         """Defining the values of the buttons. Button-IDs can be changed in the config-file"""
         """ORDER OF THE DICTIONARY DOES MATTER FOR RobotController.ino ON ROBOT!!!"""

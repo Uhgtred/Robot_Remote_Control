@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # @author Markus Kösters
+import pickle
 from typing import Protocol
 
 
@@ -61,15 +62,11 @@ class SocketEncoding(EncodingProtocol):
         Method for decoding a message received from a socket.
         :param message: Message from socket that needs to be decoded.
         """
-        if message:
-            message = message.decode()
-        return message
+        return pickle.loads(message)
 
     def encode(self, message: str) -> bytes:
         """
         Method for encoding a message that will be sent to a socket.
         :param message: Message that needs to be encoded.
         """
-        if type(message) is not bytes:
-            return message.encode()
-        return message
+        return pickle.dumps(message)

@@ -2,7 +2,7 @@
 # @author   Markus Kösters
 from BusTransactions import Bus
 from BusTransactions.BusFactory import BusFactory
-from Controller import ControllerFactory
+from SteeringInput import SteeringDeviceFactory
 from GUI.GUI_Contoller import GUI_Controller
 from Runners import asyncRunner, threadRunner
 
@@ -35,7 +35,7 @@ class Main:
         Method for reading the controller and sending its messages to the robot.
         """
         udpBus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'))
-        controller = ControllerFactory.produceController()
+        controller = SteeringDeviceFactory.produceController()
         self.__asyncRunner.addTask(controller.readController, udpBus.writeSingleMessage)
 
     def __recvVideo(self) -> None:

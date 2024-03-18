@@ -36,20 +36,14 @@ class BusFactory:
         return Bus(busPlugin, encoding)
 
     @staticmethod
-    def produceUDP_Transceiver(port: int, host: bool) -> Bus:
+    def produceUDP_Transceiver(port: int, host: bool, pickle: bool = False, stub: bool = False) -> Bus:
         """
         Method for creating an instance of an udp-socket.
         :return:
         """
-        encoding: EncodingProtocol = EncodingFactory.socketEncoding()
-        busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(host=host, port=port)
-        return Bus(busPlugin, encoding)
-
-    @staticmethod
-    def produceUDP_TransceiverStub(port: int, host: bool) -> Bus:
-        """
-        Method for creating an instance of a UDP socket stub for testing purposes.
-        """
-        encoding: EncodingProtocol = EncodingFactory.socketEncoding()
-        busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(host=host, port=port)
+        encoding: EncodingProtocol = EncodingFactory.socketEncoding(pickle)
+        if stub:
+            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(host=host, port=port)
+        else:
+            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(host=host, port=port)
         return Bus(busPlugin, encoding)

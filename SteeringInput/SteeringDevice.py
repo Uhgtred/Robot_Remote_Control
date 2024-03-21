@@ -21,6 +21,7 @@ class SteeringDevice:
         :return: Buttons object containing the ids and values of the steering-device.
         """
         for field in fields(self.__conf.buttons):
+            # getting the content of each field
             fieldContent = getattr(self.__conf.buttons, field.name)
             if not isinstance(fieldContent, ButtonData):
                 continue

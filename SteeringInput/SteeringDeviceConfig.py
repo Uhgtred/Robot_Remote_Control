@@ -13,6 +13,7 @@ class ButtonData:
 
 @dataclass
 class Buttons:
+    ActorType: str
     LXAxis: ButtonData = field(default_factory=lambda: ButtonData(0, 0))  # leftmost value: ButtonData = ButtonDef(-32768 rightmost value: ButtonData = ButtonDef(32767
     LYAxis: ButtonData = field(default_factory=lambda: ButtonData(1, 0))  # upmost value: ButtonData = ButtonDef(-32768 downmost value: ButtonData = ButtonDef(32767
     LTrigger: ButtonData = field(default_factory=lambda: ButtonData(2, 0))  # max value: ButtonData = ButtonDef(255

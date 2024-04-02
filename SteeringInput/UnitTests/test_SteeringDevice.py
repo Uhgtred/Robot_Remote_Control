@@ -1,48 +1,83 @@
-# import unittest
-# from unittest.mock import patch, Mock
-# import evdev
-#
-# from SteeringInput import SteeringDevice
-# from SteeringInput.SteeringDeviceConfig import SteeringDeviceConfig
-#
-#
-# class test_SteeringDevice(unittest.TestCase):
-#
-#     def setUp(self):
-#         config = SteeringDeviceConfig()
-#         # initialize your config object here
-#         self.steering_device = SteeringDevice(config)
-#
-#     @patch("evdev.InputDevice")
-#     def test_set_steering_values(self, MockInputDevice):
-#         """Test the _setSteeringValues method."""
-#
-#         mocked_event = MockInputDevice.return_value
-#
-#         output = self.steering_device._SteeringDevice__setSteeringValues(mocked_event)
-#         # assert the state of the `config.buttons` after function call
-#
-#     @patch("subprocess.Popen")
-#     @patch("evdev.InputDevice")
-#     def test_init_controller(self, MockInputDevice, MockPopen):
-#         """Test the __initController method."""
-#
-#         MockPopen.return_value.communicate.return_value = ("sample_device_listing", None)
-#         MockInputDevice.return_value.info.vendor = 7711  # use your own vendorID
-#
-#         self.steering_device._SteeringDevice__initController(7711)
-#         # assert the state / existence of the `__controller` attribute after function call
-#
-#     @patch("evdev.InputDevice")
-#     def test_read_controller(self, MockInputDevice):
-#         """Test the readController method."""
-#
-#         MockInputDevice.return_value.read_loop.return_value = []
-#         some_method = lambda x: x
-#
-#         self.steering_device.readController(some_method)
-#         # assert that `some_method` has been called with the expected argument
-#
-#
-# if __name__ == "__main__":
-#     unittest.main()
+import unittest
+from unittest.mock import Mock, patch
+
+from SteeringInput import SteeringDevice
+from SteeringInput.SteeringDeviceConfig import SteeringDeviceConfig, Buttons
+
+
+class TestSteeringDevice(unittest.TestCase):
+
+    @patch('evdev.InputDevice')
+    def setUp(self, mock_evdev):
+        # Set up a SteeringDevice instance for testing
+        config = SteeringDeviceConfig()  # Or pass in your own config settings here
+        self.device = SteeringDevice(config)
+
+        # Mock evdev library methods
+        self.mock_evdev = mock_evdev
+
+    def test_initNotSuccessful(self):
+        self.assertRaises(TypeError, self.device.initController, 1234)
+
+    def test_set_steering_values(self):
+        # Mock event
+        mock_event = Mock()
+        mock_event.code = 1
+        mock_event.value = 2
+
+        # Test set_steering_values
+        result = self.device._SteeringDevice__setSteeringValues(mock_event)
+        self.assertIsInstance(result, Buttons)  # Check if the result is an instance of Buttons
+
+    @patch('subprocess.Popen')
+    def test_search_available_devices(self, mock_popen):
+        mock_path = '/dev/input/'
+
+        # Mock subprocess.Popen
+        mock_popen.return_value.communicate.return_value = (b'event0\nevent1\n', b'')
+
+        devices_list = self.device._SteeringDevice__searchAvailableDevices(mock_path)
+        self.assertListEqual(devices_list, ['event0', 'event1'])  # Check if the list of devices is correct
+
+    # @patch('subprocess.Popen')
+    # def test_init_controller(self, mock_popen):
+        # Todo: mock the evdev.InputDevice
+        # mock_popen.return_value.communicate.return_value = (b'event0\n', b'')
+        # mock_vendor = 1234
+        #
+        # # Test successful initController
+        # mock_popen.return_value.communicate.return_value[0].info.vendor = mock_vendor
+        # self.device.initController(mock_vendor)
+        #
+        # # Test failed initController - will raise TypeError
+        # self.mock_evdev.return_value.info.vendor = 0
+        # with self.assertRaises(TypeError):
+        #     self.device.initController(mock_vendor)
+
+    def test_check_vendor_id(self):
+        mock_device = Mock()
+        mock_vendor = 1234
+        mock_device.info.vendor = mock_vendor
+
+        # Test successful __checkVendorID
+        self.device._SteeringDevice__checkVendorID(mock_device, mock_vendor)
+
+        # Test failed __checkVendorID - will raise TypeError
+        mock_device.info.vendor = 0
+        with self.assertRaises(TypeError):
+            self.device._SteeringDevice__checkVendorID(mock_device, mock_vendor)
+
+    @patch('evdev.InputDevice.read_loop')
+    def test_read_controller(self, mock_read_loop):
+        mock_read_loop.return_value = []
+
+        # Mock callback method
+        mock_callback = Mock()
+
+        # Test readController
+        self.device.readController(mock_callback)
+        mock_callback.assert_not_called()  # As the read_loop returns an empty list, the callback should never be called
+
+
+if __name__ == '__main__':
+    unittest.main()

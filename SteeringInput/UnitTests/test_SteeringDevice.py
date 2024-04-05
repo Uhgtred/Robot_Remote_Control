@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import Mock, patch
 
+import evdev
+
 from SteeringInput import SteeringDevice
 from SteeringInput.SteeringDeviceConfig import SteeringDeviceConfig, Buttons
 
@@ -15,6 +17,23 @@ class TestSteeringDevice(unittest.TestCase):
 
         # Mock evdev library methods
         self.mock_evdev = mock_evdev
+
+    @patch('subprocess.Popen')
+    @patch('evdev.InputDevice')
+    def test_init_controller(self, mock_Popen, mock_InputDevice):
+        mock_Popen.return_value.communicate.return_value = (Mock(), '')
+        mock_vendor = 1118
+        mock_Popen.return_value.communicate.return_value[0].info.vendor = 1118
+        # Test successful initController
+        # print(mock_Popen.return_value.communicate.return_value[0])
+        # mock_InputDevice.return_value.info.vendor.return_value = mock_vendor
+        print(self.device._SteeringDevice__controller)
+        self.device.initController(mock_vendor)
+        print(self.device._SteeringDevice__controller)
+        # Test failed initController - will raise TypeError
+        self.mock_evdev.return_value.info.vendor = 0
+        with self.assertRaises(TypeError):
+            self.device.initController(mock_vendor)
 
     def test_initNotSuccessful(self):
         self.assertRaises(TypeError, self.device.initController, 1234)
@@ -32,27 +51,10 @@ class TestSteeringDevice(unittest.TestCase):
     @patch('subprocess.Popen')
     def test_search_available_devices(self, mock_popen):
         mock_path = '/dev/input/'
-
         # Mock subprocess.Popen
         mock_popen.return_value.communicate.return_value = (b'event0\nevent1\n', b'')
-
         devices_list = self.device._SteeringDevice__searchAvailableDevices(mock_path)
         self.assertListEqual(devices_list, ['event0', 'event1'])  # Check if the list of devices is correct
-
-    # @patch('subprocess.Popen')
-    # def test_init_controller(self, mock_popen):
-        # Todo: mock the evdev.InputDevice
-        # mock_popen.return_value.communicate.return_value = (b'event0\n', b'')
-        # mock_vendor = 1234
-        #
-        # # Test successful initController
-        # mock_popen.return_value.communicate.return_value[0].info.vendor = mock_vendor
-        # self.device.initController(mock_vendor)
-        #
-        # # Test failed initController - will raise TypeError
-        # self.mock_evdev.return_value.info.vendor = 0
-        # with self.assertRaises(TypeError):
-        #     self.device.initController(mock_vendor)
 
     def test_check_vendor_id(self):
         mock_device = Mock()

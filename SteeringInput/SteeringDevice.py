@@ -12,6 +12,7 @@ class SteeringDevice:
 
     def __init__(self, config: SteeringDeviceConfig):
         self.__conf = config
+        self.__controller = None
 
     def __setSteeringValues(self, event: evdev.InputEvent) -> Buttons:
         """
@@ -52,6 +53,7 @@ class SteeringDevice:
         :param device: Device that the id is being checked against.
         :return: True if the vendor matches else False.
         """
+        print(device.info.vendor, vendor)
         if device.info.vendor == vendor:
             self.__controller = device
             return

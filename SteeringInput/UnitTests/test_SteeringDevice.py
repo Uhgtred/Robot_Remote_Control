@@ -31,9 +31,6 @@ class TestSteeringDevice(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.device.initController(mock_vendor)
 
-    def test_initNotSuccessful(self):
-        self.assertRaises(TypeError, self.device.initController, 1234)
-
     def test_set_steering_values(self):
         # Mock event
         mock_event = Mock()

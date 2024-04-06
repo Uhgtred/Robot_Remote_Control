@@ -5,19 +5,20 @@ import subprocess
 from dataclasses import fields
 import evdev
 
-from .SteeringDeviceConfig import SteeringDeviceConfig, ButtonData, Buttons
+from .SteeringDeviceConfig import SteeringDeviceConfig, ButtonData, ButtonsInterface
 
 
 class SteeringDevice:
 
     def __init__(self, config: SteeringDeviceConfig):
         self.__conf = config
+        self.__controller = None
 
-    def __setSteeringValues(self, event: evdev.InputEvent) -> Buttons:
+    def __setSteeringValues(self, event: evdev.InputEvent) -> ButtonsInterface:
         """
-        Setting the values of the steering-device inside the Buttons object, which is defined in ControllerConfig.
+        Setting the values of the steering-device inside the ButtonsInterface object, which is defined in ControllerConfig.
         :param event: Event that has been triggered.
-        :return: Buttons object containing the ids and values of the steering-device.
+        :return: ButtonsInterface object containing the ids and values of the steering-device.
         """
         for field in fields(self.__conf.buttons):
             # getting the content of each field

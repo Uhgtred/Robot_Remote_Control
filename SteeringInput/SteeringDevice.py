@@ -5,7 +5,7 @@ import subprocess
 from dataclasses import fields
 import evdev
 
-from .SteeringDeviceConfig import SteeringDeviceConfig, ButtonData, Buttons
+from .SteeringDeviceConfig import SteeringDeviceConfig, ButtonData, ButtonsInterface
 
 
 class SteeringDevice:
@@ -14,11 +14,11 @@ class SteeringDevice:
         self.__conf = config
         self.__controller = None
 
-    def __setSteeringValues(self, event: evdev.InputEvent) -> Buttons:
+    def __setSteeringValues(self, event: evdev.InputEvent) -> ButtonsInterface:
         """
-        Setting the values of the steering-device inside the Buttons object, which is defined in ControllerConfig.
+        Setting the values of the steering-device inside the ButtonsInterface object, which is defined in ControllerConfig.
         :param event: Event that has been triggered.
-        :return: Buttons object containing the ids and values of the steering-device.
+        :return: ButtonsInterface object containing the ids and values of the steering-device.
         """
         for field in fields(self.__conf.buttons):
             # getting the content of each field
@@ -53,7 +53,6 @@ class SteeringDevice:
         :param device: Device that the id is being checked against.
         :return: True if the vendor matches else False.
         """
-        print(device.info.vendor, vendor)
         if device.info.vendor == vendor:
             self.__controller = device
             return

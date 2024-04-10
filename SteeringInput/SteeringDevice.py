@@ -35,13 +35,9 @@ class SteeringDevice:
         """
         if not vendor:
             vendor = self.__conf.DeviceVendorID
-        path = self.__conf.ControllerPath
-        deviceList: list = self.__searchAvailableDevices(path)
+        deviceList: list = self.__searchAvailableDevices(self.__conf.ControllerPath)
         # Checking if device meets the given vendor-id. If so setting it as the controller.
         for device in deviceList:
-            device = f'{path}{device}'
-            if 'event' not in device:
-                continue
             # setting the device to a file of the input-directory
             device = evdev.InputDevice(device)
             self.__checkVendorID(device, vendor)
@@ -62,10 +58,19 @@ class SteeringDevice:
         """
         Method for detecting any connected hardware.
         :param path: Path to where the devices are located.
-        :return: List of connected hardware.
+        :return: List of connected hardware that can handle events.
         """
         directoryListing = subprocess.Popen(['ls', path], stdout=subprocess.PIPE).communicate()
-        return (directoryListing[0]).decode().strip().split('\n')
+        deviceList = (directoryListing[0]).decode().strip().split('\n')
+        for counter, device in enumerate(deviceList):
+            # Deleting any devices that cannot handle events.
+            if 'event' not in device:
+                deviceList.pop(counter)
+            else:
+            # Putting the whole path for devices that can handle events.
+                device = f'{path}{device}'
+                deviceList[counter] = device
+        return deviceList
 
     def readController(self, callbackMethod: callable) -> None:
         """

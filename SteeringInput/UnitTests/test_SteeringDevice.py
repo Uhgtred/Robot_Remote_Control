@@ -46,7 +46,7 @@ class TestSteeringDevice(unittest.TestCase):
         # Mock subprocess.Popen
         mock_popen.return_value.communicate.return_value = (b'event0\nevent1\n', b'')
         devices_list = self.device._SteeringDevice__searchAvailableDevices(mock_path)
-        self.assertListEqual(devices_list, ['event0', 'event1'])  # Check if the list of devices is correct
+        self.assertListEqual(devices_list, ['/dev/input/event0', '/dev/input/event1'])  # Check if the list of devices is correct
 
     def test_check_vendor_id(self):
         mock_device = Mock()

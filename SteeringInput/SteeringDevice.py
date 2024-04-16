@@ -72,6 +72,8 @@ class SteeringDevice:
         Method for reading the controller in a loop.
         :param callbackMethod: Method that the controller-output will be delivered to.
         """
+        if not self.__controller:
+            raise BaseException('No controller has been initialized!')
         self.__controller.grab()  # makes the controller only listen to this Code
         for event in self.__controller.read_loop():
             if event.type == 0:

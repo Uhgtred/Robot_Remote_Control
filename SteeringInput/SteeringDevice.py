@@ -56,7 +56,7 @@ class SteeringDevice:
         if device.info.vendor == vendor:
             self.__controller = device
             return
-        raise TypeError('SteeringInput not found!')
+        raise TypeError(f'SteeringInput not found! ID provided: {vendor}, expected {device.info.vendor}')
 
     def __searchAvailableDevices(self, path: str) -> list:
         """

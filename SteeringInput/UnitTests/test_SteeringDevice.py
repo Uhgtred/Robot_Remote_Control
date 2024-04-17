@@ -10,13 +10,10 @@ from SteeringInput.SteeringDeviceConfig import SteeringDeviceConfig, ButtonsInte
 
 class TestSteeringDevice(unittest.TestCase):
 
-    @patch('evdev.InputDevice')
-    def setUp(self, mock_evdev):
+    def setUp(self):
         # Set up a SteeringDevice instance for testing
         config = SteeringDeviceConfig()
         # Mock evdev library methods
-        mock_evdev.return_value = Mock()
-        mock_evdev = mock_evdev.read_loop = Mock()
         self.steeringDeviceClassObject = SteeringDevice(config)
 
     @patch('evdev.InputDevice')
@@ -25,7 +22,6 @@ class TestSteeringDevice(unittest.TestCase):
         mock_response = Mock()
         mock_response.info.vendor = mock_vendor
         mock_InputDevice.return_value = mock_response
-        # Test successful initController
         self.steeringDeviceClassObject.initController(mock_vendor)
         self.assertIsNotNone(self.steeringDeviceClassObject._SteeringDevice__controller)
         # Test failed initController - will raise TypeError
@@ -61,16 +57,22 @@ class TestSteeringDevice(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.steeringDeviceClassObject._SteeringDevice__checkVendorID(mock_device, mock_vendor)
 
-    @patch('evdev.InputDevice.read_loop')
-    def test_read_controller(self, mock_read_loop):
-        mock_read_loop.return_value = []
-        # Mock callback method
-        mock_callback = Mock()
+    @patch('evdev.InputDevice')
+    def test_read_controller(self, mock_inputDevice):
+        mock_event_response = Mock()
+        mock_event_response.event.type: int = 1
+        mock_event = mock_event_response
+        mock_vendor = 1118
+        mock_inputDevice_response = Mock()
+        mock_inputDevice_response.info.vendor = mock_vendor
+        mock_inputDevice_response.read_loop.return_value = [mock_event]
+        mock_inputDevice.return_value = mock_inputDevice_response
+        self.steeringDeviceClassObject.initController(mock_vendor)
         # Test readController
-        with patch.object(InputDevice, 'grab', mock_callback):
-            self.steeringDeviceClassObject.readController(mock_callback)
-        mock_callback.assert_not_called()  # As the read_loop returns an empty list, the callback should never be called
+        self.steeringDeviceClassObject.readController(self.callbackHelperMethod)
 
+    def callbackHelperMethod(self, event):
+        self.assertIsInstance(event, ButtonsXBox)
 
 if __name__ == '__main__':
     unittest.main()

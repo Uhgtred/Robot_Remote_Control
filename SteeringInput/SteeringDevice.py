@@ -13,6 +13,7 @@ class SteeringDevice:
     def __init__(self, config: SteeringDeviceConfig):
         self.__conf = config
         self.__controller = None
+        self.initController(config.DeviceVendorID)
 
     def __setSteeringValues(self, event: evdev.InputEvent) -> ButtonsInterface:
         """
@@ -38,15 +39,20 @@ class SteeringDevice:
         path = self.__conf.ControllerPath
         deviceList: list = self.__searchAvailableDevices(path)
         # Checking if device meets the given vendor-id. If so setting it as the controller.
+        result:bool = False
         for device in deviceList:
             device = f'{path}{device}'
             if 'event' not in device:
                 continue
             # setting the device to a file of the input-directory
             device = evdev.InputDevice(device)
-            self.__checkVendorID(device, vendor)
+            result:bool = self.__checkVendorID(device, vendor)
+            if result:
+                break
+        if not result:
+            raise TypeError(f'SteeringInput not found! ID provided: {vendor}')
 
-    def __checkVendorID(self, device: evdev.InputDevice, vendor: int) -> None:
+    def __checkVendorID(self, device: evdev.InputDevice, vendor: int) -> bool:
         """
         Method for checking for the vendor-id of the device. If it matches the configured id in SteeringDeviceConfig.py
         the device will be set as controller and the method returns (None). If no matching device found, raising exception!
@@ -55,8 +61,8 @@ class SteeringDevice:
         """
         if device.info.vendor == vendor:
             self.__controller = device
-            return
-        raise TypeError(f'SteeringInput not found! ID provided: {vendor}, expected {device.info.vendor}')
+            return True
+        return False
 
     def __searchAvailableDevices(self, path: str) -> list:
         """

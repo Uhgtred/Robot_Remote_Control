@@ -60,6 +60,6 @@ class ButtonsXBox:
 class SteeringDeviceConfig:
     # defining the default configuration of a controller!
     ControllerPath: str = '/dev/input/'
-    DeviceVendorID: int = 11458
+    DeviceVendorID: int = 1118
     buttons: ButtonsInterface = field(default_factory=ButtonsXBox)
 

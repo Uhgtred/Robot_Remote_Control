@@ -34,7 +34,7 @@ class Main:
         """
         Method for reading the controller and sending its messages to the robot.
         """
-        udpBus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'))
+        udpBus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'), pickle=True)
         controller = SteeringDeviceFactory.produceController()
         self.__asyncRunner.addTask(controller.readController, udpBus.writeSingleMessage)
 

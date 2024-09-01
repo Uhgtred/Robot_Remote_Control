@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
-
+import atexit
 import socket
 import struct
 
@@ -19,6 +19,7 @@ class UdpSocket(BusPluginInterface):
         self.__address = config.IPAddress
         self.__port = config.port
         self._setupSocket(config.host, config.busLibrary, config.port)
+        atexit.register(self.close)
 
     def readBus(self) -> bytes:
         """
@@ -76,3 +77,10 @@ class UdpSocket(BusPluginInterface):
                 break
             data += packet
         return data
+
+    def close(self) -> None:
+        """
+        Method for closing the socket.
+        """
+        self.sock.close()
+        self.__openSocketPorts.remove(self.__port)

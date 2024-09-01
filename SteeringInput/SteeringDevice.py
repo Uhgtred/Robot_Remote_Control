@@ -38,7 +38,7 @@ class SteeringDevice:
             vendor = self.__conf.DeviceVendorID
         path = self.__conf.ControllerPath
         deviceList: list = self.__searchAvailableDevices(path)
-        # Checking if device meets the given vendor-id. If so setting it as the controller.
+        # Checking if a device meets the given vendor-id. If so, set it as the controller.
         result:bool = False
         for device in deviceList:
             device = f'{path}{device}'
@@ -55,7 +55,7 @@ class SteeringDevice:
     def __checkVendorID(self, device: evdev.InputDevice, vendor: int) -> bool:
         """
         Method for checking for the vendor-id of the device. If it matches the configured id in SteeringDeviceConfig.py
-        the device will be set as controller and the method returns (None). If no matching device found, raising exception!
+        the device will be set as controller, and the method returns (None). If no matching device found, raising exception!
         :param device: Device that the id is being checked against.
         :return: True if the vendor matches else False.
         """

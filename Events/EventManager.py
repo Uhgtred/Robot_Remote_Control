@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # @author      Markus Kösters
+from orca.event_manager import EventManager
 
 from .Event import Event
 
@@ -29,3 +30,14 @@ class EventManager:
         :return: List of available Events.
         """
         return list(self.__events.keys())
+
+    def subscriberEvent(self, eventName: str, callbackMethod: callable) -> None:
+        """
+        Method for subscribing to a specific event.
+        :param callbackMethod: Method that will be used for the callback (event update).
+        :param eventName: Name of the event.
+        """
+        if not callable(callbackMethod):
+            return
+        self.__events.get(eventName).subscribe(callbackMethod)
+

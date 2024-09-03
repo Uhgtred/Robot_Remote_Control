@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # @author      Markus Kösters
-from orca.event_manager import EventManager
 
 from .Event import Event
 

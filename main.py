@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # @author   Markus Kösters
+from reportlab.rl_settings import verbose
+
 from BusTransactions import Bus
 from BusTransactions.BusFactory import BusFactory
 from SteeringInput import SteeringDeviceFactory
@@ -36,7 +38,7 @@ class Main:
         """
         udpBus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'), pickle=True)
         controller = SteeringDeviceFactory.produceController()
-        self.__asyncRunner.addTask(controller.readController, udpBus.writeSingleMessage)
+        self.__threadRunner.addTask(controller.readController, udpBus.writeSingleMessage)
 
     def __recvVideo(self) -> None:
         """

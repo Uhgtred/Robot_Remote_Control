@@ -43,7 +43,9 @@ class UdpSocket(BusPluginInterface):
         """
         __msgLength = len(message)
         __message = struct.pack('Q', __msgLength) + message
-        self.sock.sendto(__message, (self.__address, self.__port))
+        print(f'Sending message to socket 127.0.0.1:{self.__port}')
+        self.sock.sendto(__message, ('127.0.0.1', self.__port))
+        # self.sock.sendto(__message, (self.__address, self.__port))
 
     def _setupSocket(self, host: bool, sock: socket, port: int) -> None:
         """

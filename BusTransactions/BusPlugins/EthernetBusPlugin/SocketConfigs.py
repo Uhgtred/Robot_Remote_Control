@@ -10,8 +10,8 @@ class UdpSocketConfig:
     """
     Config-dataclass for Serial-busses.
     """
-    IPAddress: str
     messageSize: int
     port: int
     host: bool
+    IPAddress: str = 'localhost'
     busLibrary: socket = socket

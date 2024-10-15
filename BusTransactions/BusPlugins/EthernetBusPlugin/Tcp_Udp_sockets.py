@@ -10,13 +10,13 @@ from ..BusPluginInterface import BusPluginInterface
 
 class UdpSocket(BusPluginInterface):
 
-    # Todo: Implement possibility to close Socket. It will be necessary to remove it from the openPorts list as well.
     __openSocketPorts: set = set()
 
     def __init__(self, config: SocketConfigs.UdpSocketConfig):
         self.sock = None
         self.__maxMessageSize = config.messageSize
-        self.__address = config.IPAddress
+        self.__myIPAddress = config.MyIPAddress
+        self.__yourIPAddress = config.YourIPAddress
         self.__port = config.port
         self._setupSocket(config.host, config.busLibrary, config.port)
         atexit.register(self.close)
@@ -28,7 +28,7 @@ class UdpSocket(BusPluginInterface):
         """
         # --- Receiving header containing message-length --- #
         headerLength = struct.calcsize('Q')
-        # running loop until size of message-length (headerLength (8byte)) has been reached
+        # running loop until the size of message-length (headerLength (8byte)) has been reached
         msgLength = self.__receiver(headerLength)
         # unpacking the message-length
         msgLength = int(struct.unpack('Q', msgLength)[0])
@@ -43,9 +43,7 @@ class UdpSocket(BusPluginInterface):
         """
         __msgLength = len(message)
         __message = struct.pack('Q', __msgLength) + message
-        print(f'Sending message to socket 127.0.0.1:{self.__port}')
-        self.sock.sendto(__message, ('127.0.0.1', self.__port))
-        # self.sock.sendto(__message, (self.__address, self.__port))
+        self.sock.sendto(__message, (self.__yourIPAddress, self.__port))
 
     def _setupSocket(self, host: bool, sock: socket, port: int) -> None:
         """
@@ -59,7 +57,7 @@ class UdpSocket(BusPluginInterface):
         self.sock = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
         # self.sock = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
         if host:
-            self.sock.bind((self.__address, port))
+            self.sock.bind((self.__myIPAddress, port))
             self.__openSocketPorts.add(port)
 
     def __receiver(self, msgLength: int) -> bytes:

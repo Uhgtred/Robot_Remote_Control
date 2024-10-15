@@ -64,7 +64,7 @@ class UdpSocket(BusPluginInterface):
         """
         Method that reads from a socket either message-header or message-body.
         :param msgLength: Length of the message that will be read from the socket.
-                            Length for the body is represented by the header, which has length(struct.calcsize('Q')).
+                            Length of the body is represented by the header, which has length(struct.calcsize('Q')).
         :return: Message in bytes format.
         """
         data = b''

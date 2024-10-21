@@ -83,6 +83,7 @@ class SocketEncodingPickle(EncodingProtocol):
         """
         Method for decoding a message received from a socket.
         :param message: Message from socket that needs to be decoded.
+        Todo: pickle is not safe to use. Use JSON instead.
         """
         if isinstance(message, bytes):
             message = pickle.loads(message)
@@ -92,7 +93,6 @@ class SocketEncodingPickle(EncodingProtocol):
         """
         Method for encoding a message that will be sent to a socket.
         :param message: Message that needs to be encoded.
+        Todo: pickle is not safe to use. Use JSON instead.
         """
-        if not isinstance(message, bytes):
-            return pickle.dumps(message)
-        return message
+        return pickle.dumps(message)

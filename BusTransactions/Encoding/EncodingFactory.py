@@ -14,8 +14,7 @@ class EncodingFactory:
         return BusEncodings.ArduinoSerialEncoding()
 
     @staticmethod
-    def socketEncoding(pickle=False):
+    def socketEncoding(pickle:bool):
         if pickle:
             return BusEncodings.SocketEncodingPickle()
-        else:
-            return BusEncodings.SocketEncoding()
+        return BusEncodings.SocketEncoding()

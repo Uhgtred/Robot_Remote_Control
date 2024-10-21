@@ -36,7 +36,7 @@ class BusFactory:
         return Bus(busPlugin, encoding)
 
     @staticmethod
-    def produceUDP_Transceiver(port: int, host: bool, pickle: bool = False, stub: bool = False) -> Bus:
+    def produceUDP_Transceiver(port: int, host: bool, pickle: bool = True, stub: bool = False) -> Bus:
         """
         Method for creating an instance of an udp-socket.
         :return:

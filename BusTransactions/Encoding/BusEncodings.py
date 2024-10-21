@@ -79,7 +79,7 @@ class SocketEncoding(EncodingProtocol):
         return message
 
 
-class SocketEncodingPickle(EncodingProtocol):
+class SocketEncodingJson(EncodingProtocol):
 
     @staticmethod
     def decode(message: json) -> dict:

@@ -76,7 +76,6 @@ class Bus(BusInterface):
         :param verbose: Makes the method return command-line output.
         :param message: Message that will be sent to the bus.
         """
-        print(f'[Bus]: Sending message: {message} to {self.bus}')
         self.bus.writeBus(self.encoding.encode(message))
 
     @property

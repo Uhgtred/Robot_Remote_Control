@@ -33,6 +33,7 @@ class SteeringDevice:
     def initController(self, vendor: int = None) -> None:
         """
         Automatically detects and connects the controller with the vendor-ID specified in Configurations.conf! Only works on linux!
+        :param vendor: Vendor-ID of the controller.
         """
         if not vendor:
             vendor = self.__conf.DeviceVendorID

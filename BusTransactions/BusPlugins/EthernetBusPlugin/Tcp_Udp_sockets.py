@@ -42,7 +42,6 @@ class UdpSocket(BusPluginInterface):
         Method for writing message to UDP socket.
         :param message: Message that will be sent to UDP-socket.
         """
-        print(message, type(message))
         __msgLength = len(message)
         __message = struct.pack('Q', __msgLength) + message
         self.sock.sendto(__message, (self.__yourIPAddress, self.__port))

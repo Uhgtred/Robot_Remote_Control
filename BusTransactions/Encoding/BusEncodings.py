@@ -86,13 +86,11 @@ class SocketEncodingJson(EncodingProtocol):
         Method for decoding a message received from a socket.
         :param message: Message from socket that needs to be decoded.
         """
-        message = json.loads(message.decode())
-        return message
+        return json.loads(message.decode())
 
     def encode(self, message: ButtonsInterface) -> json:
         """
         Method for encoding a message that will be sent to a socket.
         :param message: Message that needs to be encoded.
         """
-        message = json.dumps(message.getButtonDict).encode()
-        return message
+        return json.dumps(message.getButtonDict).encode()

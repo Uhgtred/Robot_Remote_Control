@@ -46,6 +46,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+            implementation(libs.androidx.ui.graphics)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -83,6 +84,7 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    implementation(libs.androidx.ui.graphics)
 }
 
 compose.desktop {

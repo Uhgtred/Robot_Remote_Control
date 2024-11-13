@@ -84,7 +84,7 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
-    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
 }
 
 compose.desktop {

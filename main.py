@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # @author   Markus Kösters
-from reportlab.rl_settings import verbose
 
 from BusTransactions import Bus
 from BusTransactions.BusFactory import BusFactory
 from SteeringInput import SteeringDeviceFactory
-from GUI.GUI_Contoller import GUI_Controller
+#Todo: This line will not be needed anymore, using the new frontend.
+# from GUI.GUI_Contoller import GUI_Controller
 from Runners import asyncRunner, threadRunner
 
 
@@ -18,7 +18,6 @@ class Main:
 
     def __init__(self):
         """Starting the Remote-Program and configuring everything"""
-        # self.mainGUI = MainGUI()
         self.__asyncRunner = asyncRunner.AsyncRunner()
         self.__threadRunner = threadRunner.ThreadRunner()
         self.__setup()
@@ -29,16 +28,20 @@ class Main:
         """
         Method for setting up the program.
         """
+        print('Initializing Remote-Program...')
         # Add any setup code here
         self.__readController()
+        print('Remote-Program initialized!')
 
     def __readController(self) -> None:
         """
         Method for reading the controller and sending its messages to the robot.
         """
+        print('Starting controller-program.')
         udpBus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'))
         controller = SteeringDeviceFactory.produceController()
-        self.__threadRunner.addTask(controller.readController, udpBus.writeSingleMessage)
+        self.__asyncRunner.addTask(controller.readController, udpBus.writeSingleMessage)
+        print('Controller-program started!')
 
     def __recvVideo(self) -> None:
         """

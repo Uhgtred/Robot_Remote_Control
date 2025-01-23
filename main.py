@@ -5,7 +5,7 @@ from BusTransactions import Bus
 from BusTransactions.BusFactory import BusFactory
 from SteeringInput import SteeringDeviceFactory
 #Todo: This line will not be needed anymore, using the new frontend.
-# from GUI.GUI_Contoller import GUI_Controller
+from GUI.GUI_Contoller import GUI_Controller
 from Runners import asyncRunner, threadRunner
 
 
@@ -13,44 +13,89 @@ from Runners import asyncRunner, threadRunner
 
 
 class Main:
+    """
+    Central class for managing asynchronous and threaded tasks, configuring
+    controllers, and handling video reception.
+
+    This class serves as the primary orchestrator for initializing task
+    runners, setting up controllers, and receiving video streams from
+    the robot. It includes initialization of asynchronous and threaded
+    task runners, reading the controller, and managing communication ports.
+    """
 
     __ports: dict = {'controllerPort': 2001, 'APIPort': 3000, 'videoPort': 2002}
 
     def __init__(self):
-        """Starting the Remote-Program and configuring everything"""
-        self.__asyncRunner = asyncRunner.AsyncRunner()
+        """
+        Initializes the instance of the class and sets up required runners and configurations.
+
+        The __init__ method is responsible for creating instances of AsyncRunner and
+        ThreadRunner. It also invokes the setup method to initialize any necessary
+        configurations or states for the instance.
+
+        Attributes
+        ----------
+        __threadRunner : threadRunner.ThreadRunner
+            The instance of ThreadRunner to handle multithreaded tasks.
+        """
+        print('Initializing Remote-Program...')
         self.__threadRunner = threadRunner.ThreadRunner()
         self.__setup()
-        self.__asyncRunner.runTasks()
-        self.__threadRunner.runTasks()
+        print('Remote-Program initialized!')
 
     def __setup(self) -> None:
         """
-        Method for setting up the program.
+        Initializes and configures the remote program by performing setup operations.
+        This method is used internally to execute the sequence of initialization steps
+        required for proper execution of the program. It ensures that the controller
+        is read, and all tasks provided by the asynchronous and threaded task runners
+        are executed. Initialization begins and ends with log messages indicating the
+        program's status.
+
+        :raises RuntimeError: If initialization fails due to issues in the controller
+            reading process or task execution in runners.
         """
-        print('Initializing Remote-Program...')
-        # Add any setup code here
-        self.__readController()
-        print('Remote-Program initialized!')
+        try:
+            # Add any setup code here
+            self.__readController()
+            self.__recvVideo()
+            self.__threadRunner.runTasks()
+            print('Setup completed!')
+        except Exception as exception:
+            raise BaseException(f'Exception occurred during setup: {exception}')
 
     def __readController(self) -> None:
         """
-        Method for reading the controller and sending its messages to the robot.
+        Sets up a controller device and processes its data.
+
+        This method initializes and starts the controller program by creating a UDP
+        transceiver instance for communication, and a controller instance
+        to read input data. The controller input is then asynchronously processed
+        with a task added to the async runner for relaying messages to the UDP bus.
         """
         print('Starting controller-program.')
         udpBus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'))
         controller = SteeringDeviceFactory.produceController()
-        self.__asyncRunner.addTask(controller.readController, udpBus.writeSingleMessage)
+        self.__threadRunner.addTask(controller.readController, udpBus.writeSingleMessage)
         print('Controller-program started!')
 
     def __recvVideo(self) -> None:
         """
-        Method for receiving Video from the robot.
+        Receives video data through a UDP bus and updates the relevant GUI components.
+
+        This method initializes a UDP transceiver bus for receiving video data by using the
+        provided video port. It retrieves the video port from the instance's configuration. The
+        method also utilizes a GUI controller to update the user interface with the received
+        video data. The task is registered to the thread runner for execution until a stop flag
+        is triggered.
+
+        :raises KeyError: If the 'videoPort' key is not found in `self.__ports`.
         """
+        print('Starting video-receiver.')
         udpBus: Bus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('videoPort'))
         videoController: GUI_Controller = GUI_Controller()
         self.__threadRunner.addTask(udpBus.readBusUntilStopFlag, videoController.updateRootView)
-
+        print('Video-receiver started!')
 
 if __name__ == '__main__':
     main = Main()

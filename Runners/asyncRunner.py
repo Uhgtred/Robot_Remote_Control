@@ -25,9 +25,10 @@ class AsyncRunner:
                         Needs at least a callback-method if there is any return expected.
         """
         # Adding the arguments of a task as an attribute to this task.
-        # task.args = [*args]
-        self.__tasks[task] = args
-        # self.__asyncTasks.append(asyncio.create_task(self.__asyncTask(task, *task.args)))
+        if self.__running:
+            self.__asyncTasks.append(asyncio.create_task(self.__asyncTask(task, *args)))
+        else:
+            self.__tasks[task] = args
 
     def runTasks(self) -> None:
         """

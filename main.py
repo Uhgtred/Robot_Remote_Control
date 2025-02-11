@@ -3,10 +3,11 @@
 
 from BusTransactions import Bus
 from BusTransactions.BusFactory import BusFactory
+from ProjectLogging import Logger
 from SteeringInput import SteeringDeviceFactory
 #Todo: This line will not be needed anymore, using the new frontend.
 from GUI.GUI_Contoller import GUI_Controller
-from Runners import asyncRunner, threadRunner
+from Runners import threadRunner
 
 
 # from Remote.MainGUI import MainGUI
@@ -38,10 +39,12 @@ class Main:
         __threadRunner : threadRunner.ThreadRunner
             The instance of ThreadRunner to handle multithreaded tasks.
         """
-        print('Initializing Remote-Program...')
+        self.__logger: Logger.getLogger = Logger('Main', 'Mainlog.log').getLogger
+        self.__logger.info('Initializing Remote-Program...')
         self.__threadRunner = threadRunner.ThreadRunner()
+        self.videoController: GUI_Controller = None
         self.__setup()
-        print('Remote-Program initialized!')
+        self.__logger.info('Remote-Program initialized!')
 
     def __setup(self) -> None:
         """
@@ -60,9 +63,12 @@ class Main:
             self.__readController()
             self.__recvVideo()
             self.__threadRunner.runTasks()
-            print('Setup completed!')
-        except Exception as exception:
-            raise BaseException(f'Exception occurred during setup: {exception}')
+            self.__logger.info('Setup completed!')
+        except Exception as exceptionMessage:
+            exceptionMessage = f'Exception occurred during setup: {exceptionMessage}'
+            self.__logger.error(exceptionMessage)
+            raise BaseException(exceptionMessage)
+        self.videoController.runMainLoop()
 
     def __readController(self) -> None:
         """
@@ -73,11 +79,11 @@ class Main:
         to read input data. The controller input is then asynchronously processed
         with a task added to the async runner for relaying messages to the UDP bus.
         """
-        print('Starting controller-program.')
+        self.__logger.info('Starting controller-program...')
         udpBus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'))
         controller = SteeringDeviceFactory.produceController()
         self.__threadRunner.addTask(controller.readController, udpBus.writeSingleMessage)
-        print('Controller-program started!')
+        self.__logger.info('Controller-program started!')
 
     def __recvVideo(self) -> None:
         """
@@ -91,11 +97,11 @@ class Main:
 
         :raises KeyError: If the 'videoPort' key is not found in `self.__ports`.
         """
-        print('Starting video-receiver.')
-        udpBus: Bus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('videoPort'))
-        videoController: GUI_Controller = GUI_Controller()
-        self.__threadRunner.addTask(udpBus.readBusUntilStopFlag, videoController.updateRootView)
-        print('Video-receiver started!')
+        self.__logger.info('Starting video-receiver...')
+        udpBus: Bus = BusFactory.produceUDP_ImageDataReceiver(port=self.__ports.get('videoPort'), host=False)
+        self.videoController: GUI_Controller = GUI_Controller()
+        self.__threadRunner.addTask(udpBus.readBusUntilStopFlag, self.videoController.updateRootView)
+        self.__logger.info('Video-receiver started!')
 
 if __name__ == '__main__':
     main = Main()

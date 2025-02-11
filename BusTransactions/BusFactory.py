@@ -47,3 +47,26 @@ class BusFactory:
         else:
             busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(host=host, port=port)
         return Bus(busPlugin, encoding)
+
+    @staticmethod
+    def produceUDP_ImageDataReceiver(port: int, host: bool, stub: bool = False) -> Bus:
+        """
+        Creates an UDP-based Image Data Receiver with options for using a stub plugin or
+        a real socket plugin, and returns a configured Bus instance which includes the
+        desired encoding protocol and the chosen bus plugin.
+
+        :param port: Specifies the UDP port number on which the receiver will operate.
+        :type port: int
+        :param host: Indicates the hostname or IP address to bind the UDP receiver.
+        :type host: bool
+        :param stub: Determines whether to use a stub plugin (for testing) or a real socket plugin. Defaults to False.
+        :type stub: bool
+        :return: An instance of Bus configured with the chosen UDP plugin and encoding protocol.
+        :rtype: Bus
+        """
+        encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()
+        if stub:
+            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(host=host, port=port)
+        else:
+            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(host=host, port=port)
+        return Bus(busPlugin, encoding)

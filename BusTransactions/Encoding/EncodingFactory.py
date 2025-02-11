@@ -18,3 +18,7 @@ class EncodingFactory:
         if pickle:
             return BusEncodings.SocketEncodingJson()
         return BusEncodings.SocketEncoding()
+
+    @staticmethod
+    def produceImageReceiverEncoding():
+        return BusEncodings.ImageDataAsMsgPackEncoding()

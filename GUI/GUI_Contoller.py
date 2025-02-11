@@ -19,6 +19,8 @@ class GUI_Controller:
         self.__rootWindow: tkinter.Tk = tkinter.Tk()
         self.__rootView: ViewProtocol = ViewFactory.produceRootView(self.__rootWindow)
         self.__rootModel: ModelProtocol = ModelFactory.produceRootModel()
+
+    def runMainLoop(self):
         self.__rootWindow.mainloop()
 
     def updateRootView(self, frame: bytes) -> None:

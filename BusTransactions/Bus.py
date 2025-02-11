@@ -29,7 +29,9 @@ class Bus(BusInterface):
         Read and decode a single message from the bus.
         :return: Decoded message in string format.
         """
-        return self.encoding.decode(self.bus.readBus())
+        message = self.encoding.decode(self.bus.readBus())
+        print(f'Message that has been received: {message}')
+        return message# self.encoding.decode(self.bus.readBus())
 
     def readBusUntilStopFlag(self, callbackMethod: callable, *args, **kwargs) -> None:
         """
@@ -50,6 +52,7 @@ class Bus(BusInterface):
         """
         while not self.__stopFlag:
             try:
+                print('trying to read a message')
                 callbackMethod(self.readSingleMessage(), *args, **kwargs)
             except Exception as e:
                 # Todo: Log-warning for this case!

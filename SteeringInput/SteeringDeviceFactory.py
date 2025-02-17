@@ -10,4 +10,4 @@ class SteeringDeviceFactory:
     @staticmethod
     def produceController():
         config = SteeringDeviceConfig()
-        return SteeringDevice(config)
+        return SteeringDevice(config).initController()

@@ -13,7 +13,6 @@ class SteeringDevice:
     def __init__(self, config: SteeringDeviceConfig):
         self.__conf = config
         self.__controller = None
-        self.initController(config.DeviceVendorID)
 
     def __setSteeringValues(self, event: evdev.InputEvent) -> ButtonsInterface:
         """
@@ -36,8 +35,8 @@ class SteeringDevice:
         :param vendor: Vendor-ID of the controller.
         """
         if not vendor:
-            vendor = self.__conf.DeviceVendorID
-        path = self.__conf.ControllerPath
+            vendor: int = self.__conf.DeviceVendorID
+        path: str = self.__conf.ControllerPath
         deviceList: list = self.__searchAvailableDevices(path)
         # Checking if a device meets the given vendor-id. If so, set it as the controller.
         result:bool = False

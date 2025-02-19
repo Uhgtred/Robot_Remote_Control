@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # @author   Markus Kösters
+import logging
 
+import Runners
 from BusTransactions import Bus
 from BusTransactions.BusFactory import BusFactory
 from ProjectLogging import Logger
-from SteeringInput import SteeringDeviceFactory
+from SteeringInput import SteeringDeviceFactory, SteeringDevice
 #Todo: This line will not be needed anymore, using the new frontend.
-from GUI.GUI_Contoller import GUI_Controller
+#       For now it will stay in, just to get the video-transmission done and get some progress for this project
+from GUI.VideoGUI_Contoller import VideoGUI_Controller
 from Runners import threadRunner
 
 
@@ -39,10 +42,12 @@ class Main:
         __threadRunner : threadRunner.ThreadRunner
             The instance of ThreadRunner to handle multithreaded tasks.
         """
-        self.__logger: Logger.getLogger = Logger('Main', 'Mainlog.log').getLogger
+        # Initializing a logger. The loglevel can globally be set in 'ProjectLogging.Logger'.
+        self.__logger: Logger.getLogger = Logger('Main',
+                                                'Mainlog.log').getLogger
         self.__logger.info('Initializing Remote-Program...')
-        self.__threadRunner = threadRunner.ThreadRunner()
-        self.videoController: GUI_Controller = None
+        self.__threadRunner: Runners.Runner = threadRunner.ThreadRunner()
+        self.videoController: VideoGUI_Controller = None
         self.__setup()
         self.__logger.info('Remote-Program initialized!')
 
@@ -80,8 +85,9 @@ class Main:
         with a task added to the async runner for relaying messages to the UDP bus.
         """
         self.__logger.info('Starting controller-program...')
-        udpBus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'))
-        controller = SteeringDeviceFactory.produceController()
+        udpBus: Bus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'))
+        controller: SteeringDevice = SteeringDeviceFactory.produceController()
+        self.__logger.debug(f'SteeringDeviceObject: {controller}')
         self.__threadRunner.addTask(controller.readController, udpBus.writeSingleMessage)
         self.__logger.info('Controller-program started!')
 
@@ -99,7 +105,7 @@ class Main:
         """
         self.__logger.info('Starting video-receiver...')
         udpBus: Bus = BusFactory.produceUDP_ImageDataReceiver(port=self.__ports.get('videoPort'), host=False)
-        self.videoController: GUI_Controller = GUI_Controller()
+        self.videoController: VideoGUI_Controller = VideoGUI_Controller()
         self.__threadRunner.addTask(udpBus.readBusUntilStopFlag, self.videoController.updateRootView)
         self.__logger.info('Video-receiver started!')
 

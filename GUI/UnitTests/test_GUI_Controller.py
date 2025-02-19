@@ -6,7 +6,7 @@ import unittest
 import joblib
 import numpy
 
-from GUI.GUI_Contoller import GUI_Controller
+from GUI.VideoGUI_Contoller import VideoGUI_Controller
 
 
 class TestGUIController(unittest.TestCase):
@@ -16,12 +16,12 @@ class TestGUIController(unittest.TestCase):
         from pyvirtualdisplay.smartdisplay import SmartDisplay
 
         with SmartDisplay() as disp:
-            from GUI.GUI_Contoller import GUI_Controller
+            from GUI.VideoGUI_Contoller import VideoGUI_Controller
 
             # gui_controller = GUI_Controller()
             # Your tests here
 
-            self.gui_controller = GUI_Controller()
+            self.gui_controller = VideoGUI_Controller()
             self.updateRootView()
 
     def updateRootView(self):

@@ -2,4 +2,4 @@
 # @author: Markus Kösters
 
 #Todo: this code will probably be deleted, as soon as the frontend is working.
-from .GUI_Contoller import GUI_Controller
+from .VideoGUI_Contoller import VideoGUI_Controller

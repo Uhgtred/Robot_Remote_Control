@@ -12,7 +12,14 @@ class Logger:
     This class has to be instanced BEFORE calling the "getLogger" property.
     """
 
-    def __init__(self, name: str, logFile: str = './MainLog.log', logLevel: int = logging.INFO, consoleOutput: bool = True):
+    def __init__(self, name: str, logFile: str = './MainLog.log', logLevel: int = logging.DEBUG, consoleOutput: bool = True):
+        """
+        Change default logLevel to set global log-level.
+        :param name: Name of the logger.
+        :param logFile: Name of the log-file.
+        :param logLevel: Level of the logs.
+        :param consoleOutput: Defines whether the logs shall be streamed to the console.
+        """
         if not logFile.endswith('.log'):
             logFile += '.log'
         self.__deleteExistingLogFiles()

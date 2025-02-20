@@ -8,7 +8,6 @@ import msgpack
 import numpy
 
 from ProjectLogging import Logger
-from SteeringInput.ButtonsInterface import ButtonsInterface
 
 
 class EncodingProtocol(Protocol):
@@ -93,7 +92,7 @@ class SocketEncodingJson(EncodingProtocol):
         """
         return json.loads(message.decode())
 
-    def encode(self, message: ButtonsInterface) -> json:
+    def encode(self, message: any) -> json:
         """
         Method for encoding a message that will be sent to a socket.
         :param message: Message that needs to be encoded.

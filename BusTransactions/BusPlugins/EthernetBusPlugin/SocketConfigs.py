@@ -10,9 +10,8 @@ class UdpSocketConfig:
     """
     Config-dataclass for Serial-busses.
     """
-    messageSize: int
     port: int
-    host: bool
-    MyIPAddress: str = '192.168.178.44'
+    messageSize: int = 4096
+    MyIPAddress: str = '192.168.178.32'
     YourIPAddress: str = '192.168.178.36'
     busLibrary: socket = socket

@@ -33,16 +33,17 @@ class UdpSocket(BusPluginInterface):
     """
 
     __openSocketPorts: set = set()
+    # Initializing a Logger. The loglevel can globally be set in ProjectLogging.Logger.
+    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('TCP_UDP_Sockets',
+                                                                           'TCP_UDP_Sockets.log').getLogger
 
     def __init__(self, config: SocketConfigs.UdpSocketConfig):
-        self.sock: socket | None = None
+        self.sock: socket.socket | None = None
         self.__maxMessageSize = config.messageSize
         self.__myIPAddress = config.MyIPAddress
         self.__yourIPAddress = config.YourIPAddress
         self.__port = config.port
-        self._setupSocket(config.host, config.busLibrary, config.port)
-        self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('TCP_UDP_Sockets',
-                                                                               'TCP_UDP_Sockets.log').getLogger
+        self._setupSocket(config.busLibrary, config.port)
         atexit.register(self.close)
 
     def readBus(self) -> bytes:
@@ -56,10 +57,10 @@ class UdpSocket(BusPluginInterface):
         header portion, the method returns the remaining data payload.
 
         :return: The data payload received from the bus, as a sequence of bytes.
-        :rtype: bytes
+        :rtype: Bytes
         """
         self.__logger.debug(f'Reading from bus: {self.__yourIPAddress}:{self.__port}.')
-        headerLength = struct.calcsize('Q') # Todo: This is not a real header for udp. look at this: https://abdesol.medium.com/udp-protocol-with-a-header-implementation-in-python-b3d8dae9a74b
+        headerLength = struct.calcsize('Q')
         self.__logger.debug(f'Reading from bus with header length: {headerLength}.')
         header, data = self.__receiver(headerLength)
         self.__logger.debug(f'Received header: {header}, data: {data}.')
@@ -74,7 +75,7 @@ class UdpSocket(BusPluginInterface):
         is then sent to the assigned IP address and port.
 
         :param message: The data to be sent, represented as a series of bytes.
-        :type message: bytes
+        :type message: Bytes
 
         :return: None
         """
@@ -82,7 +83,7 @@ class UdpSocket(BusPluginInterface):
         __message = struct.pack('Q', __msgLength) + message
         self.sock.sendto(__message, (self.__yourIPAddress, self.__port))
 
-    def _setupSocket(self, sock: socket, port: int, receiver: bool) -> None:
+    def _setupSocket(self, sock: socket, port: int) -> None:
         """
         Private Method for setting up UDP-socket.
         This method is being called on instancing this class.
@@ -93,21 +94,28 @@ class UdpSocket(BusPluginInterface):
         if port in self.__openSocketPorts:
             # check if the busLibrary-object has already been instanced
             raise BaseException('Port already in use')
-        self.sock = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
-        # if host:
-        #     self.sock.bind((self.__myIPAddress, port))
-        #     self.__openSocketPorts.add(port)
-        if receiver:
-            self.sock.bind((self.__yourIPAddress, port))
+        self.sock: socket.socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
+        self.__logger.debug(f'Trying to bind to Address: {self.__myIPAddress}:{port}.')
+        self.sock.bind((self.__myIPAddress, port))
+        self.__openSocketPorts.add(port)
 
-    def __receiver(self, headerLength: int | None) -> tuple[bytes, bytes]:
+    def __receiver(self, headerLength: int | None) -> tuple[bytes, bytes] | tuple[None, None]:
         """
-        Method that reads from a socket either message-header or message-body.
-        :param msgLength: Length of the message that will be read from the socket.
-                            Length of the body is represented by the header, which has length(struct.calcsize('Q')).
-        :return: Message in bytes format.
+        Receives a message from a socket and processes it based on the specified header length.
+        Checks if the message is received from the expected IP address and port. Returns the
+        header and data as separate components, or None if the address is not the expected one.
+
+        :param headerLength: Length of the header in the received message. Determines the
+            position at which the message is split into header and data. If None, no header
+            processing is performed. Must be an integer or None.
+        :return: A tuple containing the header and data if the message is received from the
+            expected source, otherwise a tuple of None values. The header and data are bytes
+            objects.
         """
         message, address = self.sock.recvfrom(self.__maxMessageSize)
+        # Returning data only if it is received from the expected IP-Address.
+        if address != (self.__yourIPAddress, self.__port):
+            return None, None
         header, data = message[:headerLength], message[headerLength:]
         return header, data
 

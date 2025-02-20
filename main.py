@@ -85,7 +85,7 @@ class Main:
         with a task added to the async runner for relaying messages to the UDP bus.
         """
         self.__logger.info('Starting controller-program...')
-        udpBus: Bus = BusFactory.produceUDP_Transceiver(host=False, port=self.__ports.get('controllerPort'))
+        udpBus: Bus = BusFactory.produceUDP_Transceiver(port=self.__ports.get('controllerPort'))
         controller: SteeringDevice = SteeringDeviceFactory.produceController()
         self.__logger.debug(f'SteeringDeviceObject: {controller}')
         self.__threadRunner.addTask(controller.readController, udpBus.writeSingleMessage)
@@ -104,7 +104,7 @@ class Main:
         :raises KeyError: If the 'videoPort' key is not found in `self.__ports`.
         """
         self.__logger.info('Starting video-receiver...')
-        udpBus: Bus = BusFactory.produceUDP_ImageDataReceiver(port=self.__ports.get('videoPort'), host=False)
+        udpBus: Bus = BusFactory.produceUDP_ImageDataReceiver(port=self.__ports.get('videoPort'))
         self.videoController: VideoGUI_Controller = VideoGUI_Controller()
         self.__threadRunner.addTask(udpBus.readBusUntilStopFlag, self.videoController.updateRootView)
         self.__logger.info('Video-receiver started!')

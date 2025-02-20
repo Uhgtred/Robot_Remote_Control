@@ -36,20 +36,20 @@ class BusFactory:
         return Bus(busPlugin, encoding)
 
     @staticmethod
-    def produceUDP_Transceiver(port: int, host: bool, pickle: bool = True, stub: bool = False) -> Bus:
+    def produceUDP_Transceiver(port: int, pickle: bool = True, stub: bool = False) -> Bus:
         """
         Method for creating an instance of an udp-socket.
         :return:
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding(pickle)
         if stub:
-            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(host=host, port=port)
+            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
         else:
-            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(host=host, port=port)
+            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
         return Bus(busPlugin, encoding)
 
     @staticmethod
-    def produceUDP_ImageDataReceiver(port: int, host: bool, stub: bool = False) -> Bus:
+    def produceUDP_ImageDataReceiver(port: int, stub: bool = False) -> Bus:
         """
         Creates an UDP-based Image Data Receiver with options for using a stub plugin or
         a real socket plugin, and returns a configured Bus instance which includes the
@@ -57,8 +57,6 @@ class BusFactory:
 
         :param port: Specifies the UDP port number on which the receiver will operate.
         :type port: int
-        :param host: Indicates the hostname or IP address to bind the UDP receiver.
-        :type host: bool
         :param stub: Determines whether to use a stub plugin (for testing) or a real socket plugin. Defaults to False.
         :type stub: bool
         :return: An instance of Bus configured with the chosen UDP plugin and encoding protocol.
@@ -66,7 +64,7 @@ class BusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()
         if stub:
-            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(host=host, port=port)
+            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
         else:
-            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(host=host, port=port)
+            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
         return Bus(busPlugin, encoding)

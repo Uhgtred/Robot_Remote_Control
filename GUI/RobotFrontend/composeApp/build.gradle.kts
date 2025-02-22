@@ -89,7 +89,7 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "org.frontend.robotfrontend.MainKt"
+        mainClass = "org.frontend.robotfrontend.mainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

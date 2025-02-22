@@ -4,6 +4,7 @@
 import inspect
 import threading
 
+import ProjectLogging
 from .BusPlugins import BusPluginInterface
 from .Encoding.BusEncodings import EncodingProtocol
 from .BusInterface import BusInterface
@@ -23,13 +24,16 @@ class Bus(BusInterface):
         self.__stopFlag: bool = False
         self.encoding: EncodingProtocol = encoding
         self.bus: BusPluginInterface = bus
+        self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
 
     def readSingleMessage(self) -> EncodingProtocol.decode:
         """
         Read and decode a single message from the bus.
         :return: Decoded message in string format.
         """
-        return self.encoding.decode(self.bus.readBus())
+        message = self.encoding.decode(self.bus.readBus())
+        print(f'Message that has been received: {message}')
+        return message# self.encoding.decode(self.bus.readBus())
 
     def readBusUntilStopFlag(self, callbackMethod: callable, *args, **kwargs) -> None:
         """
@@ -50,10 +54,13 @@ class Bus(BusInterface):
         """
         while not self.__stopFlag:
             try:
+                self.__logger.debug(f'Trying to read a message with callback-method {self.readSingleMessage.__name__}\n'
+                                    f'\twith args: {args}\n'
+                                    f'\tand kwargs: {kwargs}'
+                                    f'\ton bus: {self.bus.__class__.__name__}')
                 callbackMethod(self.readSingleMessage(), *args, **kwargs)
             except Exception as e:
-                # Todo: Log-warning for this case!
-                pass
+                self.__logger.error(f'Error while reading message: {e}')
 
     @staticmethod
     def __callBackHasInputArg(callbackMethod: callable) -> None:

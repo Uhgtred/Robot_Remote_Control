@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 import evdev
 from evdev import InputDevice
 
-from SteeringInput import SteeringDevice
+from SteeringInput import SteeringDevice, SteeringDeviceFactory
 from SteeringInput.SteeringDeviceConfig import SteeringDeviceConfig, ButtonsInterface, ButtonsXBox
 
 
@@ -12,22 +12,20 @@ class TestSteeringDevice(unittest.TestCase):
 
     def setUp(self):
         # Set up a SteeringDevice instance for testing
-        config = SteeringDeviceConfig()
+        self.config = SteeringDeviceConfig()
         # Mock evdev library methods
-        self.steeringDeviceClassObject = SteeringDevice(config)
+        self.steeringDeviceClassObject = SteeringDevice(self.config)
 
     @patch('evdev.InputDevice')
     def test_init_controller(self, mock_InputDevice):
-        mock_vendor = 1118
         mock_response = Mock()
-        mock_response.info.vendor = mock_vendor
+        mock_response.info.vendor = self.config.DeviceVendorID
         mock_InputDevice.return_value = mock_response
-        self.steeringDeviceClassObject.initController(mock_vendor)
+        self.steeringDeviceClassObject.initController(self.config.DeviceVendorID)
         self.assertIsNotNone(self.steeringDeviceClassObject._SteeringDevice__controller)
         # Test failed initController - will raise TypeError
         mock_response.info.vendor = 0
-        with self.assertRaises(TypeError):
-            self.steeringDeviceClassObject.initController(mock_vendor)
+        self.assertRaises(TypeError, self.steeringDeviceClassObject.initController, self.config.DeviceVendorID)
 
     def test_set_steering_values(self):
         # Mock event
@@ -51,18 +49,18 @@ class TestSteeringDevice(unittest.TestCase):
         mock_vendor = 1234
         mock_device.info.vendor = mock_vendor
         # Test successful __checkVendorID
-        self.steeringDeviceClassObject._SteeringDevice__checkVendorID(mock_device, mock_vendor)
+        self.assertTrue(self.steeringDeviceClassObject._SteeringDevice__checkVendorID(mock_device, mock_vendor))
         # Test failed __checkVendorID - will raise TypeError
         mock_device.info.vendor = 0
-        with self.assertRaises(TypeError):
-            self.steeringDeviceClassObject._SteeringDevice__checkVendorID(mock_device, mock_vendor)
+        self.assertFalse(self.steeringDeviceClassObject._SteeringDevice__checkVendorID(mock_device, self.config.DeviceVendorID))
+
 
     @patch('evdev.InputDevice')
     def test_read_controller(self, mock_inputDevice):
         mock_event_response = Mock()
         mock_event_response.event.type: int = 1
         mock_event = mock_event_response
-        mock_vendor = 1118
+        mock_vendor = self.config.DeviceVendorID
         mock_inputDevice_response = Mock()
         mock_inputDevice_response.info.vendor = mock_vendor
         mock_inputDevice_response.read_loop.return_value = [mock_event]

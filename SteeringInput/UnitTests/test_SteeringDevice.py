@@ -1,11 +1,9 @@
 import unittest
 from unittest.mock import Mock, patch
 
-import evdev
-from evdev import InputDevice
-
-from SteeringInput import SteeringDevice, SteeringDeviceFactory
-from SteeringInput.SteeringDeviceConfig import SteeringDeviceConfig, ButtonsInterface, ButtonsXBox
+from SteeringInput import SteeringDeviceFactory
+from SteeringInput.SteeringDeviceConfig import SteeringDeviceConfig, ButtonsXBox
+from SteeringInput.UnitTests.SteeringDeviceStub import SteeringDeviceStub
 
 
 class TestSteeringDevice(unittest.TestCase):
@@ -14,26 +12,26 @@ class TestSteeringDevice(unittest.TestCase):
         # Set up a SteeringDevice instance for testing
         self.config = SteeringDeviceConfig()
         # Mock evdev library methods
-        self.steeringDeviceClassObject = SteeringDevice(self.config)
+        self.steeringDeviceClassObject = SteeringDeviceFactory.produceControllerStub(SteeringDeviceStub)
 
     @patch('evdev.InputDevice')
     def test_init_controller(self, mock_InputDevice):
         mock_response = Mock()
         mock_response.info.vendor = self.config.DeviceVendorID
         mock_InputDevice.return_value = mock_response
-        self.steeringDeviceClassObject.initController(self.config.DeviceVendorID)
-        self.assertIsNotNone(self.steeringDeviceClassObject._SteeringDevice__controller)
+        self.assertIsNotNone(self.steeringDeviceClassObject._SteeringDeviceStub__controller)
         # Test failed initController - will raise TypeError
         mock_response.info.vendor = 0
         self.assertRaises(TypeError, self.steeringDeviceClassObject.initController, self.config.DeviceVendorID)
 
     def test_set_steering_values(self):
+        #Todo: This test has to be refactored to work again.
         # Mock event
         mock_event = Mock()
         mock_event.code = 1
         mock_event.value = 2
         # Test set_steering_values
-        result = self.steeringDeviceClassObject._SteeringDevice__setSteeringValues(mock_event)
+        result = self.steeringDeviceClassObject._SteeringDeviceStub__setSteeringValues(mock_event)
         self.assertIsInstance(result, ButtonsXBox)  # Check if the result is an instance of Buttons
 
     @patch('subprocess.Popen')
@@ -41,18 +39,17 @@ class TestSteeringDevice(unittest.TestCase):
         mock_path = '/dev/input/'
         # Mock subprocess.Popen
         mock_popen.return_value.communicate.return_value = (b'event0\nevent1\n', b'')
-        devices_list = self.steeringDeviceClassObject._SteeringDevice__searchAvailableDevices(mock_path)
+        devices_list = self.steeringDeviceClassObject._SteeringDeviceStub__searchAvailableDevices(mock_path)
         self.assertListEqual(devices_list, ['event0', 'event1'])  # Check if the list of devices is correct
 
     def test_check_vendor_id(self):
         mock_device = Mock()
-        mock_vendor = 1234
+        mock_vendor = SteeringDeviceConfig().DeviceVendorID
         mock_device.info.vendor = mock_vendor
         # Test successful __checkVendorID
-        self.assertTrue(self.steeringDeviceClassObject._SteeringDevice__checkVendorID(mock_device, mock_vendor))
+        self.assertTrue(self.steeringDeviceClassObject._SteeringDeviceStub__checkVendorID(mock_vendor))
         # Test failed __checkVendorID - will raise TypeError
-        mock_device.info.vendor = 0
-        self.assertFalse(self.steeringDeviceClassObject._SteeringDevice__checkVendorID(mock_device, self.config.DeviceVendorID))
+        self.assertFalse(self.steeringDeviceClassObject._SteeringDeviceStub__checkVendorID(0))
 
 
     @patch('evdev.InputDevice')

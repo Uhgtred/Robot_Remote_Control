@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
-
+import ProjectLogging
 from .SteeringDevice import SteeringDevice
 from .SteeringDeviceConfig import SteeringDeviceConfig
 
 
 class SteeringDeviceFactory:
+
+    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('SteeringDeviceFactory',
+                                                                      'SteeringDeviceFactory.log').getLogger
 
     @staticmethod
     def produceController() -> SteeringDevice:
@@ -23,4 +26,20 @@ class SteeringDeviceFactory:
         config = SteeringDeviceConfig()
         steeringDevice = SteeringDevice(config)
         steeringDevice.initController()
+        return steeringDevice
+
+    @staticmethod
+    def produceControllerStub(stubObject: type(SteeringDevice)) -> SteeringDevice:
+        """
+        Produces a controller stub using the provided SteeringDevice class. This method
+        creates a configuration object of type SteeringDeviceConfig, initializes the
+        provided SteeringDevice class with the configuration, and returns the resulting
+        instance.
+
+        :param stubObject: A class of type SteeringDevice used to produce the controller stub.
+        :return: An instance of SteeringDevice initialized with a SteeringDeviceConfig.
+        """
+        config = SteeringDeviceConfig()
+        steeringDevice = stubObject(config)
+        SteeringDeviceFactory._SteeringDeviceFactory__logger.debug(f"SteeringDevice stub created: {steeringDevice}")
         return steeringDevice

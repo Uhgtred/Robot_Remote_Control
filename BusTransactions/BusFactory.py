@@ -36,7 +36,7 @@ class BusFactory:
         return Bus(busPlugin, encoding)
 
     @staticmethod
-    def produceUDP_Transceiver(port: int, stub: bool = False) -> Bus:
+    def produceUDP_Transceiver(port: int) -> Bus:
         """
         Produces a UDP transceiver bus object configured with the specified port and
         encoding protocol. Depending on whether the stub parameter is set to True, either
@@ -45,18 +45,33 @@ class BusFactory:
 
         :param port: Network port number where the transceiver will operate.
         :type port: int
-        :param stub: Boolean flag to determine whether to use a UDP stub plugin
-                     (True) or a UDP socket plugin (False). Default is False.
-        :type stub: bool
         :return: Configured Bus object equipped with a UDP transceiver.
         :rtype: Bus
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding()
-        if stub:
-            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
-        else:
-            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
+        busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
         return Bus(busPlugin, encoding)
+
+    @staticmethod
+    def produceUDP_TransceiverWithStub(port: int) -> Bus:
+        """
+        Creates and configures a UDP-based transceiver stub with the specified port.
+
+        This static method initializes a bus communication system configured with
+        UDP stubbing behavior. It sets up an encoding protocol and utilizes a UDP
+        stub plugin, allowing for a specific port to be assigned for communication.
+        The method combines these components into a `Bus` instance which can be
+        used for further communication processes.
+
+        :param port: The port number to be used for creating the UDP stub.
+        :type port: int
+        :return: A fully configured `Bus` instance with UDP-based stub communication.
+        :rtype: Bus
+        """
+        encoding: EncodingProtocol = EncodingFactory.socketEncoding()
+        busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
+        return Bus(busPlugin, encoding)
+
 
     @staticmethod
     def produceUDP_ImageDataReceiver(port: int, stub: bool = False) -> Bus:

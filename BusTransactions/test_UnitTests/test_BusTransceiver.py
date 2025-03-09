@@ -8,18 +8,51 @@ from BusTransactions import Encoding
 
 
 class helperClass:
+    """
+    Represents a helper class for managing messages, arguments, and keyword arguments.
 
+    Provides methods to process and store input messages, arguments, and keywords,
+    and supports additional functionality for specific use cases.
+
+    :ivar args: Stores the list of arguments passed to `helperMethod`.
+    :type args: list
+    :ivar message: Contains the message passed to `helperMethod`.
+    :type message: str
+    :ivar testKwargs: Holds the keyword arguments passed to `helperMethod`.
+    :type testKwargs: dict
+    """
     def __init__(self):
         self.args = None
         self.message = None
         self.testKwargs = None
 
     def helperMethod(self, message, *args, **kwargs):
+        """
+        Helper method for processing a message, positional arguments, and keyword
+        arguments. This method initializes internal attributes with the provided
+        data for further use.
+
+        :param message: The main message to be processed.
+        :type message: str
+        :param args: Additional positional arguments passed to the method.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments passed to the method.
+        :type kwargs: dict
+        :return: None
+        :rtype: NoneType
+        """
         self.args = list(args)
         self.message = message
         self.testKwargs = kwargs
 
     def helperMethodNoArgs(self):
+        """
+        This method is a placeholder that performs no operation. It is intended to
+        test whether an exception is raised during unit testing, due to a missing argument of this method
+        or other validation processes.
+
+        :return: None
+        """
         # does not need to do anything since this is only used
         # to check wether the exception is being raised
         pass
@@ -43,7 +76,7 @@ class test_BusTransceiver(unittest.TestCase):
 
     def test_readBusUntilStopFlag(self):
         obj = helperClass()
-        udpBus = BusFactory.BusFactory.produceUDP_Transceiver(2121, True, stub=True)
+        udpBus = BusFactory.BusFactory.produceUDP_TransceiverWithStub(port = 2121)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         udpBus.readBusUntilStopFlag(obj.helperMethod, arg, testKwarg='testKwarg')
@@ -56,7 +89,7 @@ class test_BusTransceiver(unittest.TestCase):
 
     def test_readBusUntilStopFlagFail(self):
         obj = helperClass()
-        udpBus = BusFactory.BusFactory.produceUDP_Transceiver(2122, True, stub=True)
+        udpBus = BusFactory.BusFactory.produceUDP_TransceiverWithStub(port = 2122)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         self.assertRaises(TypeError, udpBus.readBusUntilStopFlag, (obj.helperMethodNoArgs, arg), testKwarg='testKwarg')

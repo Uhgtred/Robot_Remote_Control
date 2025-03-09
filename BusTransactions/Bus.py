@@ -77,12 +77,14 @@ class Bus(BusInterface):
         else:
             raise TypeError("Callback-method is not callable.")
 
-    def writeSingleMessage(self, message: any) -> None:
+    def writeSingleMessage(self, message: any, verbose: bool = False) -> None:
         """
         Sending an encoded message to the bus.
         :param verbose: Makes the method return command-line output.
         :param message: Message that will be sent to the bus.
         """
+        if verbose:
+            self.__logger.debug(f'Sending message: {message} to bus: {self.bus.__class__.__name__}')
         self.bus.writeBus(self.encoding.encode(message))
 
     @property

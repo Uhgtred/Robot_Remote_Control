@@ -20,9 +20,9 @@ class test_BusEncodings(unittest.TestCase):
         """
         tests = []
         for method in dir(self.encoding):
-            self.__logger.debug(f'The encoding that is going to be tested is: {method}')
             if not method.startswith('__'):
                 method = getattr(self.encoding, method)()
+                self.__logger.debug(f'The encoding that is going to be tested is: {method}')
                 message = b'Hello World'
                 self.__logger.debug(f'The message that is going to be decoded is: {message}')
                 message = method.decode(message)

@@ -99,6 +99,7 @@ class SocketEncodingJson(EncodingProtocol):
         Method for encoding a message that will be sent to a socket.
         :param message: Message that needs to be encoded.
         """
+        # Todo: this is hardcoded and really bad (getButtonDict)! This needs to be fixed as soon as possible!
         return json.dumps(message.getButtonDict).encode()
 
 
@@ -125,6 +126,7 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         # This makes the code use the abstract method at the beginning, which includes a little bit of error-handling.
         ImageDataAsMsgPackEncoding.__logger.debug(f'Serializing image data of type {type(imageData)} ...')
         encodingParameters = [int(cv2.IMWRITE_JPEG_QUALITY), 80] # 80 is the quality of the jpeg compression
+        ImageDataAsMsgPackEncoding.__logger.debug(f'Encoding parameters: {encodingParameters}, imageDataType: {type(imageData)}')
         returnValue, buffer = cv2.imencode('.jpg', imageData, encodingParameters) # returnValue is type boolean.
         serializedData: bytes = msgpack.packb({'frameData': buffer.tobytes()})
         return serializedData
@@ -146,6 +148,7 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         """
         payload = msgpack.unpackb(data)
         frameData = payload.get(b'frameData')  # Access the frame
+        ImageDataAsMsgPackEncoding.__logger.debug(f'Decoding image data of type {type(frameData)} ...')
         frameData = numpy.frombuffer(frameData, dtype=numpy.uint8) # or numpy.ndarray?
         imageframe = cv2.imdecode(frameData, cv2.IMREAD_COLOR)
         return imageframe

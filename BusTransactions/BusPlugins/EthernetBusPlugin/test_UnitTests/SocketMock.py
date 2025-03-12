@@ -34,6 +34,7 @@ class MockSocket:
     :ivar __logger: An internal logger instance for recording debug messages.
     :type __logger: ProjectLogging.Logger.getLogger
     """
+
     buffer = []
     state = False
     AF_INET = None
@@ -43,7 +44,6 @@ class MockSocket:
     port: int = None
     address: str = None
     __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('MockSocket', 'MockSocket.log').getLogger
-
 
     def __init__(self, config: UdpSocketConfig, *args, **kwargs):
         self.port = config.port

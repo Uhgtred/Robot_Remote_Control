@@ -80,7 +80,8 @@ class test_BusTransceiver(unittest.TestCase):
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         udpBus.readBusUntilStopFlag(obj.helperMethod, arg, testKwarg='testKwarg')
-        # letting bus init before closing. Otherwise there is an issue that the message is not correctly being received.
+        # Letting bus init before closing.
+        # Otherwise, there is an issue that the message is not correctly being received.
         time.sleep(.0001)
         udpBus.stopFlag = True
         self.assertEqual(obj.message, self.testString)

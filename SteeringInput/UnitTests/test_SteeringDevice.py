@@ -47,7 +47,7 @@ class TestSteeringDevice(unittest.TestCase):
         mock_vendor = SteeringDeviceConfig().DeviceVendorID
         mock_device.info.vendor = mock_vendor
         # Test successful __checkVendorID
-        self.assertTrue(self.steeringDeviceClassObject._SteeringDeviceStub__checkVendorID(mock_vendor))
+        self.assertTrue(self.steeringDeviceClassObject._SteeringDeviceStub__checkVendorID(int(mock_vendor)))
         # Test failed __checkVendorID - will raise TypeError
         self.assertFalse(self.steeringDeviceClassObject._SteeringDeviceStub__checkVendorID(0))
 

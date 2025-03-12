@@ -35,7 +35,7 @@ class BusPluginFactory:
         factory for creating and returning a configured UdpSocket object.
 
         :param port: The port number to bind the UDP socket to.
-        :type port: int
+        :type port: Int
 
         :return: An instance of `Tcp_Udp_sockets.UdpSocket` configured with the
             specified port and message size.
@@ -47,14 +47,14 @@ class BusPluginFactory:
     @staticmethod
     def produceUdpStubPlugin(port: int) -> Tcp_Udp_sockets:
         """
-        Produces a UDP stub plugin for mock testing or emulation. This method creates a UDP
-        socket configuration and initializes a UDP socket instance using a mock socket library.
+        Produces an UDP stub plugin for mock testing or emulation. This method creates a UDP
+        socket configuration and initializes an UDP socket instance using a mock socket library.
 
         :param port: The port number to initialize the UDP socket configuration.
-        :type port: int
+        :type port: Int
         :return: An instance of UdpSocket configured with the specified port and using
                  the mock socket library.
         :rtype: Tcp_Udp_sockets
         """
         config: SocketConfigs = SocketConfigs.UdpSocketConfig(port=port, busLibrary=MockSocket)
-        return Tcp_Udp_sockets.UdpSocket(config)
+        return MockSocket(config)

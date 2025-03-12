@@ -114,6 +114,7 @@ class UdpSocket(BusPluginInterface):
         """
         message, address = self.sock.recvfrom(self.__maxMessageSize)
         # Returning data only if it is received from the expected IP-Address.
+        self.__logger.debug(f'Received message from {address}, expected {self.__yourIPAddress}:{self.__port}.')
         if address != (self.__yourIPAddress, self.__port):
             return None, None
         header, data = message[:headerLength], message[headerLength:]

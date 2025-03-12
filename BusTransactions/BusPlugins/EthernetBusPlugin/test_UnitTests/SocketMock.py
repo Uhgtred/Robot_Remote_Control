@@ -1,9 +1,38 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
 
+import ProjectLogging
+from BusTransactions.BusPlugins.EthernetBusPlugin import UdpSocketConfig
+
+
 class MockSocket:
     """
-    Todo: make the buffer a dictionary with IP as key and buffer as value.
+    Simulates the behavior of a network socket for testing purposes.
+
+    The MockSocket class is designed to replicate the typical functionality of a network
+    socket, enabling developers to simulate and test scenarios involving socket communication
+    without using actual network resources. It includes methods for sending and receiving
+    data, binding to addresses, and managing socket states. Additionally, it logs operations
+    for debugging purposes.
+
+    :ivar buffer: A class-level list simulating the internal message buffer for the socket.
+    :type buffer: list
+    :ivar state: A class-level boolean indicating the current state of the socket.
+    :type state: bool
+    :ivar AF_INET: A class-level placeholder for the Internet address family.
+    :type AF_INET: NoneType
+    :ivar SOCK_STREAM: A class-level placeholder for the stream socket type.
+    :type SOCK_STREAM: NoneType
+    :ivar SOCK_DGRAM: A class-level placeholder for the datagram socket type.
+    :type SOCK_DGRAM: NoneType
+    :ivar passedArgs: A list to hold additional arguments passed to the socket.
+    :type passedArgs: list
+    :ivar port: The port number associated with the socket.
+    :type port: int
+    :ivar address: The IP address associated with the socket.
+    :type address: str
+    :ivar __logger: An internal logger instance for recording debug messages.
+    :type __logger: ProjectLogging.Logger.getLogger
     """
     buffer = []
     state = False
@@ -11,28 +40,96 @@ class MockSocket:
     SOCK_STREAM = None
     SOCK_DGRAM = None
     passedArgs = []
+    port: int = None
+    address: str = None
+    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('MockSocket', 'MockSocket.log').getLogger
 
-    def __init__(self, *args, **kwargs):
+
+    def __init__(self, config: UdpSocketConfig, *args, **kwargs):
+        self.port = config.port
+        self.address = config.YourIPAddress
+        self.maxMessageSize = config.messageSize
         self.passedArgs.extend(args)
         self.passedArgs.extend(kwargs)
 
+    def readBus(self):
+        """
+        Reads data from the bus and retrieves the received message.
+
+        The method uses the `recvfrom` function with the `maxMessageSize`
+        property to receive data from the bus. It returns the first element
+        of the received data as the output.
+
+        :return: The received message data from the bus.
+        :rtype: bytes
+        """
+        return self.recvfrom(self.maxMessageSize)[0]
+
+    def writeBus(self, message):
+        """
+        Sends a message to a specified address and port via the datagram socket.
+
+        This method takes a string message as input and sends it to the predefined
+        address and port specified in the attributes `self.address` and `self.port`.
+        The sending operation leverages the `sendto` method of the datagram socket
+        to perform the message transmission.
+
+        :param message: The message to send, provided as a string.
+        :type message: str
+        :return: None
+        """
+        self.sendto(message, (self.address, self.port))
+
     @classmethod
     def recvfrom(cls, messageSize):
-        # print(f'Receiving {messageSize} bytes.')
+        """
+        Receives a specific number of bytes as defined by messageSize. Retrieves data from a
+        buffer if it exists, and ensures proper handling of the buffer by managing message
+        overflow. If the buffer is empty, a predefined message is returned instead.
+
+        :param messageSize: The number of bytes to be received from the message buffer.
+        :type messageSize: int
+        :return: A tuple consisting of the received message of the specified size and the
+            associated address.
+        :rtype: tuple
+        """
+        cls.__logger.debug(f'Receiving {messageSize} bytes.')
         if cls.buffer:
             message = cls.buffer.pop(0)
             if len(message[messageSize:]) > 0:
                 cls.buffer.append(message[messageSize:])
-            return message[:messageSize]    
+            cls.__logger.debug(f'Received message: {message}')
+            return message[:messageSize], cls.address
         else:
-            return None
+            cls.__logger.debug('No messages in buffer. Returning some predefined message.')
+            return 'Some predefined message.', cls.address
 
     @staticmethod
     def bind(address):
-        print(f'Address of socket: {address}')
+        """
+        Binds the mock socket to a specified address. This method emulates the behavior of a
+        real socket's `bind` method, logging the provided address for debugging purposes.
+
+        :param address: The address to which the mock socket will be bound.
+        :type address: Any
+        :return: None
+        """
+        MockSocket.__logger.debug(f'Address of socket: {address}')
 
     @classmethod
     def socket(cls, *args):
+        """
+        Changes the state of the class and returns the class itself.
+
+        This method toggles the state of the class. If the current state is
+        set to True, it switches the state to False. If the current state
+        is set to False, it switches the state to True. This method
+        returns the class after changing its state.
+
+        :param args: Additional arguments passed to the method.
+        :return: The class itself after toggling the state.
+        :rtype: type
+        """
         if cls.state:
             cls.state = True
         else:
@@ -40,10 +137,41 @@ class MockSocket:
         return cls
 
     @classmethod
+    def close(cls):
+        """
+        Represents a mechanism to modify and manage the state related to a specific class.
+        This method is used to set the state of the class to `False`.
+
+        :return: None
+        """
+        cls.state = False
+
+    @classmethod
     def sendto(cls, message, address):
-        print(f'Sending message: {message} to socket: {address}')
+        """
+        Sends a given message to the specified address and logs the action.
+
+        This method logs the action of sending a message to a specific socket address
+        at the debug level, adds the message to an internal buffer, and
+        manages the process through a class-level logger and buffer.
+
+        :param message: The message to be sent.
+        :param address: The address of the socket to which the message will be sent.
+        :return: None
+        """
+        cls.__logger.debug(f'Sending message: {message} to socket: {address}')
         cls.buffer.append(message)
 
     @property
     def getBuffer(self):
+        """
+        Retrieves the value of the `buffer` attribute.
+
+        This property method provides access to the internal buffer attribute of the
+        instance. The method allows for encapsulation while exposing the required
+        attribute to be retrieved when needed.
+
+        :return: The current value stored in the `buffer` attribute.
+        :rtype: Any
+        """
         return self.buffer

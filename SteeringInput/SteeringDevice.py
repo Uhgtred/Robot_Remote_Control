@@ -135,4 +135,4 @@ class SteeringDevice:
         for event in self.__controller.read_loop():
             if event.type == 0:
                 continue
-            callbackMethod(self.__setSteeringValues(event))
+            callbackMethod(self.__setSteeringValues(event).getButtonDict)

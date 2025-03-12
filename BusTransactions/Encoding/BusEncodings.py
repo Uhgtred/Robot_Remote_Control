@@ -99,8 +99,7 @@ class SocketEncodingJson(EncodingProtocol):
         Method for encoding a message that will be sent to a socket.
         :param message: Message that needs to be encoded.
         """
-        # Todo: this is hardcoded and really bad (getButtonDict)! This needs to be fixed as soon as possible!
-        return json.dumps(message.getButtonDict).encode()
+        return json.dumps(message).encode()
 
 
 class ImageDataAsMsgPackEncoding(EncodingProtocol):

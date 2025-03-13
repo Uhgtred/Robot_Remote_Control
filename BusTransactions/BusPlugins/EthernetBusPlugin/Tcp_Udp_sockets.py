@@ -91,6 +91,7 @@ class UdpSocket(BusPluginInterface):
         :param sock: Socket that will be setup and bound.
         """
         # dynamically providing socket-ports for requested sockets.
+        self.__logger.debug(f'Ports that are already in use: {self.__openSocketPorts}')
         if port in self.__openSocketPorts:
             # check if the busLibrary-object has already been instanced
             raise BaseException('Port already in use')
@@ -124,5 +125,7 @@ class UdpSocket(BusPluginInterface):
         """
         Method for closing the socket.
         """
+        self.__logger.debug(f'Shutting down the socket with port: {self.__port}')
         self.sock.close()
-        self.__openSocketPorts.remove(self.__port)
+        if self.__port in self.__openSocketPorts:
+            self.__openSocketPorts.remove(self.__port)

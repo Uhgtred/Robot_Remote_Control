@@ -6,7 +6,7 @@ import unittest
 from BusTransactions import BusPluginFactory, BusPluginInterface
 
 
-class MyTestCase(unittest.TestCase):
+class TestUDPSockets(unittest.TestCase):
     """
     This class is a test case to validate the behavior and functionality of a
     bus plugin interface using UDP stub implementation.
@@ -25,8 +25,11 @@ class MyTestCase(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        self.bus: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=2101)
+        self.bus: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(2333)
         self.testString = b'Hello World'
+
+    def tearDown(self):
+        self.bus.close()
 
     def test_write(self) -> None:
         """
@@ -48,7 +51,6 @@ class MyTestCase(unittest.TestCase):
         correctness of message transmission in the bus system.
 
         :return: None
-
         """
         self.bus.writeBus(self.testString)
         message = self.bus.readBus()

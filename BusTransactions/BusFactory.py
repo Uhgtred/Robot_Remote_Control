@@ -88,8 +88,11 @@ class BusFactory:
         :rtype: Bus
         """
         encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()
-        if stub:
-            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
-        else:
-            busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
+        busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
+        return Bus(busPlugin, encoding)
+
+    @staticmethod
+    def produceUDP_ImageDataReceiverWithStub(port: int) -> Bus:
+        encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()
+        busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
         return Bus(busPlugin, encoding)

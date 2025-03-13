@@ -45,7 +45,7 @@ class BusPluginFactory:
         return Tcp_Udp_sockets.UdpSocket(config)
 
     @staticmethod
-    def produceUdpStubPlugin(port: int) -> Tcp_Udp_sockets:
+    def produceUdpStubPlugin(port: int) -> Tcp_Udp_sockets.UdpSocket:
         """
         Produces an UDP stub plugin for mock testing or emulation. This method creates a UDP
         socket configuration and initializes an UDP socket instance using a mock socket library.
@@ -57,4 +57,4 @@ class BusPluginFactory:
         :rtype: Tcp_Udp_sockets
         """
         config: SocketConfigs = SocketConfigs.UdpSocketConfig(port=port, busLibrary=MockSocket)
-        return MockSocket(config)
+        return Tcp_Udp_sockets.UdpSocket(config)

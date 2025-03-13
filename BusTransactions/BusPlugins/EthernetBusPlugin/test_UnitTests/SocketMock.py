@@ -41,44 +41,12 @@ class MockSocket:
     SOCK_STREAM = None
     SOCK_DGRAM = None
     passedArgs = []
-    port: int = None
-    address: str = None
+    address: tuple[str, int] = None
     __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('MockSocket', 'MockSocket.log').getLogger
 
-    def __init__(self, config: UdpSocketConfig, *args, **kwargs):
-        self.port = config.port
-        self.address = config.YourIPAddress
-        self.maxMessageSize = config.messageSize
+    def __init__(self, *args, **kwargs):
         self.passedArgs.extend(args)
         self.passedArgs.extend(kwargs)
-
-    def readBus(self):
-        """
-        Reads data from the bus and retrieves the received message.
-
-        The method uses the `recvfrom` function with the `maxMessageSize`
-        property to receive data from the bus. It returns the first element
-        of the received data as the output.
-
-        :return: The received message data from the bus.
-        :rtype: bytes
-        """
-        return self.recvfrom(self.maxMessageSize)[0]
-
-    def writeBus(self, message):
-        """
-        Sends a message to a specified address and port via the datagram socket.
-
-        This method takes a string message as input and sends it to the predefined
-        address and port specified in the attributes `self.address` and `self.port`.
-        The sending operation leverages the `sendto` method of the datagram socket
-        to perform the message transmission.
-
-        :param message: The message to send, provided as a string.
-        :type message: str
-        :return: None
-        """
-        self.sendto(message, (self.address, self.port))
 
     @classmethod
     def recvfrom(cls, messageSize):
@@ -160,6 +128,7 @@ class MockSocket:
         :return: None
         """
         cls.__logger.debug(f'Sending message: {message} to socket: {address}')
+        cls.address: tuple[str, int] = address
         cls.buffer.append(message)
 
     @property

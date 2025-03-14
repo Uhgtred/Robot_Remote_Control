@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
+import logging
 import time
 import unittest
 
-from BusTransactions import BusFactory, BusPluginFactory
+# Todo fix imporst here and unit-tests are not yet running. This needs to be done the next time around!
 from BusTransactions import Encoding
 
 
@@ -21,12 +22,13 @@ class helperClass:
     :ivar testKwargs: Holds the keyword arguments passed to `helperMethod`.
     :type testKwargs: dict
     """
-    def __init__(self):
-        self.args = None
-        self.message = None
-        self.testKwargs = None
 
-    def helperMethod(self, message, *args, **kwargs):
+    args = None
+    message = None
+    testKwargs = None
+
+    @classmethod
+    def helperMethod(cls, message, *args, **kwargs):
         """
         Helper method for processing a message, positional arguments, and keyword
         arguments. This method initializes internal attributes with the provided
@@ -41,11 +43,12 @@ class helperClass:
         :return: None
         :rtype: NoneType
         """
-        self.args = list(args)
-        self.message = message
-        self.testKwargs = kwargs
+        cls.args = list(args)
+        cls.message = message
+        cls.testKwargs = kwargs
 
-    def helperMethodNoArgs(self):
+    @classmethod
+    def helperMethodNoArgs(cls):
         """
         This method is a placeholder that performs no operation. It is intended to
         test whether an exception is raised during unit testing, due to a missing argument of this method
@@ -63,8 +66,10 @@ class test_BusTransceiver(unittest.TestCase):
     serialTransceiver = BusFactory.BusFactory.produceCustomBusTransceiver(bus, Encoding.EncodingFactory.arduinoSerialEncoding)
     testString = 'Hello World'
     messages = []
+    __logger: logging.Logger = logging.getLogger(__name__)
 
     def test_BusTransceiver_writeSingleMessage(self):
+        serialTransceiver = BusFactory.produceSerialBusStubPlugin()
         self.serialTransceiver.writeSingleMessage(self.testString)
         message = self.serialTransceiver.bus.bus.buffer.pop(0)
         self.assertEqual(message[:-1], self.testString.encode())
@@ -84,6 +89,7 @@ class test_BusTransceiver(unittest.TestCase):
         # Otherwise, there is an issue that the message is not correctly being received.
         time.sleep(.0001)
         udpBus.stopFlag = True
+        self.__logger.debug(f'Message that has been read from the socket-mock: {obj.message}')
         self.assertEqual(obj.message, self.testString)
         self.assertEqual(obj.args[0], arg)
         self.assertEqual(obj.testKwargs.get('testKwarg'), 'testKwarg')

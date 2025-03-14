@@ -3,6 +3,7 @@
 import ProjectLogging
 from .SteeringDevice import SteeringDevice
 from .SteeringDeviceConfig import SteeringDeviceConfig
+from .UnitTests.SteeringDeviceStub import SteeringDeviceStub
 
 
 class SteeringDeviceFactory:
@@ -41,21 +42,4 @@ class SteeringDeviceFactory:
         """
         config = SteeringDeviceConfig()
         steeringDevice = SteeringDevice(config)
-        return steeringDevice
-
-
-    @staticmethod
-    def produceControllerStub(stubObject: type(SteeringDevice)) -> SteeringDevice:
-        """
-        Produces a controller stub using the provided SteeringDevice class. This method
-        creates a configuration object of type SteeringDeviceConfig, initializes the
-        provided SteeringDevice class with the configuration, and returns the resulting
-        instance.
-
-        :param stubObject: A class of type SteeringDevice used to produce the controller stub.
-        :return: An instance of SteeringDevice initialized with a SteeringDeviceConfig.
-        """
-        config = SteeringDeviceConfig()
-        steeringDevice = stubObject(config)
-        SteeringDeviceFactory._SteeringDeviceFactory__logger.debug(f"SteeringDevice stub created: {steeringDevice}")
         return steeringDevice

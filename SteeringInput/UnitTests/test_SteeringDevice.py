@@ -67,7 +67,7 @@ class TestSteeringDevice(unittest.TestCase):
         mock_config = MagicMock(spec=SteeringDeviceConfig)
         mock_config.DeviceVendorID = 1234
         mock_config.ControllerPath = "/dev/input/"
-        mock_config.buttons = SteeringDeviceConfig.buttons
+        mock_config.buttons = SteeringDeviceConfig().buttons
 
         # Mock the Popen call to simulate the directory listing for devices
         mock_popen.return_value.communicate.return_value = (b'event0\n', b'')

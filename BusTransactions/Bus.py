@@ -31,9 +31,9 @@ class Bus(BusInterface):
         Read and decode a single message from the bus.
         :return: Decoded message in string format.
         """
-        message = self.encoding.decode(self.bus.readBus())
-        print(f'Message that has been received: {message}')
-        return message# self.encoding.decode(self.bus.readBus())
+        message: any = self.encoding.decode(self.bus.readBus())
+        self.__logger.debug(f'Message that has been received: {message}')
+        return message
 
     def readBusUntilStopFlag(self, callbackMethod: callable, *args, **kwargs) -> None:
         """

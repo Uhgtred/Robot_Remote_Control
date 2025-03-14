@@ -67,15 +67,16 @@ class TestSteeringDevice(unittest.TestCase):
         mock_config = MagicMock(spec=SteeringDeviceConfig)
         mock_config.DeviceVendorID = 1234
         mock_config.ControllerPath = "/dev/input/"
+        mock_config.buttons = SteeringDeviceConfig.buttons
 
         # Mock the Popen call to simulate the directory listing for devices
         mock_popen.return_value.communicate.return_value = (b'event0\n', b'')
 
         # Create the SteeringDevice instance with the mock config
-        device = SteeringDevice(mock_config)
+        device: SteeringDevice = SteeringDevice(mock_config)
 
         # Mock the InputDevice constructor
-        mock_device = MagicMock(spec=InputDevice)
+        mock_device: MagicMock = MagicMock(spec=InputDevice)
         mock_device.info.vendor = 1234  # Simulate a matching vendor ID
         mock_input_device.return_value = mock_device
 
@@ -92,7 +93,7 @@ class TestSteeringDevice(unittest.TestCase):
         mock_device.read_loop.return_value = [mock_event]
 
         # Mock the callback function to capture the processed buttons
-        mock_callback = MagicMock()
+        mock_callback: MagicMock = MagicMock()
 
         # Run the readController method and ensure the callback is called
         device.readController(mock_callback)

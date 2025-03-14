@@ -10,26 +10,43 @@ from .Encoding.BusEncodings import EncodingProtocol
 
 class BusFactory:
     """
-    Factory for creating an instance of a bus-transceiver.
+    Provides a factory for creating instances of bus-transceivers with different configurations.
+
+    This class contains static methods to produce various types of bus-transceivers, including
+    serial transceivers and UDP-based transceivers with optional stubbing capabilities. Clients
+    can specify the appropriate configurations required for communication, such as encoding
+    protocols and network ports.
+
+    Methods in this factory integrate bus plugins with encoding protocols to form complete bus
+    systems, ensuring compatibility for communication processes.
+
+    :ivar attribute1: Description of attribute1.
+    :type attribute1: type
+    :ivar attribute2: Description of attribute2.
+    :type attribute2: type
     """
 
     @staticmethod
-    def produceBusTransceiver(bus: type(BusPluginFactory), encoding: type(EncodingFactory)) -> Bus:
+    def produceCustomBusTransceiver(bus: BusPluginInterface, encoding: EncodingProtocol) -> Bus:
         """
         Method for producing an instance of a bus-transceiver.
         :param bus: Bus-Class that will be communicated with, produced by Factory-class in BusPlugins-Module.
         :param encoding: Encoding that decides the format of the messages.
         """
         # check if encoding has already been instanced
-        if callable(encoding):
-            encoding: EncodingProtocol = encoding()
+        encoding: EncodingProtocol = encoding() if callable(encoding) else encoding
         transceiver = Bus(bus, encoding)
         return transceiver
 
     @staticmethod
     def produceSerialTransceiver() -> Bus:
         """
-        Method for creating an instance of a serial-bus transceiver that connects to arduino.
+        Produces a serial transceiver configured with Arduino's serial bus plugin and
+        related encoding protocol. Combines the plugin and encoding configuration into a
+        Bus instance for communication compatibility.
+
+        :rtype: Bus
+        :return: The configured serial transceiver bus object.
         """
         encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusArduinoPlugin()
@@ -93,6 +110,18 @@ class BusFactory:
 
     @staticmethod
     def produceUDP_ImageDataReceiverWithStub(port: int) -> Bus:
+        """
+        Produces a UDP image data receiver using a stub plugin and appropriate encoding.
+        The method sets up an encoding protocol for image receiving and creates a BusPluginInterface
+        using a UDP stub plugin for the specified port. It combines these configurations into
+        a Bus instance and returns it.
+
+        :param port: The port number on which the UDP stub plugin will operate.
+        :type port: int
+
+        :return: A configured Bus instance capable of receiving image data via UDP.
+        :rtype: Bus
+        """
         encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
         return Bus(busPlugin, encoding)

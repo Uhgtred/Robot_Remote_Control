@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
+
 import ProjectLogging
 from .SteeringDevice import SteeringDevice
 from .SteeringDeviceConfig import SteeringDeviceConfig
-from .UnitTests.SteeringDeviceStub import SteeringDeviceStub
 
 
 class SteeringDeviceFactory:

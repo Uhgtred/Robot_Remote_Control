@@ -26,7 +26,23 @@ class SteeringDeviceFactory:
         config = SteeringDeviceConfig()
         steeringDevice = SteeringDevice(config)
         steeringDevice.initController()
+
+    @staticmethod
+    def produceControllerWithoutInitOfController() -> SteeringDevice:
+        """
+        Produces and initializes a SteeringDevice instance with the
+        necessary configuration. The function creates a configuration
+        object for a steering device, uses it to instantiate the device
+        and return a SteeringDevice instance without an initialized controller.
+
+        :rtype: SteeringDevice
+        :return: A fully initialized SteeringDevice instance ready for use
+                 with its controller.
+        """
+        config = SteeringDeviceConfig()
+        steeringDevice = SteeringDevice(config)
         return steeringDevice
+
 
     @staticmethod
     def produceControllerStub(stubObject: type(SteeringDevice)) -> SteeringDevice:

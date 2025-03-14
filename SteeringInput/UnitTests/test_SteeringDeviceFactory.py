@@ -13,7 +13,7 @@ class test_SteeringDeviceFactory(unittest.TestCase):
         self.factory = SteeringDeviceFactory()
 
     def test_produceController(self):
-        controller = self.factory.produceController()
+        controller = self.factory.produceControllerWithoutInitOfController()
         self.assertIsInstance(controller, SteeringDevice)
 
 

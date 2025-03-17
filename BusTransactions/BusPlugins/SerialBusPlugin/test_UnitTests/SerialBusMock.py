@@ -9,8 +9,9 @@ class MockSerialBus:
         if self.buffer:
             return self.buffer.pop(0)
 
-    def write(self, message):
-        self.buffer.append(message)
+    @classmethod
+    def write(cls, message):
+        cls.buffer.append(message)
 
     @classmethod
     def is_open(cls):
@@ -25,3 +26,14 @@ class MockSerialBus:
     @property
     def getBuffer(self):
         return self.buffer
+
+    def __str__(self):
+        """
+        Mock implementation of a serial communication bus as a string representation.
+        This method is intended to provide a human-readable string equivalent for
+        the MockSerialBus object.
+
+        :return: A string representation of the MockSerialBus class.
+        :rtype: str
+        """
+        return 'MockSerialBus'

@@ -4,7 +4,7 @@
 import inspect
 import threading
 
-import ProjectLogging
+import logging
 from .BusPlugins import BusPluginInterface
 from .Encoding.BusEncodings import EncodingProtocol
 from .BusInterface import BusInterface
@@ -24,7 +24,7 @@ class Bus(BusInterface):
         self.__stopFlag: bool = False
         self.encoding: EncodingProtocol = encoding
         self.bus: BusPluginInterface = bus
-        self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
+        self.__logger: logging.getLogger = logging.getLogger(__name__)
 
     def readSingleMessage(self) -> EncodingProtocol.decode:
         """

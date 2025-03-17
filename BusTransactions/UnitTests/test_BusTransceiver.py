@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
+
 import logging
 import time
 import unittest
 
-# Todo fix imporst here and unit-tests are not yet running. This needs to be done the next time around!
-from BusTransactions import Encoding
+from BusTransactions import Encoding, BusPluginFactory
+from BusTransactions.BusFactory import BusFactory
 
 
 class helperClass:
@@ -63,13 +64,13 @@ class helperClass:
 
 class test_BusTransceiver(unittest.TestCase):
     bus = BusPluginFactory.produceSerialBusStubPlugin()
-    serialTransceiver = BusFactory.BusFactory.produceCustomBusTransceiver(bus, Encoding.EncodingFactory.arduinoSerialEncoding)
+    serialTransceiver = BusFactory.produceCustomBusTransceiver(bus, Encoding.EncodingFactory.arduinoSerialEncoding)
     testString = 'Hello World'
     messages = []
     __logger: logging.Logger = logging.getLogger(__name__)
 
     def test_BusTransceiver_writeSingleMessage(self):
-        serialTransceiver = BusFactory.produceSerialBusStubPlugin()
+        serialTransceiver = BusFactory.produceSer()
         self.serialTransceiver.writeSingleMessage(self.testString)
         message = self.serialTransceiver.bus.bus.buffer.pop(0)
         self.assertEqual(message[:-1], self.testString.encode())
@@ -81,7 +82,7 @@ class test_BusTransceiver(unittest.TestCase):
 
     def test_readBusUntilStopFlag(self):
         obj = helperClass()
-        udpBus = BusFactory.BusFactory.produceUDP_TransceiverWithStub(port = 2121)
+        udpBus = BusFactory.produceUDP_TransceiverWithStub(port = 2121)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         udpBus.readBusUntilStopFlag(obj.helperMethod, arg, testKwarg='testKwarg')
@@ -96,7 +97,7 @@ class test_BusTransceiver(unittest.TestCase):
 
     def test_readBusUntilStopFlagFail(self):
         obj = helperClass()
-        udpBus = BusFactory.BusFactory.produceUDP_TransceiverWithStub(port = 2122)
+        udpBus = BusFactory.produceUDP_TransceiverWithStub(port = 2122)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         self.assertRaises(TypeError, udpBus.readBusUntilStopFlag, (obj.helperMethodNoArgs, arg), testKwarg='testKwarg')

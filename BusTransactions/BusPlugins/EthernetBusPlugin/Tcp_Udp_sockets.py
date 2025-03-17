@@ -5,7 +5,7 @@ import atexit
 import socket
 import struct
 
-import ProjectLogging
+import logging
 from . import SocketConfigs
 from ..BusPluginInterface import BusPluginInterface
 
@@ -34,8 +34,7 @@ class UdpSocket(BusPluginInterface):
 
     __openSocketPorts: set = set()
     # Initializing a Logger. The loglevel can globally be set in ProjectLogging.Logger.
-    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('TCP_UDP_Sockets',
-                                                                           'TCP_UDP_Sockets.log').getLogger
+    __logger: logging.getLogger = logging.getLogger(__name__)
 
     def __init__(self, config: SocketConfigs.UdpSocketConfig):
         self.sock: socket.socket | None = None

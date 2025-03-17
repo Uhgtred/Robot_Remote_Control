@@ -7,8 +7,7 @@ import cv2
 import msgpack
 import numpy
 
-import ProjectLogging
-
+import logging
 
 class EncodingProtocol(Protocol):
     """
@@ -85,8 +84,8 @@ class SocketEncoding(EncodingProtocol):
 
 class SocketEncodingJson(EncodingProtocol):
 
-    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('SocketEncodingJson',
-                                                                      'SocketEncodingJson.log').getLogger
+    __logger: logging.getLogger = logging.getLogger(__name__)
+
     @staticmethod
     def decode(message: bytes) -> dict:
         """
@@ -111,8 +110,7 @@ class SocketEncodingJson(EncodingProtocol):
 
 class ImageDataAsMsgPackEncoding(EncodingProtocol):
 
-    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('ImageDataEncoding',
-                                                                      'ImageDataEncoding.log').getLogger
+    __logger: logging.getLogger = logging.getLogger(__name__)
 
     @staticmethod
     def encode(imageData: numpy.ndarray) -> bytes:

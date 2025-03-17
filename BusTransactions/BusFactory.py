@@ -10,46 +10,52 @@ from .Encoding.BusEncodings import EncodingProtocol
 
 class BusFactory:
     """
-    Provides a factory for creating instances of bus-transceivers with different configurations.
-
-    This class contains static methods to produce various types of bus-transceivers, including
-    serial transceivers and UDP-based transceivers with optional stubbing capabilities. Clients
-    can specify the appropriate configurations required for communication, such as encoding
-    protocols and network ports.
-
-    Methods in this factory integrate bus plugins with encoding protocols to form complete bus
-    systems, ensuring compatibility for communication processes.
-
-    :ivar attribute1: Description of attribute1.
-    :type attribute1: type
-    :ivar attribute2: Description of attribute2.
-    :type attribute2: type
+    Factory for creating an instance of a bus-transceiver.
     """
 
     @staticmethod
-    def produceCustomBusTransceiver(bus: BusPluginInterface, encoding: EncodingProtocol) -> Bus:
+    def produceBusTransceiver(bus: type(BusPluginFactory), encoding: type(EncodingFactory)) -> Bus:
         """
         Method for producing an instance of a bus-transceiver.
         :param bus: Bus-Class that will be communicated with, produced by Factory-class in BusPlugins-Module.
         :param encoding: Encoding that decides the format of the messages.
         """
         # check if encoding has already been instanced
-        encoding: EncodingProtocol = encoding() if callable(encoding) else encoding
+        if callable(encoding):
+            encoding: EncodingProtocol = encoding()
         transceiver = Bus(bus, encoding)
         return transceiver
 
     @staticmethod
     def produceSerialTransceiver() -> Bus:
         """
-        Produces a serial transceiver configured with Arduino's serial bus plugin and
-        related encoding protocol. Combines the plugin and encoding configuration into a
-        Bus instance for communication compatibility.
+        Creates and configures a serial transceiver for Arduino communication. This involves
+        initializing an encoding protocol and setting up a bus plugin specific to Arduino,
+        and then using these components to produce and return a configured `Bus` object.
 
+        :staticmethod:
+
+        :return: An instance of `Bus` configured with the Arduino-specific serial bus plugin
+                 and encoding protocol.
         :rtype: Bus
-        :return: The configured serial transceiver bus object.
         """
         encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusArduinoPlugin()
+        return Bus(busPlugin, encoding)
+
+    @staticmethod
+    def produceSerialTransceiverWithStub() -> Bus:
+        """
+        Produces a serial transceiver with a stub implementation using the Arduino serial
+        encoding protocol. This function sets up a mock serial bus plugin and prepares
+        it with the required encoding to simulate serial communication.
+
+        :rtype: Bus
+        :return: Returns an instance of the Bus class initialized with a stub serial
+                 bus plugin and Arduino serial encoding protocol.
+        """
+        encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
+        busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusStubPlugin()
         return Bus(busPlugin, encoding)
 
     @staticmethod
@@ -111,15 +117,18 @@ class BusFactory:
     @staticmethod
     def produceUDP_ImageDataReceiverWithStub(port: int) -> Bus:
         """
-        Produces a UDP image data receiver using a stub plugin and appropriate encoding.
-        The method sets up an encoding protocol for image receiving and creates a BusPluginInterface
-        using a UDP stub plugin for the specified port. It combines these configurations into
-        a Bus instance and returns it.
+        Produces an instance of a UDP Image Data Receiver with a stub implementation.
 
-        :param port: The port number on which the UDP stub plugin will operate.
+        This static method configures and initializes a Bus object capable of
+        receiving image data over UDP using a specific stub plugin. The method
+        utilizes factory classes to provide the necessary encoding protocol and
+        plugin implementation.
+
+        :param port: The UDP port number on which the receiver should listen.
         :type port: int
 
-        :return: A configured Bus instance capable of receiving image data via UDP.
+        :return: An instance of the initialized Bus configured with the appropriate
+            encoding protocol and stub plugin.
         :rtype: Bus
         """
         encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()

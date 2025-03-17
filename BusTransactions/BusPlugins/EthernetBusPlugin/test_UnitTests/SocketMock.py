@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
 
-import ProjectLogging
-from BusTransactions.BusPlugins.EthernetBusPlugin import UdpSocketConfig
+import logging
 
 
 class MockSocket:
@@ -42,7 +41,7 @@ class MockSocket:
     SOCK_DGRAM = None
     passedArgs = []
     address: tuple[str, int] = None
-    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('MockSocket', 'MockSocket.log').getLogger
+    __logger: logging.getLogger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         self.passedArgs.extend(args)

@@ -5,7 +5,7 @@ import atexit
 import socket
 import struct
 
-import ProjectLogging
+import logging
 from . import SocketConfigs
 from ..BusPluginInterface import BusPluginInterface
 
@@ -34,8 +34,7 @@ class UdpSocket(BusPluginInterface):
 
     __openSocketPorts: set = set()
     # Initializing a Logger. The loglevel can globally be set in ProjectLogging.Logger.
-    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('TCP_UDP_Sockets',
-                                                                           'TCP_UDP_Sockets.log').getLogger
+    __logger: logging.getLogger = logging.getLogger(__name__)
 
     def __init__(self, config: SocketConfigs.UdpSocketConfig):
         self.sock: socket.socket | None = None
@@ -91,6 +90,7 @@ class UdpSocket(BusPluginInterface):
         :param sock: Socket that will be setup and bound.
         """
         # dynamically providing socket-ports for requested sockets.
+        self.__logger.debug(f'Ports that are already in use: {self.__openSocketPorts}')
         if port in self.__openSocketPorts:
             # check if the busLibrary-object has already been instanced
             raise BaseException('Port already in use')
@@ -114,6 +114,7 @@ class UdpSocket(BusPluginInterface):
         """
         message, address = self.sock.recvfrom(self.__maxMessageSize)
         # Returning data only if it is received from the expected IP-Address.
+        self.__logger.debug(f'Received message from {address}, expected {self.__yourIPAddress}:{self.__port}.')
         if address != (self.__yourIPAddress, self.__port):
             return None, None
         header, data = message[:headerLength], message[headerLength:]
@@ -123,5 +124,7 @@ class UdpSocket(BusPluginInterface):
         """
         Method for closing the socket.
         """
+        self.__logger.debug(f'Shutting down the socket with port: {self.__port}')
         self.sock.close()
-        self.__openSocketPorts.remove(self.__port)
+        if self.__port in self.__openSocketPorts:
+            self.__openSocketPorts.remove(self.__port)

@@ -6,7 +6,7 @@ import unittest
 from BusTransactions import BusPluginFactory, Bus
 from BusTransactions import Encoding
 from BusTransactions.BusFactory import BusFactory
-from BusTransactions.BusPlugins.SerialBusPlugin.test_UnitTests.SerialBusMock import MockSerialBus
+from BusTransactions.BusPlugins.SerialBusPlugin.UnitTests.SerialBusMock import MockSerialBus
 
 
 class MyTestCase(unittest.TestCase):
@@ -17,7 +17,7 @@ class MyTestCase(unittest.TestCase):
     def test_produceBusTransceiver(self):
         encoding = Encoding.EncodingFactory.arduinoSerialEncoding
         bus = BusPluginFactory.produceSerialBusStubPlugin()
-        transceiver = self.busFactory.produceBusTransceiver(bus, encoding)
+        transceiver = self.busFactory.produceCustomBusTransceiver(bus, encoding)
         self.assertIsInstance(transceiver, Bus)
 
 if __name__ == '__main__':

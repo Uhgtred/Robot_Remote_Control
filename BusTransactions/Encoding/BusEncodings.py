@@ -7,8 +7,7 @@ import cv2
 import msgpack
 import numpy
 
-from ProjectLogging import Logger
-
+import logging
 
 class EncodingProtocol(Protocol):
     """
@@ -16,7 +15,7 @@ class EncodingProtocol(Protocol):
     """
 
     @staticmethod
-    def decode(message: any) -> any:
+    def decode(message: bytes) -> any:
         """
         Method for decoding a message received from a bus.
         :param message: Message from bus that needs to be decoded.
@@ -38,7 +37,7 @@ class ArduinoSerialEncoding(EncodingProtocol):
     """
 
     @staticmethod
-    def decode(message: any) -> str:
+    def decode(message: bytes) -> str:
         """
         Method for decoding a message received from a bus.
         :param message: Message from bus that needs to be decoded.
@@ -63,7 +62,7 @@ class ArduinoSerialEncoding(EncodingProtocol):
 class SocketEncoding(EncodingProtocol):
 
     @staticmethod
-    def decode(message: any) -> str:
+    def decode(message: bytes) -> str:
         """
         Method for decoding a message received from a socket.
         :param message: Message from socket that needs to be decoded.
@@ -72,7 +71,8 @@ class SocketEncoding(EncodingProtocol):
             message = message.decode()
         return message
 
-    def encode(self, message: str) -> bytes:
+    @staticmethod
+    def encode(message: str) -> bytes:
         """
         Method for encoding a message that will be sent to a socket.
         :param message: Message that needs to be encoded.
@@ -84,28 +84,36 @@ class SocketEncoding(EncodingProtocol):
 
 class SocketEncodingJson(EncodingProtocol):
 
+    __logger: logging.getLogger = logging.getLogger(__name__)
+
     @staticmethod
-    def decode(message: json) -> dict:
+    def decode(message: bytes) -> dict:
         """
         Method for decoding a message received from a socket.
         :param message: Message from socket that needs to be decoded.
         """
-        return json.loads(message.decode())
+        SocketEncodingJson.__logger.debug(f'Message that will be decoded is of type: {type(message)}')
+        if isinstance(message, bytes):
+            message: json = message.decode()
+        SocketEncodingJson.__logger.debug(f'Decoded message that will be unpacked from json is: {message}, of type: '
+                                          f'{type(message)}')
+        return json.loads(message)
 
-    def encode(self, message: any) -> json:
+    @staticmethod
+    def encode(message: any) -> json:
         """
         Method for encoding a message that will be sent to a socket.
         :param message: Message that needs to be encoded.
         """
-        return json.dumps(message.getButtonDict).encode()
+        return json.dumps(message).encode()
 
 
 class ImageDataAsMsgPackEncoding(EncodingProtocol):
 
-    def __init__(self):
-        self.__logger: Logger.getLogger = Logger('SerializerMsgPack','SerializerLog.log').getLogger
+    __logger: logging.getLogger = logging.getLogger(__name__)
 
-    def encode(self, imageData: numpy.ndarray) -> bytes:
+    @staticmethod
+    def encode(imageData: numpy.ndarray) -> bytes:
         """
         Serialize raw image data into a compressed byte format.
 
@@ -121,13 +129,15 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         :rtype: bytes
         """
         # This makes the code use the abstract method at the beginning, which includes a little bit of error-handling.
-        self.__logger.debug(f'Serializing image data of type {type(imageData)} ...')
+        ImageDataAsMsgPackEncoding.__logger.debug(f'Serializing image data of type {type(imageData)} ...')
         encodingParameters = [int(cv2.IMWRITE_JPEG_QUALITY), 80] # 80 is the quality of the jpeg compression
+        ImageDataAsMsgPackEncoding.__logger.debug(f'Encoding parameters: {encodingParameters}, imageDataType: {type(imageData)}')
         returnValue, buffer = cv2.imencode('.jpg', imageData, encodingParameters) # returnValue is type boolean.
         serializedData: bytes = msgpack.packb({'frameData': buffer.tobytes()})
         return serializedData
 
-    def decode(self, data: bytes) -> any:
+    @staticmethod
+    def decode(data: bytes) -> any:
         """
         Decodes a given byte data utilizing msgpack unpacking and OpenCV decoding to
         obtain an image frame.
@@ -141,9 +151,11 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         :return: Decoded image frame extracted from the provided byte data.
         :rtype: any
         """
-        payload = msgpack.unpackb(data)
-        frameData = payload.get(b'frameData')  # Access the frame
-        frameData = numpy.frombuffer(frameData, dtype=numpy.uint8) # or numpy.ndarray?
-        imageframe = cv2.imdecode(frameData, cv2.IMREAD_COLOR)
+        ImageDataAsMsgPackEncoding.__logger.debug(f'Image-data that will be decoded: {data}')
+        payload: any = msgpack.unpackb(data)
+        frameData = payload.get('frameData')  # Access the frame
+        ImageDataAsMsgPackEncoding.__logger.debug(f'Decoding image data of type {type(frameData)} ...')
+        frameData: numpy.ndarray = numpy.frombuffer(frameData, dtype=numpy.uint8) # or numpy.ndarray?
+        imageframe: numpy.ndarray = cv2.imdecode(frameData, cv2.IMREAD_COLOR)
         return imageframe
 

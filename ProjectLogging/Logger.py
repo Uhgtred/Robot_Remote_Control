@@ -22,7 +22,6 @@ class Logger:
         """
         if not logFile.endswith('.log'):
             logFile += '.log'
-        self.__deleteExistingLogFiles()
         self.__logger = logging.getLogger(name)
         self.__logger.setLevel(logLevel)
         formatter: logging.Formatter = self.__setupFormatter(name)
@@ -83,3 +82,6 @@ class Logger:
         for file in files:
             if file.endswith('.log'):
                 os.remove(os.path.join(logPath, file))
+
+    # Executing the deletion of existing logfiles ones the class is being created by the interpreter
+    __deleteExistingLogFiles()

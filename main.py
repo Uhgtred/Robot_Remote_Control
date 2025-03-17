@@ -27,7 +27,13 @@ class Main:
     task runners, reading the controller, and managing communication ports.
     """
 
-    __ports: dict = {'controllerPort': 2001, 'APIPort': 3000, 'videoPort': 2002}
+    __ports: dict = {
+        # Dictionary defining the socket-assignment.
+        'controllerPort': 2001,
+        'APIPort': 3000,
+        'videoPort': 2002,
+        'internalVideoPort': 2003
+        }
 
     def __init__(self):
         """

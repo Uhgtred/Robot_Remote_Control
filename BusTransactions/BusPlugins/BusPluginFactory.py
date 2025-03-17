@@ -1,17 +1,30 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
+import logging
 
 from .EthernetBusPlugin import Tcp_Udp_sockets, SocketConfigs
 from .EthernetBusPlugin.test_UnitTests import MockSocket
 from .SerialBusPlugin import SerialBus, SerialBusConfig
 from .BusPluginInterface import BusPluginInterface
-from .SerialBusPlugin.test_UnitTests.SerialBusMock import MockSerialBus
+from .SerialBusPlugin.UnitTests.SerialBusMock import MockSerialBus
 
 
 class BusPluginFactory:
     """
-    Class for producing Bus-instances.
+    Factory class for creating various communication plugins.
+
+    The BusPluginFactory class provides several static methods to produce instances of different
+    communication protocol plugins, including SerialBus, UDP socket, and their respective stub
+    versions. These plugins are configured with appropriate settings predefined in the factory
+    methods, allowing easy initialization of communication interfaces.
+
+    :ivar default_device_path: Default device path for serial communication.
+    :type default_device_path: str
+    :ivar default_baud_rate: Default baud rate for serial communication.
+    :type default_baud_rate: int
     """
+
+    __logger: logging.Logger = logging.getLogger(__name__)
 
     @staticmethod
     def produceSerialBusArduinoPlugin() -> SerialBus:
@@ -24,7 +37,21 @@ class BusPluginFactory:
 
     @staticmethod
     def produceSerialBusStubPlugin() -> SerialBus:
-        config = SerialBusConfig('/dev/ttyACM0', 115200, MockSerialBus)
+        """
+        Generates and returns a SerialBus instance configured with a mock serial bus.
+
+        This static method initializes a SerialBusConfig object with default settings
+        including the device path, baud rate, and a mocked serial bus class. It then
+        uses this configuration to create and return a new SerialBus instance.
+
+        :raises ValueError: Raised if the provided configuration values are invalid.
+
+        :return: An instance of SerialBus configured using default parameters for
+                 mocking a serial bus communication.
+        :rtype: SerialBus
+        """
+        config: SerialBusConfig = SerialBusConfig('/dev/ttyACM0', 115200, MockSerialBus)
+
         return SerialBus(config)
 
     @staticmethod
@@ -35,7 +62,7 @@ class BusPluginFactory:
         factory for creating and returning a configured UdpSocket object.
 
         :param port: The port number to bind the UDP socket to.
-        :type port: int
+        :type port: Int
 
         :return: An instance of `Tcp_Udp_sockets.UdpSocket` configured with the
             specified port and message size.
@@ -45,13 +72,13 @@ class BusPluginFactory:
         return Tcp_Udp_sockets.UdpSocket(config)
 
     @staticmethod
-    def produceUdpStubPlugin(port: int) -> Tcp_Udp_sockets:
+    def produceUdpStubPlugin(port: int) -> Tcp_Udp_sockets.UdpSocket:
         """
-        Produces a UDP stub plugin for mock testing or emulation. This method creates a UDP
-        socket configuration and initializes a UDP socket instance using a mock socket library.
+        Produces an UDP stub plugin for mock testing or emulation. This method creates a UDP
+        socket configuration and initializes an UDP socket instance using a mock socket library.
 
         :param port: The port number to initialize the UDP socket configuration.
-        :type port: int
+        :type port: Int
         :return: An instance of UdpSocket configured with the specified port and using
                  the mock socket library.
         :rtype: Tcp_Udp_sockets

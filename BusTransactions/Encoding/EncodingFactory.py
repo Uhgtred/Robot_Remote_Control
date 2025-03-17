@@ -49,7 +49,7 @@ class EncodingFactory:
         """
         match encodingType:
             case "json": return BusEncodings.SocketEncodingJson()
-            case "python": return BusEncodings.SocketEncoding()
+            case "pythonDefault": return BusEncodings.SocketEncoding()
             case default: return BusEncodings.SocketEncodingJson()
 
     @staticmethod

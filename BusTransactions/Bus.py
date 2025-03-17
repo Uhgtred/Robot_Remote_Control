@@ -4,7 +4,7 @@
 import inspect
 import threading
 
-import ProjectLogging
+import logging
 from .BusPlugins import BusPluginInterface
 from .Encoding.BusEncodings import EncodingProtocol
 from .BusInterface import BusInterface
@@ -24,16 +24,16 @@ class Bus(BusInterface):
         self.__stopFlag: bool = False
         self.encoding: EncodingProtocol = encoding
         self.bus: BusPluginInterface = bus
-        self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
+        self.__logger: logging.getLogger = logging.getLogger(__name__)
 
     def readSingleMessage(self) -> EncodingProtocol.decode:
         """
         Read and decode a single message from the bus.
         :return: Decoded message in string format.
         """
-        message = self.encoding.decode(self.bus.readBus())
-        print(f'Message that has been received: {message}')
-        return message# self.encoding.decode(self.bus.readBus())
+        message: any = self.encoding.decode(self.bus.readBus())
+        self.__logger.debug(f'Message that has been received: {message}')
+        return message
 
     def readBusUntilStopFlag(self, callbackMethod: callable, *args, **kwargs) -> None:
         """
@@ -77,12 +77,14 @@ class Bus(BusInterface):
         else:
             raise TypeError("Callback-method is not callable.")
 
-    def writeSingleMessage(self, message: any) -> None:
+    def writeSingleMessage(self, message: any, verbose: bool = False) -> None:
         """
         Sending an encoded message to the bus.
         :param verbose: Makes the method return command-line output.
         :param message: Message that will be sent to the bus.
         """
+        if verbose:
+            self.__logger.debug(f'Sending message: {message} to bus: {self.bus.__class__.__name__}')
         self.bus.writeBus(self.encoding.encode(message))
 
     @property

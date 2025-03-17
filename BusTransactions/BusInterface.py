@@ -4,7 +4,6 @@
 from abc import ABC, abstractmethod
 
 from .Encoding.BusEncodings import EncodingProtocol
-from BusTransactions.BusPlugins.BusPluginInterface import BusPluginInterface
 
 
 class BusInterface(ABC):

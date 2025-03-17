@@ -6,7 +6,7 @@ from .EthernetBusPlugin import Tcp_Udp_sockets, SocketConfigs
 from .EthernetBusPlugin.test_UnitTests import MockSocket
 from .SerialBusPlugin import SerialBus, SerialBusConfig
 from .BusPluginInterface import BusPluginInterface
-from .SerialBusPlugin.test_UnitTests.SerialBusMock import MockSerialBus
+from .SerialBusPlugin.UnitTests.SerialBusMock import MockSerialBus
 
 
 class BusPluginFactory:

@@ -14,7 +14,7 @@ class BusFactory:
     """
 
     @staticmethod
-    def produceBusTransceiver(bus: type(BusPluginFactory), encoding: type(EncodingFactory)) -> Bus:
+    def produceCustomBusTransceiver(bus: type(BusPluginFactory), encoding: type(EncodingFactory)) -> Bus:
         """
         Method for producing an instance of a bus-transceiver.
         :param bus: Bus-Class that will be communicated with, produced by Factory-class in BusPlugins-Module.

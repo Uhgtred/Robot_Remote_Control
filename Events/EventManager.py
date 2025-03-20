@@ -8,7 +8,16 @@ from .Event import Event
 
 class EventManager:
     """
-    Factory-class for EventUser.
+    Manages events, allowing event production, subscription, and retrieval.
+
+    The EventManager class provides functionality to manage an event-driven system.
+    It allows creating new events, subscribing methods or functions to those events,
+    and retrieving a list of all available events. Events can be used as a mechanism
+    to notify subscribers of state changes or actions within the system.
+
+    :ivar __events: Dictionary holding event names as keys and their corresponding
+        Event instances as values.
+    :type __events: dict
     """
 
     __events: dict = {}
@@ -23,31 +32,23 @@ class EventManager:
         """
         # Only adds the key to the dictionary if it does not already exist!
         cls.__events.setdefault(name, Event())
-        EventManager.__logger.debug(f'Event {name} created.')
         return cls.__events.get(name)
 
     @property
     def getEventsList(self) -> list[str]:
         """
-        Getter Method for Events available.
-        :return: List of available Events.
+        Provides a property to retrieve the list of event names from the internal events dictionary.
+
+        :return: A list of strings containing the names of the events.
+        :rtype: list[str]
         """
         return list(self.__events.keys())
 
-    def subscriberEvent(self, eventName: str, callbackMethod: callable) -> None:
+    def subscribeToEvent(self, eventName: str, callbackMethod: callable) -> None:
         """
-        Subscribes a callback method to a specific event if the provided callback
-        is callable. Associates the callback with the given event name if such an
-        event exists in the internal events registry.
-
-        :param eventName: The name of the event to which the callback should be
-            subscribed.
-        :type eventName: str
-        :param callbackMethod: The callable method or function to be subscribed
-            to the specified event. Must be a callable object.
-        :type callbackMethod: callable
-        :return: This method does not return any value.
-        :rtype: None
+        Method for subscribing to a specific event.
+        :param callbackMethod: Method that will be used for the callback (event update).
+        :param eventName: Name of the event.
         """
         if not callable(callbackMethod):
             return

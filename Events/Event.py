@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
 
-from weakref import WeakSet
-
 import ProjectLogging
 
 
@@ -23,7 +21,7 @@ class Event:
     __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Events', 'Events.log').getLogger
 
     def __init__(self) -> None:
-        self.__subscribers: WeakSet = WeakSet()
+        self.__subscribers: set = set()
 
     def subscribe(self, callbackMethod: callable) -> None:
         """

@@ -27,6 +27,7 @@ class SteeringDeviceFactory:
         config = SteeringDeviceConfig()
         steeringDevice = SteeringDevice(config)
         steeringDevice.initController()
+        return steeringDevice
 
     @staticmethod
     def produceControllerWithoutInitOfController() -> SteeringDevice:

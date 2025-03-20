@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # @author   Markus Kösters
 
+import logging
 import subprocess
 from dataclasses import fields
 import evdev
@@ -25,6 +26,7 @@ class SteeringDevice:
     """
 
     def __init__(self, config: SteeringDeviceConfig):
+        self.logger: logging.Logger = logging.getLogger(__name__)
         self.__conf = config
         self.__controller = None
 

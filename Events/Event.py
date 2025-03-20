@@ -4,10 +4,9 @@
 from weakref import WeakSet
 
 import ProjectLogging
-from Events.EventInterface import EventInterface
 
 
-class Event():
+class Event:
     """
     This class implements an event subscription and notification mechanism.
 

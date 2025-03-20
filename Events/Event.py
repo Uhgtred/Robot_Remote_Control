@@ -7,7 +7,7 @@ import ProjectLogging
 from Events.EventInterface import EventInterface
 
 
-class Event(EventInterface):
+class Event():
     """
     This class implements an event subscription and notification mechanism.
 

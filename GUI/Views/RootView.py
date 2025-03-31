@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
-
+import logging
 import tkinter
 from tkinter import Image
 
@@ -8,6 +8,8 @@ from .ViewConfigs import RootViewConfig
 
 
 class RootView:
+
+    __logger: logging.Logger = logging.getLogger(__name__)
 
     def __init__(self, config: RootViewConfig):
         self.__root = config.window
@@ -21,6 +23,7 @@ class RootView:
         :param videoFrame: Video frame that will be shown next.
         """
         # Update the label with new image
+        self.__logger.debug(f'Updating video frame with image of type: {type(videoFrame)}')
         self.videoLabel.config(image=videoFrame)
         self.videoLabel.image = videoFrame
 

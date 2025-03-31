@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # @author Markus Kösters
 import json
+import zlib
 from typing import Protocol
 
 import cv2
@@ -151,8 +152,9 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         :return: Decoded image frame extracted from the provided byte data.
         :rtype: any
         """
-        ImageDataAsMsgPackEncoding.__logger.debug(f'Image-data that will be decoded: {data}')
-        payload: any = msgpack.unpackb(data)
+        decompressedData: bytes = zlib.decompress(data)
+        ImageDataAsMsgPackEncoding.__logger.debug(f'Image-data that will be decoded: {decompressedData}')
+        payload: any = msgpack.unpackb(decompressedData)
         frameData = payload.get('frameData')  # Access the frame
         ImageDataAsMsgPackEncoding.__logger.debug(f'Decoding image data of type {type(frameData)} ...')
         frameData: numpy.ndarray = numpy.frombuffer(frameData, dtype=numpy.uint8) # or numpy.ndarray?

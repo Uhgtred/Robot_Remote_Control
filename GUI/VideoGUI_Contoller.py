@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
 #Todo: This code will probably be deleted since a decision was made against tkinter and for compose multiplatform.
+import atexit
 import tkinter
 
 import ProjectLogging
@@ -37,6 +38,7 @@ class VideoGUI_Controller:
         # Initializing a logger. The loglevel can globally be set in 'ProjectLogging.Logger'.
         self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('VideoGUI_Controller',
                                                                      'VideoGUI_Controller.log').getLogger
+        atexit.register(self.__rootWindow.destroy)
 
     def runMainLoop(self) -> None:
         """
@@ -65,5 +67,5 @@ class VideoGUI_Controller:
         :param frame: The binary data representing a frame that is to be processed
             and reflected in the root view.
         """
-        self.__logger.debug(f'Updating root view with frame: {frame}\n of size: {len(frame)}')
+        self.__logger.debug(f'Updating root view with frame: {type(frame)}\n of size: {len(frame)}')
         self.__rootView.updateFrame(self.__rootModel.getFrame(frame))

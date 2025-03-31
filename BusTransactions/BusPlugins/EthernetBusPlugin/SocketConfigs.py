@@ -27,9 +27,9 @@ class UdpSocketConfig:
     :type busLibrary: socket
     """
     port: int
-    messageSize: int = 4096
+    messageSize: int = 65535
     # IP-Address of the device that this script is running on
-    MyIPAddress: str = '192.168.178.36'
+    MyIPAddress: str = '192.168.178.32'
     # IP-Address of the device that will be connected to the socket from the other side.
-    YourIPAddress: str = '192.168.178.32'
+    YourIPAddress: str = '192.168.178.36'
     busLibrary: socket = socket

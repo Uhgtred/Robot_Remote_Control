@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
-#Todo: This code will probably be deleted since a decision was made against tkinter and for compose multiplatform.
+
 import atexit
 import tkinter
+import cv2
+import numpy
+from PIL import ImageTk, Image
 
 import ProjectLogging
 from .Models import ModelFactory
@@ -55,6 +58,39 @@ class VideoGUI_Controller:
         """
         self.__rootWindow.mainloop()
 
+    @staticmethod
+    def __convertFrameFormat(imageFrame: numpy.ndarray) -> Image:
+        """
+        Converts an image frame from a NumPy array in BGR color format to an image in RGB
+        format, suitable for Tkinter integration.
+
+        :param imageFrame: A NumPy ndarray representing the image frame in BGR color format.
+        :type imageFrame: numpy.ndarray
+        :return: A PhotoImage object compatible with Tkinter, converted from the input image.
+        :rtype: ImageTk.PhotoImage
+        """
+        return ImageTk.PhotoImage(tkinter.Image.fromarray(cv2.cvtColor(imageFrame, cv2.COLOR_BGR2RGB)))
+
+    @staticmethod
+    def __resizeFrame(image: Image, width: int, height: int) -> Image:
+        """
+        Resize an image to the specified width and height.
+
+        This static method resizes an image to the given dimensions using interpolation
+        for optimal scaling. The resized image is return ed as an output for further
+        processing or use.
+
+        :param image: The input image to be resized.
+        :type image: Image
+        :param width: The target width for the resized image.
+        :type width: int
+        :param height: The target height for the resized image.
+        :type height: int
+        :return: A generator return ing the resized image.
+        :rtype: Image
+        """
+        return cv2.resize(image, (width, height))
+
     def updateRootView(self, frame: bytes) -> None:
         """
         Updates the root view with the given frame data.
@@ -68,4 +104,7 @@ class VideoGUI_Controller:
             and reflected in the root view.
         """
         self.__logger.debug(f'Updating root view with frame: {type(frame)}\n of size: {len(frame)}')
-        self.__rootView.updateFrame(self.__rootModel.getFrame(frame))
+        frame: Image = self.__rootModel.getFrame(frame)
+        resizeFrame: Image = self.__resizeFrame(frame, 1920, 1080)
+        convertedFrame: Image = self.__convertFrameFormat(resizeFrame)
+        self.__rootView.updateFrame(convertedFrame)

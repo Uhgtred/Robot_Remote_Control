@@ -12,38 +12,58 @@ from .ModelConfig import ModelConfig
 
 
 class RootModel:
+    """
+    Represents a root model for processing image frames and managing related tasks.
 
+    This class provides functionalities to process image frames, convert image formats,
+    resize images, and generate predefined images such as a loading screen. The class
+    uses an internal runner to execute relevant tasks and ensures compatibility with
+    Tkinter by utilizing the ImageTk.PhotoImage format.
+
+    :ivar __imageFilePath: The file path to the image resource, derived from configuration.
+    :type __imageFilePath: str
+    :ivar __runner: The runner instance used to manage task execution.
+    :type __runner: Runners
+    """
     def __init__(self, config: ModelConfig):
         self.__imageFilePath: str = str(Path(os.path.abspath(__file__)).parent) + config.imageFilePath
         self.__runner: Runners = Runners.ThreadRunner()
 
     def getFrame(self, frame: numpy.ndarray) -> Image:
         """
-        Method for receiving a single video frame.
-        :return: Video frame as serialized tkinter PhotoImage.
+        Processes a given frame and converts it into a specific image format.
+
+        This method takes a NumPy array representing an image frame, executes related
+        tasks, and then converts and returns the processed image.
+
+        :param frame: The input image frame.
+        :type frame: numpy.ndarray
+        :return: The processed image in a specific format.
+        :rtype: Image
+        """
+        """
+        Todo: Dataclass or class representing a frame.
         """
         self.__runner.runTasks()
-        return self.__convertImageFormat(frame)
+        resizedFrame: Image = self.__resizeFrame(frame, 1920, 1080)
+        convertedFrame: Image = self.__convertFrameFormat(resizedFrame)
+        return convertedFrame
 
     @staticmethod
-    def __convertImageFormat(imageFrame: numpy.ndarray) -> Image:
+    def __loadingScreen():
         """
-        Method for converting the image frame to a format that can be displayed in the GUI (tkinter).
-        :param imageFrame: Serialized image frame that will be converted.
-        :return:
-        """
-        return ImageTk.PhotoImage(Image.fromarray(cv2.cvtColor(imageFrame, cv2.COLOR_BGR2RGB)))
+        Generates a loading screen image with the text "Loading" displayed in the center.
+        The image is created as a 1920x1080 black canvas, with the text rendered in blue
+        color using a specified font.
 
-    def __storeFrameinFile(self, imageData: bytes, imageFilePath: str) -> None:
-        """
-        Method to store the frame into a file.
-        :param imageFilePath: Path in which the image will be stored.
-        :param imageData: Data that will be stored in the file.
-        """
-        with open(imageFilePath, "wb") as file:
-            file.write(imageData)
+        This static method utilizes the PIL library for image manipulation and rendering.
 
-    def __loadingScreen(self):
+        :rtype: ImageTk.PhotoImage
+        :return: A PhotoImage instance created from the image with "Loading" text.
+        """
+        """
+        Todo: This should probably be a dataclass or class.
+        """
         from PIL import Image, ImageTk, ImageFont, ImageDraw
 
         # Create a NumPy array representing an image of size 1920x1080 with all black pixels

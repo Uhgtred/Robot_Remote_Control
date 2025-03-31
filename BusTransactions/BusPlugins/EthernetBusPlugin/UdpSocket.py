@@ -3,7 +3,6 @@
 
 import atexit
 import socket
-import struct
 
 import logging
 from . import SocketConfigs

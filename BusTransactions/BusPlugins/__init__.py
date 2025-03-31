@@ -2,6 +2,6 @@
 # @author: Markus Kösters
 
 from .SerialBusPlugin import SerialBus, SerialBusConfig
-from .EthernetBusPlugin import Tcp_Udp_sockets, SocketConfigs
+from .EthernetBusPlugin import UdpSocket, SocketConfigs
 from .BusPluginFactory import BusPluginFactory
 from .BusPluginInterface import BusPluginInterface

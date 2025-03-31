@@ -127,9 +127,12 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         :type imageData: numpy.ndarray
         :return: A serialized byte object containing the compressed image data in
             msgpack format.
-        :rtype: bytes
+        :rtype: Bytes
         """
-        # This makes the code use the abstract method at the beginning, which includes a little bit of error-handling.
+        """ 
+        This method does too much. It should be split into multiple methods. 
+        It is currently not following the principle of single-responsibility.
+        """
         ImageDataAsMsgPackEncoding.__logger.debug(f'Serializing image data of type {type(imageData)} ...')
         encodingParameters = [int(cv2.IMWRITE_JPEG_QUALITY), 80] # 80 is the quality of the jpeg compression
         ImageDataAsMsgPackEncoding.__logger.debug(f'Encoding parameters: {encodingParameters}, imageDataType: {type(imageData)}')
@@ -151,6 +154,10 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         :type data: bytes
         :return: Decoded image frame extracted from the provided byte data.
         :rtype: any
+        """
+        """ 
+        This method does too much. It should be split into multiple methods. 
+        It is currently not following the principle of single-responsibility.
         """
         decompressedData: bytes = zlib.decompress(data)
         ImageDataAsMsgPackEncoding.__logger.debug(f'Image-data that will be decoded: {decompressedData}')

@@ -2,4 +2,4 @@
 # @author: Markus Kösters
 
 from .SocketConfigs import UdpSocketConfig
-from .Tcp_Udp_sockets import UdpSocket
+from .UdpSocket import UdpSocket

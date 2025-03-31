@@ -23,3 +23,28 @@ jobs:
 
       - name: Run unit tests in Docker container
         run: docker run --rm robot_image sh -c "xvfb-run --auto-servernum --server-num=99 python3 -m unittest discover -v"
+
+
+  # MKDocs documentation generation
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: |
+          pip install mkdocs
+          pip install mkdocs-material
+
+      - name: Deploy documentation to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site/

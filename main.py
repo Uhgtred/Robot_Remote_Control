@@ -92,6 +92,7 @@ class Main:
         """
         self.__logger.info('Starting controller-program...')
         udpBus: Bus = BusFactory.produceUDP_Transceiver(port=self.__ports.get('controllerPort'))
+        self.__logger.debug(f'UDPTransceiverObject: {udpBus}')
         controller: SteeringDevice = SteeringDeviceFactory.produceController()
         self.__logger.debug(f'SteeringDeviceObject: {controller}')
         self.__threadRunner.addTask(controller.readController, udpBus.writeSingleMessage)

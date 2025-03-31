@@ -31,6 +31,7 @@ class Bus(BusInterface):
         Read and decode a single message from the bus.
         :return: Decoded message in string format.
         """
+        self.__logger.debug(f'Reading message from bus: {self.bus.__class__.__name__}')
         message: any = self.encoding.decode(self.bus.readBus())
         self.__logger.debug(f'Message that has been received: {message}')
         return message
@@ -58,7 +59,9 @@ class Bus(BusInterface):
                                     f'\twith args: {args}\n'
                                     f'\tand kwargs: {kwargs}'
                                     f'\ton bus: {self.bus.__class__.__name__}')
-                callbackMethod(self.readSingleMessage(), *args, **kwargs)
+                message: any = self.readSingleMessage()
+                self.__logger.debug(f'Message received: {message}')
+                callbackMethod(message, *args, **kwargs)
             except Exception as e:
                 self.__logger.error(f'Error while reading message: {e}')
 

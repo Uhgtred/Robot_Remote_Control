@@ -1,0 +1,8 @@
+site_name: Robot_Remote_Control
+site_description: Documentation for Remote-Control Project for HomeExplorer
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Features: features.md
+  - Setup: setup.md

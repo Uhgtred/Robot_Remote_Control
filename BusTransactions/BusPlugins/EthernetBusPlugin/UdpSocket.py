@@ -3,7 +3,6 @@
 
 import atexit
 import socket
-import struct
 
 import logging
 from . import SocketConfigs
@@ -59,10 +58,8 @@ class UdpSocket(BusPluginInterface):
         :rtype: Bytes
         """
         self.__logger.debug(f'Reading from bus: {self.__yourIPAddress}:{self.__port}.')
-        headerLength = struct.calcsize('Q')
-        self.__logger.debug(f'Reading from bus with header length: {headerLength}.')
-        header, data = self.__receiver(headerLength)
-        self.__logger.debug(f'Received header: {header}, data: {data}.')
+        data = self.__receiver()
+        self.__logger.debug(f'Received data: {data}.')
         return data
 
     def writeBus(self, message: bytes) -> None:
@@ -78,9 +75,7 @@ class UdpSocket(BusPluginInterface):
 
         :return: None
         """
-        __msgLength = len(message)
-        __message = struct.pack('Q', __msgLength) + message
-        self.sock.sendto(__message, (self.__yourIPAddress, self.__port))
+        self.sock.sendto(message, (self.__yourIPAddress, self.__port))
 
     def _setupSocket(self, sock: socket, port: int) -> None:
         """
@@ -99,26 +94,22 @@ class UdpSocket(BusPluginInterface):
         self.sock.bind((self.__myIPAddress, port))
         self.__openSocketPorts.add(port)
 
-    def __receiver(self, headerLength: int | None) -> tuple[bytes, bytes] | tuple[None, None]:
+    def __receiver(self) -> bytes | None:
         """
-        Receives a message from a socket and processes it based on the specified header length.
-        Checks if the message is received from the expected IP address and port. Returns the
-        header and data as separate components, or None if the address is not the expected one.
+        Receives a message from a UDP socket and returns the message if it is received from the expected IP
+        and port. Otherwise, it logs the discrepancy and returns None. This is used to ensure communication
+        only with the specified network endpoint.
 
-        :param headerLength: Length of the header in the received message. Determines the
-            position at which the message is split into header and data. If None, no header
-            processing is performed. Must be an integer or None.
-        :return: A tuple containing the header and data if the message is received from the
-            expected source, otherwise a tuple of None values. The header and data are bytes
-            objects.
+        :raises OSError: If there is an issue with the underlying socket operations.
+
+        :return: The received message as a bytes object, or None if the message is not from the expected
+                 network endpoint.
+        :rtype: bytes | None
         """
         message, address = self.sock.recvfrom(self.__maxMessageSize)
         # Returning data only if it is received from the expected IP-Address.
         self.__logger.debug(f'Received message from {address}, expected {self.__yourIPAddress}:{self.__port}.')
-        if address != (self.__yourIPAddress, self.__port):
-            return None, None
-        header, data = message[:headerLength], message[headerLength:]
-        return header, data
+        return None if address != (self.__yourIPAddress, self.__port) else message
 
     def close(self) -> None:
         """

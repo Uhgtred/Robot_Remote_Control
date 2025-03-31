@@ -2,10 +2,9 @@
 # @author: Markus Kösters
 import logging
 
-from .EthernetBusPlugin import Tcp_Udp_sockets, SocketConfigs
+from .EthernetBusPlugin import UdpSocket, SocketConfigs
 from .EthernetBusPlugin.test_UnitTests import MockSocket
 from .SerialBusPlugin import SerialBus, SerialBusConfig
-from .BusPluginInterface import BusPluginInterface
 from .SerialBusPlugin.UnitTests.SerialBusMock import MockSerialBus
 
 
@@ -55,7 +54,7 @@ class BusPluginFactory:
         return SerialBus(config)
 
     @staticmethod
-    def produceUdpSocketPlugin(port: int) -> Tcp_Udp_sockets.UdpSocket:
+    def produceUdpSocketPlugin(port: int) -> UdpSocket:
         """
         This static method initializes and produces an instance of the UdpSocket plugin
         using the provided port number and optional message size. The method acts as a
@@ -66,13 +65,13 @@ class BusPluginFactory:
 
         :return: An instance of `Tcp_Udp_sockets.UdpSocket` configured with the
             specified port and message size.
-        :rtype: Tcp_Udp_sockets.UdpSocket
+        :rtype: UdpSocket.UdpSocket
         """
         config: SocketConfigs = SocketConfigs.UdpSocketConfig(port=port)
-        return Tcp_Udp_sockets.UdpSocket(config)
+        return UdpSocket(config)
 
     @staticmethod
-    def produceUdpStubPlugin(port: int) -> Tcp_Udp_sockets.UdpSocket:
+    def produceUdpStubPlugin(port: int) -> UdpSocket:
         """
         Produces an UDP stub plugin for mock testing or emulation. This method creates a UDP
         socket configuration and initializes an UDP socket instance using a mock socket library.
@@ -81,7 +80,7 @@ class BusPluginFactory:
         :type port: Int
         :return: An instance of UdpSocket configured with the specified port and using
                  the mock socket library.
-        :rtype: Tcp_Udp_sockets
+        :rtype: UdpSocket
         """
         config: SocketConfigs = SocketConfigs.UdpSocketConfig(port=port, busLibrary=MockSocket)
-        return Tcp_Udp_sockets.UdpSocket(config)
+        return UdpSocket(config)

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # @author   Markus Kösters
 
-import logging
 import subprocess
 from dataclasses import fields
 import evdev
 
+import ProjectLogging
 from .SteeringDeviceConfig import SteeringDeviceConfig, ButtonData, ButtonsInterface
 
 
@@ -26,7 +26,8 @@ class SteeringDevice:
     """
 
     def __init__(self, config: SteeringDeviceConfig):
-        self.logger: logging.Logger = logging.getLogger(__name__)
+        self.logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('SteeringDevice',
+                                                                             'SteeringDevice.log').getLogger
         self.__conf = config
         self.__controller = None
 
@@ -137,4 +138,6 @@ class SteeringDevice:
         for event in self.__controller.read_loop():
             if event.type == 0:
                 continue
-            callbackMethod(self.__setSteeringValues(event).getButtonDict)
+            steeringValues: dict = self.__setSteeringValues(event).getButtonDict
+            self.logger.debug(f'Button-Dictionary (contains information about buttons pressed): {steeringValues}')
+            callbackMethod(steeringValues)

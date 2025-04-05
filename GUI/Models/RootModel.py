@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
+
 import os.path
 from pathlib import Path
-
+import PIL
 import cv2
 import numpy
 from PIL import ImageTk, Image
@@ -27,7 +28,8 @@ class RootModel:
     """
     def __init__(self, config: ModelConfig):
         self.__imageFilePath: str = str(Path(os.path.abspath(__file__)).parent) + config.imageFilePath
-        self.__runner: Runners = Runners.ThreadRunner()
+        # Todo: utilize an async runner for the video-processing-tasks
+        # self.__runner: Runners.Runner = Runners.AsyncRunner()
 
     def getFrame(self, frame: numpy.ndarray) -> Image:
         """
@@ -42,24 +44,76 @@ class RootModel:
         :rtype: Image
         """
         """
-        Todo: Dataclass or class representing a frame.
+        Todo: Dataclass or class representing a frame. 
+        Todo: make resizedFrame and convertedFrame run async and wait for finalization before going on with the tasks
         """
-        self.__runner.runTasks()
         resizedFrame: Image = self.__resizeFrame(frame, 1920, 1080)
         convertedFrame: Image = self.__convertFrameFormat(resizedFrame)
+        # self.__runner.runTasks()
         return convertedFrame
 
-    @staticmethod
-    def __loadingScreen():
+    def getLoadingScreen(self) -> ImageTk.PhotoImage:
         """
-        Generates a loading screen image with the text "Loading" displayed in the center.
-        The image is created as a 1920x1080 black canvas, with the text rendered in blue
-        color using a specified font.
+        Gets the loading screen image.
 
-        This static method utilizes the PIL library for image manipulation and rendering.
+        This method is used to retrieve the loading screen image pre-loaded as an
+        instance property. It returns an image of the type `ImageTk.PhotoImage`.
+        This is commonly used in GUI applications to display an initial loading or
+        splash screen.
 
+        :return: The loading screen image.
         :rtype: ImageTk.PhotoImage
-        :return: A PhotoImage instance created from the image with "Loading" text.
+        """
+        return self.__loadingScreen()
+
+    @staticmethod
+    def __convertFrameFormat(imageFrame: Image) -> Image:
+        """
+        Converts an image frame from a NumPy array in BGR color format to an image in RGB
+        format, suitable for Tkinter integration.
+
+        :param imageFrame: A NumPy ndarray representing the image frame in BGR color format.
+        :type imageFrame: numpy.ndarray
+        :return: A PhotoImage object compatible with Tkinter, converted from the input image.
+        :rtype: ImageTk.PhotoImage
+        """
+        return ImageTk.PhotoImage(PIL.Image.fromarray(cv2.cvtColor(imageFrame, cv2.COLOR_BGR2RGB)))
+
+    @staticmethod
+    def __resizeFrame(image: Image, width: int, height: int) -> Image:
+        """
+        Resize an image to the specified width and height.
+
+        This static method resizes an image to the given dimensions using interpolation
+        for optimal scaling. The resized image is return ed as an output for further
+        processing or use.
+
+        :param image: The input image to be resized.
+        :type image: Image
+        :param width: The target width for the resized image.
+        :type width: int
+        :param height: The target height for the resized image.
+        :type height: int
+        :return: A generator return ing the resized image.
+        :rtype: Image
+        """
+        return cv2.resize(image, (width, height))
+
+    @staticmethod
+    def __loadingScreen() -> ImageTk.PhotoImage:
+        """
+        Creates and returns a loading screen image as an instance of ImageTk.PhotoImage.
+
+        The method generates a blank 1920x1080 image using NumPy, converts it to a
+        PIL Image, and draws a "Loading" text at a specified position on the image
+        using the PIL ImageDraw module. The text is styled with a bold font loaded
+        from the system. The image is finally converted to ImageTk.PhotoImage before
+        being returned.
+
+        :raises OSError: When the specified font file cannot be found or loaded.
+
+        :return: A loading screen image with "Loading" text centered and styled in
+            bold font.
         """
         """
         Todo: This should probably be a dataclass or class.

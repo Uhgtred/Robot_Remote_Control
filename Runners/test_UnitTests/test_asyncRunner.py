@@ -3,7 +3,7 @@
 import time
 import unittest
 
-from Runners.asyncRunner import AsyncRunner
+from Runners.AsyncRunner import AsyncRunner
 
 
 def test1(sleepTime):

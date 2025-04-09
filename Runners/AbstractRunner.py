@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 class Runner(ABC):
 
     @abstractmethod
-    def addTask(self, task, *args) -> None:
+    def addTask(self, task, *args, **kwargs) -> None:
         """
         Method that adds a task to the list of tasks.
         :param task:    Method or Function that will be executed by the runner.

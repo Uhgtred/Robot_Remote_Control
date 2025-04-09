@@ -6,11 +6,12 @@ import Runners
 from BusTransactions import Bus
 from BusTransactions.BusFactory import BusFactory
 from ProjectLogging import Logger
+from Runners import ThreadRunner
 from SteeringInput import SteeringDeviceFactory, SteeringDevice
 #Todo: This line will not be needed anymore, using the new frontend.
 #       For now it will stay in, just to get the video-transmission done and get some progress for this project
+#       For the long future, kotlin is going to be used as a frontend, since kotlin supports mobile development and web.
 from GUI.VideoGUI_Contoller import VideoGUI_Controller
-from Runners import threadRunner
 
 
 # from Remote.MainGUI import MainGUI
@@ -45,14 +46,14 @@ class Main:
 
         Attributes
         ----------
-        __threadRunner : threadRunner.ThreadRunner
+        __threadRunner : ThreadRunner
             The instance of ThreadRunner to handle multithreaded tasks.
         """
         # Initializing a logger. The loglevel can globally be set in 'ProjectLogging.Logger'.
         self.__logger: Logger.getLogger = Logger('Main',
                                                 'Mainlog.log').getLogger
         self.__logger.info('Initializing Remote-Program...')
-        self.__threadRunner: Runners.Runner = threadRunner.ThreadRunner()
+        self.__threadRunner: Runners.Runner = ThreadRunner()
         self.videoController: VideoGUI_Controller = None
         self.__setup()
         self.__logger.info('Remote-Program initialized!')

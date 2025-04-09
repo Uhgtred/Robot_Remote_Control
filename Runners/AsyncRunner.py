@@ -4,12 +4,15 @@
 import asyncio
 import time
 
-from Runners.runner import Runner
+from Runners.AbstractRunner import Runner
 
 
 class AsyncRunner:
     """
     Class for running async tasks. Can add multiple tasks before running the task-list.
+    """
+    """
+    Todo: complete refactoring of this to make it useful!
     """
 
     def __init__(self):

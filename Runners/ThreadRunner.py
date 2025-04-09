@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
-
+import atexit
 import threading
 
-from Runners.runner import Runner
+from Runners.AbstractRunner import Runner
 
 
 class ThreadRunner(Runner):
@@ -14,8 +14,10 @@ class ThreadRunner(Runner):
     def __init__(self):
         self.__threads: list = []
         self.__running: bool = False
+        # Todo: kill all threads that are still running
+        # atexit.register()
 
-    def addTask(self, task, *args) -> None:
+    def addTask(self, task, *args, **kwargs) -> None:
         """
         Method for adding a task to the task-list.
         :param task: Method that shall be executed in a separate thread.

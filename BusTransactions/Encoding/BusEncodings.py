@@ -130,7 +130,7 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         :rtype: Bytes
         """
         """ 
-        This method does too much. It should be split into multiple methods. 
+        Todo: This method does too much. It should be split into multiple methods. 
         It is currently not following the principle of single-responsibility.
         """
         ImageDataAsMsgPackEncoding.__logger.debug(f'Serializing image data of type {type(imageData)} ...')
@@ -156,7 +156,7 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         :rtype: any
         """
         """ 
-        This method does too much. It should be split into multiple methods. 
+        Todo: This method does too much. It should be split into multiple methods. 
         It is currently not following the principle of single-responsibility.
         """
         decompressedData: bytes = zlib.decompress(data)

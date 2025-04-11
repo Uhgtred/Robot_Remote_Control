@@ -15,4 +15,11 @@ class ModelProtocol(Protocol):
         Method for receiving a single video frame.
         :return: Video frame as serialized numpy.ndarray.
         """
-        pass
+        ...
+
+    def getLoadingScreen(self) -> Image:
+        """
+        Method for receiving a predefined loading-screen.
+        :return: Video frame as serialized numpy.ndarray.
+        """
+        ...

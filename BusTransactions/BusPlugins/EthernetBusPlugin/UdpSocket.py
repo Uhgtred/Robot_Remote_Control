@@ -4,7 +4,7 @@
 import atexit
 import socket
 
-import logging
+import ProjectLogging
 from . import SocketConfigs
 from ..BusPluginInterface import BusPluginInterface
 
@@ -33,7 +33,8 @@ class UdpSocket(BusPluginInterface):
 
     __openSocketPorts: set = set()
     # Initializing a Logger. The loglevel can globally be set in ProjectLogging.Logger.
-    __logger: logging.getLogger = logging.getLogger(__name__)
+    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('UdpSocket',
+                                                                      'UdpSocket.log').getLogger
 
     def __init__(self, config: SocketConfigs.UdpSocketConfig):
         self.sock: socket.socket | None = None
@@ -84,14 +85,16 @@ class UdpSocket(BusPluginInterface):
         There should be no reason to call it directly.
         :param sock: Socket that will be setup and bound.
         """
-        # dynamically providing socket-ports for requested sockets.
         self.__logger.debug(f'Ports that are already in use: {self.__openSocketPorts}')
         if port in self.__openSocketPorts:
-            # check if the busLibrary-object has already been instanced
+            # Raising exception if port is already in use, so that conflicts can be avoided.
             raise BaseException('Port already in use')
+        # Creating a udp-socket object.
         self.sock: socket.socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
         self.__logger.debug(f'Trying to bind to Address: {self.__myIPAddress}:{port}.')
+        # Binding the socket with provided address and port. It can be used for transmission and receiving now.
         self.sock.bind((self.__myIPAddress, port))
+        # Adding port to the set of open sockets.
         self.__openSocketPorts.add(port)
 
     def __receiver(self) -> bytes | None:
@@ -107,13 +110,13 @@ class UdpSocket(BusPluginInterface):
         :rtype: bytes | None
         """
         message, address = self.sock.recvfrom(self.__maxMessageSize)
-        # Returning data only if it is received from the expected IP-Address.
         self.__logger.debug(f'Received message from {address}, expected {self.__yourIPAddress}:{self.__port}.')
+        # Returning data only if it is received from the expected IP-Address (for safety).
         return None if address != (self.__yourIPAddress, self.__port) else message
 
     def close(self) -> None:
         """
-        Method for closing the socket.
+        Method for closing the sockets that are still opened..
         """
         self.__logger.debug(f'Shutting down the socket with port: {self.__port}')
         self.sock.close()

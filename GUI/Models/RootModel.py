@@ -8,6 +8,7 @@ import cv2
 import numpy
 from PIL import ImageTk, Image
 
+import ProjectLogging
 import Runners
 from .ModelConfig import ModelConfig
 
@@ -20,16 +21,13 @@ class RootModel:
     resize images, and generate predefined images such as a loading screen. The class
     uses an internal runner to execute relevant tasks and ensures compatibility with
     Tkinter by utilizing the ImageTk.PhotoImage format.
-
-    :ivar __imageFilePath: The file path to the image resource, derived from configuration.
-    :type __imageFilePath: str
-    :ivar __runner: The runner instance used to manage task execution.
-    :type __runner: Runners
     """
+
+    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('RootModel',
+                                                                      'RootModel.log').getLogger
+
     def __init__(self, config: ModelConfig):
-        self.__imageFilePath: str = str(Path(os.path.abspath(__file__)).parent) + config.imageFilePath
-        # Todo: utilize an async runner for the video-processing-tasks
-        # self.__runner: Runners.Runner = Runners.AsyncRunner()
+        self.__config = config
 
     def getFrame(self, frame: numpy.ndarray) -> Image:
         """
@@ -47,9 +45,8 @@ class RootModel:
         Todo: Dataclass or class representing a frame. 
         Todo: make resizedFrame and convertedFrame run async and wait for finalization before going on with the tasks
         """
-        resizedFrame: Image = self.__resizeFrame(frame, 1920, 1080)
+        resizedFrame: numpy.ndarray = self.__resizeFrame(frame)
         convertedFrame: Image = self.__convertFrameFormat(resizedFrame)
-        # self.__runner.runTasks()
         return convertedFrame
 
     def getLoadingScreen(self) -> ImageTk.PhotoImage:
@@ -67,7 +64,7 @@ class RootModel:
         return self.__loadingScreen()
 
     @staticmethod
-    def __convertFrameFormat(imageFrame: Image) -> Image:
+    def __convertFrameFormat(imageFrame: numpy.ndarray) -> Image:
         """
         Converts an image frame from a NumPy array in BGR color format to an image in RGB
         format, suitable for Tkinter integration.
@@ -79,8 +76,7 @@ class RootModel:
         """
         return ImageTk.PhotoImage(PIL.Image.fromarray(cv2.cvtColor(imageFrame, cv2.COLOR_BGR2RGB)))
 
-    @staticmethod
-    def __resizeFrame(image: Image, width: int, height: int) -> Image:
+    def __resizeFrame(self, image: numpy.ndarray) -> numpy.ndarray:
         """
         Resize an image to the specified width and height.
 
@@ -89,15 +85,13 @@ class RootModel:
         processing or use.
 
         :param image: The input image to be resized.
-        :type image: Image
-        :param width: The target width for the resized image.
-        :type width: int
-        :param height: The target height for the resized image.
-        :type height: int
+        :type image: numpy.ndarray
         :return: A generator return ing the resized image.
-        :rtype: Image
+        :rtype: numpy.ndarray
         """
-        return cv2.resize(image, (width, height))
+        resolution = self.__config.resolution
+        self.__logger.debug(f'Resizing frame to: {resolution}')
+        return cv2.resize(image, resolution)
 
     @staticmethod
     def __loadingScreen() -> ImageTk.PhotoImage:

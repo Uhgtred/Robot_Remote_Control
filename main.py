@@ -13,7 +13,7 @@ from SteeringInput import SteeringDeviceFactory, SteeringDevice
 #       For the long future, kotlin is going to be used as a frontend, since kotlin supports mobile development and web.
 from GUI.VideoGUI_Contoller import VideoGUI_Controller
 
-
+# Todo: For now this will not be used. Maybe some time, this is going to substitute The VideoGUI_Controller
 # from Remote.MainGUI import MainGUI
 
 
@@ -71,7 +71,9 @@ class Main:
             reading process or task execution in runners.
         """
         try:
-            # Add any setup code here
+            """
+            Add any setup-code here.
+            """
             self.__readController()
             self.__recvVideo()
             self.__threadRunner.runTasks()

@@ -37,7 +37,7 @@ class Logger:
         :param formatter: Defines the style of the log-messages in the console.
         :param logger: The logger that this console-streamer is being attached to.
         """
-        consoleHandler = logging.StreamHandler()
+        consoleHandler: logging.StreamHandler = logging.StreamHandler()
         consoleHandler.setLevel(loglevel)  # Only log INFO and above to the console
         consoleHandler.setFormatter(formatter)
         logger.addHandler(consoleHandler)
@@ -50,7 +50,7 @@ class Logger:
         :param formatter: Defines the style of the log-messages in the log-file.
         :param logFile: The log-file that the logs shall be stored in. Base-path is the "ProjectLogging" package.
         """
-        fileHandler = logging.FileHandler(os.path.join(os.path.dirname(__file__), logFile))
+        fileHandler: logging.FileHandler = logging.FileHandler(os.path.join(os.path.dirname(__file__), logFile))
         fileHandler.setLevel(logLevel)
         fileHandler.setFormatter(formatter)
         logger.addHandler(fileHandler)
@@ -83,5 +83,8 @@ class Logger:
             if file.endswith('.log'):
                 os.remove(os.path.join(logPath, file))
 
-    # Executing the deletion of existing logfiles ones the class is being created by the interpreter
+    """
+    Executing the deletion of existing logfiles ones the class is being created by the interpreter.
+    This ensures that no old log-data is polluting the logs and the storage is not being flooded with log-data.
+    """
     __deleteExistingLogFiles()

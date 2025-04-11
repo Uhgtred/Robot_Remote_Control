@@ -41,6 +41,7 @@ class VideoGUI_Controller:
         # Initializing a logger. The loglevel can globally be set in 'ProjectLogging.Logger'.
         self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('VideoGUI_Controller',
                                                                      'VideoGUI_Controller.log').getLogger
+        self.updateRootView()
         atexit.register(self.__rootWindow.destroy)
 
     def runMainLoop(self) -> None:
@@ -58,7 +59,7 @@ class VideoGUI_Controller:
         """
         self.__rootWindow.mainloop()
 
-    def updateRootView(self, frame: bytes) -> None:
+    def updateRootView(self, frame: bytes | None = None) -> None:
         """
         Updates the root view with the given frame data.
 
@@ -71,6 +72,9 @@ class VideoGUI_Controller:
             and reflected in the root view.
         """
         self.__logger.debug(f'Updating root view with frame: {type(frame)}\n of size: {len(frame)}')
-        frame: Image = self.__rootModel.getFrame(frame)
+        if not frame:
+            frame: Image = self.__rootModel.getLoadingScreen()
+        else:
+            frame: Image = self.__rootModel.getFrame(frame)
         self.__logger.debug(f'Got a Frame of type: {type(frame)}')
         self.__rootView.updateFrame(frame)

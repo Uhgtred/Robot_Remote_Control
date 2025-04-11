@@ -60,6 +60,32 @@ package InputControl{
     protocol ButtonData{
     }
     
+    class Button{
+        + value: int
+        + maxValue: int 
+        + minValue: int 
+        + defaultValue: int
+        ---
+    }
+    
+    class Trigger{
+        + value: int 
+        + maxValue: int 
+        + minValue: int 
+        + defaultValue: int
+        + deadZone: int 
+        ---
+    }
+    
+    class AnalogStick{
+        + value: list[int] 
+        + maxValue: list[int] 
+        + minValue: list[int]
+        + defaultValue: list[int]
+        + deadZone: list[int]
+        ---
+    }
+    
     InputController -d- InputDevice
     InputDevice -l-> Delay: <<use>>
     TouchScreen -u-|> InputDevice: <<implement>>
@@ -70,6 +96,9 @@ package InputControl{
     PlaystationController -u-|> Controller: <<implement>>
     PlaystationController -u-> Buttons: <<own>>
     Buttons --> ButtonData: <<use>>
+    ButtonData -d-> Button: <<use>>
+    ButtonData -d-> Trigger: <<use>>
+    ButtonData -d-> AnalogStick: <<use>>
 }
 @enduml
 ```

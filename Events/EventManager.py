@@ -31,8 +31,8 @@ class EventManager:
                     for the subscribers and for subscribing to this event.
         """
         # Only adds the key to the dictionary if it does not already exist!
-        cls.__events.setdefault(name, Event())
-        return cls.__events.get(name)
+        # If the key already exists in the dictionary, its value will be returned.
+        return cls.__events.setdefault(name, Event())
 
     @property
     def getEventsList(self) -> list[str]:
@@ -51,6 +51,6 @@ class EventManager:
         :param eventName: Name of the event.
         """
         if not callable(callbackMethod):
-            return
+            raise TypeError(f'Callbackmethod: {callbackMethod} is not callable!')
         self.__events.get(eventName).subscribe(callbackMethod)
 

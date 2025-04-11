@@ -30,6 +30,8 @@ class UdpSocketConfig:
     messageSize: int = 65535
     # IP-Address of the device that this script is running on
     MyIPAddress: str = '192.168.178.32'
-    # IP-Address of the device that will be connected to the socket from the other side.
+    # IP-Address of the device that will be connected to the socket from the remote side.
     YourIPAddress: str = '192.168.178.36'
+    # The bus-library that is being used for the communication on the sockets.
+    # This allows for real applications and also mocks or stubs to be injected.
     busLibrary: socket = socket

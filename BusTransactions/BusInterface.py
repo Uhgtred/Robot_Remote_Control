@@ -3,6 +3,7 @@
 
 from abc import ABC, abstractmethod
 
+from .Compression.CompressorInterface import CompressorInterface
 from .Encoding.BusEncodings import EncodingProtocol
 
 
@@ -10,6 +11,23 @@ class BusInterface(ABC):
     """
     Interface-Class for communication with a variety of bus-systems.
     """
+
+    @abstractmethod
+    def setCompressor(self, compressor: CompressorInterface) -> None:
+        """
+
+        :param compressor:
+        :return:
+        """
+        pass
+
+    @abstractmethod
+    def setEncoder(self, encoder: EncodingProtocol) -> None:
+        pass
+
+    @abstractmethod
+    def setSerializer(self, serializer: SerializerInterface) -> None:
+        pass
 
     @abstractmethod
     def readSingleMessage(self) -> EncodingProtocol.decode:

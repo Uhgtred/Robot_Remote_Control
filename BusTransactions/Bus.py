@@ -4,10 +4,12 @@
 import inspect
 import threading
 
-import logging
-from .BusPlugins import BusPluginInterface
-from .Encoding.BusEncodings import EncodingProtocol
+import ProjectLogging
 from .BusInterface import BusInterface
+from .BusPlugins import BusPluginInterface
+from .Compression.CompressorInterface import CompressorInterface
+from .Encoding.BusEncodings import EncodingProtocol
+from .Serialization.SerializerInterface import SerializerInterface
 
 
 class Bus(BusInterface):
@@ -15,16 +17,18 @@ class Bus(BusInterface):
     Class for communication with a variety of bus-systems.
     """
 
-    def __init__(self, bus: BusPluginInterface, encoding: EncodingProtocol):
+    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
+
+    def __init__(self, bus: BusPluginInterface):
         """
         :param bus: Bus that will be communicated with. Needs to follow the protocol Bus.
         :param bus: Bus that shall be communicated with. Needs to follow the protocol Bus.
-        :param encoding: Encoding that will be used to make the messages compliant to the bus.
         """
         self.__stopFlag: bool = False
-        self.encoding: EncodingProtocol = encoding
         self.bus: BusPluginInterface = bus
-        self.__logger: logging.getLogger = logging.getLogger(__name__)
+        self.__compressor: CompressorInterface | None = None
+        self.__serializer: SerializerInterface | None = None
+        self.__encoder: EncodingProtocol | None = None
 
     def readSingleMessage(self) -> EncodingProtocol.decode:
         """
@@ -32,7 +36,14 @@ class Bus(BusInterface):
         :return: Decoded message in string format.
         """
         self.__logger.debug(f'Reading message from bus: {self.bus.__class__.__name__}')
-        message: any = self.encoding.decode(self.bus.readBus())
+        try:
+            message: bytes = self.bus.readBus()
+        except Exception as exception:
+            self.__logger.debug(f'Error while trying to read a message from the bus: {exception}')
+            raise BaseException(f'Error while trying to read a message from the bus: {exception}')
+        message: bytes = self.__deCompress(message)
+        message: bytes = self.__deSerialize(message)
+        message: any = self.__decode(message)
         self.__logger.debug(f'Message that has been received: {message}')
         return message
 
@@ -65,6 +76,7 @@ class Bus(BusInterface):
             except Exception as e:
                 self.__logger.error(f'Error while reading message: {e}')
 
+
     @staticmethod
     def __callBackHasInputArg(callbackMethod: callable) -> None:
         """
@@ -80,15 +92,20 @@ class Bus(BusInterface):
         else:
             raise TypeError("Callback-method is not callable.")
 
-    def writeSingleMessage(self, message: any, verbose: bool = False) -> None:
+    def writeSingleMessage(self, message: any) -> None:
         """
         Sending an encoded message to the bus.
-        :param verbose: Makes the method return command-line output.
         :param message: Message that will be sent to the bus.
         """
-        if verbose:
-            self.__logger.debug(f'Sending message: {message} to bus: {self.bus.__class__.__name__}')
-        self.bus.writeBus(self.encoding.encode(message))
+        self.__logger.debug(f'Sending message: {message} to bus: {self.bus.__class__.__name__}')
+        message: bytes = self.__encode(message)
+        message: bytes = self.__serialize(message)
+        message: bytes = self.__compress(message)
+        try:
+            self.bus.writeBus(message)
+        except Exception as exception:
+            self.__logger.debug(f'Error while trying to send a message to the bus: {exception}!')
+            raise BaseException(f'Error while trying to send a message to the bus: {exception}!')
 
     @property
     def stopFlag(self) -> bool:
@@ -105,3 +122,35 @@ class Bus(BusInterface):
         :param state: Stop-flag state that will be set.
         """
         self.__stopFlag = state
+
+    def setCompressor(self, compressor: CompressorInterface) -> None:
+        self.__compressor: CompressorInterface = compressor
+
+    def __compress(self, data: bytes) -> bytes:
+        """
+        Method for compressing data before sending it via bus-object.
+        :param data:
+        :return:
+        """
+        return self.__compressor.compress(data) if self.__compressor else data
+
+    def __deCompress(self, data: bytes) -> bytes:
+        return self.__compressor.deCompress(data) if self.__compressor else data
+
+    def setEncoder(self, encoder: EncodingProtocol) -> None:
+        self.__encoder: EncodingProtocol = encoder
+
+    def __encode(self, data: any) -> bytes:
+        return self.__encoder.encode(data) if self.__encoder else data
+
+    def __decode(self, data: bytes) -> any:
+        return self.__encoder.decode(data) if self.__encoder else data
+
+    def setSerializer(self, serializer: SerializerInterface) -> None:
+        self.__serializer: SerializerInterface = serializer
+
+    def __serialize(self, data: any) -> bytes:
+        return self.__serializer.serialize(data) if self.__serializer else data
+
+    def __deSerialize(self, data: bytes) -> any:
+        return self.__serializer.deSerialize(data) if self.__serializer else data

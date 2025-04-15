@@ -137,8 +137,7 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         encodingParameters = [int(cv2.IMWRITE_JPEG_QUALITY), 80] # 80 is the quality of the jpeg compression
         ImageDataAsMsgPackEncoding.__logger.debug(f'Encoding parameters: {encodingParameters}, imageDataType: {type(imageData)}')
         returnValue, buffer = cv2.imencode('.jpg', imageData, encodingParameters) # returnValue is type boolean.
-        serializedData: bytes = msgpack.packb({'frameData': buffer.tobytes()})
-        return serializedData
+        return buffer.tobytes()
 
     @staticmethod
     def decode(data: bytes) -> any:
@@ -161,10 +160,7 @@ class ImageDataAsMsgPackEncoding(EncodingProtocol):
         """
         decompressedData: bytes = zlib.decompress(data)
         ImageDataAsMsgPackEncoding.__logger.debug(f'Image-data that will be decoded: {decompressedData}')
-        payload: any = msgpack.unpackb(decompressedData)
-        frameData = payload.get('frameData')  # Access the frame
-        ImageDataAsMsgPackEncoding.__logger.debug(f'Decoding image data of type {type(frameData)} ...')
-        frameData: numpy.ndarray = numpy.frombuffer(frameData, dtype=numpy.uint8) # or numpy.ndarray?
+        frameData: numpy.ndarray = numpy.frombuffer(decompressedData, dtype=numpy.uint8) # or numpy.ndarray?
         imageframe: numpy.ndarray = cv2.imdecode(frameData, cv2.IMREAD_COLOR)
         return imageframe
 

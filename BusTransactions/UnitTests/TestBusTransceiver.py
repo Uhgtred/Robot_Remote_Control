@@ -3,7 +3,7 @@
 import time
 import unittest
 
-from BusTransactions import BusFactory, BusPluginFactory
+from BusTransactions import DefaultBusFactory, BusPluginFactory
 from BusTransactions import Encoding
 
 
@@ -60,7 +60,7 @@ class helperClass:
 
 class TestBusTransceiver(unittest.TestCase):
     bus = BusPluginFactory.produceSerialBusStubPlugin()
-    serialTransceiver = BusFactory.BusFactory.produceCustomBusTransceiver(bus, Encoding.EncodingFactory.arduinoSerialEncoding)
+    serialTransceiver = BusFactory.DefaultBusFactory.produceCustomBusTransceiver(bus, Encoding.EncodingFactory.arduinoSerialEncoding)
     testString = 'Hello World'
     messages = []
 
@@ -76,7 +76,7 @@ class TestBusTransceiver(unittest.TestCase):
 
     def test_readBusUntilStopFlag(self):
         obj = helperClass()
-        udpBus = BusFactory.BusFactory.produceUDP_TransceiverWithStub(port = 2121)
+        udpBus = BusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(port = 2121)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         udpBus.readBusUntilStopFlag(obj.helperMethod, arg, testKwarg='testKwarg')
@@ -90,7 +90,7 @@ class TestBusTransceiver(unittest.TestCase):
 
     def test_readBusUntilStopFlagFail(self):
         obj = helperClass()
-        udpBus = BusFactory.BusFactory.produceUDP_TransceiverWithStub(port = 2122)
+        udpBus = BusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(port = 2122)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
         self.assertRaises(TypeError, udpBus.readBusUntilStopFlag, (obj.helperMethodNoArgs, arg), testKwarg='testKwarg')

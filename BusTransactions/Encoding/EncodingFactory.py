@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # @author Markus Kösters
 
-from . import BusEncodings
+from . import EncodingProtocol
+from .ArduinoSerialEncoder import ArduinoSerialEncoder
+from .ImageDataEncoder import ImageDataEncoder
+from .PythonEncoder import PythonEncoder
+from .SocketEncoderJson import SocketEncoderJson
 
 
 class EncodingFactory:
@@ -16,7 +20,7 @@ class EncodingFactory:
     """
 
     @staticmethod
-    def arduinoSerialEncoding() -> BusEncodings:
+    def arduinoSerialEncoding() -> EncodingProtocol:
         """
         Static method that provides the BusEncoding implementation specific to
         Arduino Serial communication. This encoding is suitable for scenarios
@@ -24,14 +28,14 @@ class EncodingFactory:
         protocols. It ensures the format aligns with the needs of such low-level
         communication.
 
-        :rtype: BusEncodings
+        :rtype: EncodingProtocol
         :return: The encoding implementation tailored for Arduino Serial
                  communication.
         """
-        return BusEncodings.ArduinoSerialEncoding()
+        return ArduinoSerialEncoder()
 
     @staticmethod
-    def socketEncoding(encodingType: str = "json") -> BusEncodings:
+    def socketEncoding(encodingType: str = "json") -> EncodingProtocol:
         """
         Determine the socket encoding strategy based on the specified encoding type.
 
@@ -48,12 +52,12 @@ class EncodingFactory:
         :rtype: BusEncodings.SocketEncodingJson or BusEncodings.SocketEncoding
         """
         match encodingType:
-            case "json": return BusEncodings.SocketEncodingJson()
-            case "pythonDefault": return BusEncodings.SocketEncoding()
-            case default: return BusEncodings.SocketEncodingJson()
+            case "json": return SocketEncoderJson()
+            case "pythonDefault": return PythonEncoder()
+            case default: return SocketEncoderJson()
 
     @staticmethod
-    def produceImageReceiverEncoding() -> BusEncodings:
+    def produceImageReceiverEncoding() -> EncodingProtocol:
         """
         Statically produces an instance of `BusEncodings` that represents the encoding
         for image data as MessagePack encoding. The method constructs and returns a suitable
@@ -61,4 +65,4 @@ class EncodingFactory:
 
         :return: An instance of `BusEncodings` configured for image data with MessagePack encoding.
         """
-        return BusEncodings.ImageDataAsMsgPackEncoding()
+        return ImageDataEncoder()

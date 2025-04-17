@@ -1,9 +1,8 @@
-from abc import abstractmethod, ABC
+from typing import Protocol
 
 
-class CompressorInterface(ABC):
+class CompressionProtocol(Protocol):
 
-    @abstractmethod
     def compress(self, data: bytes) -> bytes:
         """
         Abstract method for compression of byte-data.
@@ -11,7 +10,6 @@ class CompressorInterface(ABC):
         :return: Compressed data
         """
 
-    @abstractmethod
     def deCompress(self, compressedData: bytes) -> bytes:
         """
         Abstract method for decompressing compressed byte-data.

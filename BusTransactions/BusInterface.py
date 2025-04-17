@@ -3,8 +3,8 @@
 
 from abc import ABC, abstractmethod
 
-from .Compression.CompressorInterface import CompressorInterface
-from .Encoding.BusEncodings import EncodingProtocol
+from .Compression.CompressionProtocol import CompressionProtocol
+from .Encoding.EncodingProtocol import EncodingProtocol
 
 
 class BusInterface(ABC):
@@ -13,7 +13,7 @@ class BusInterface(ABC):
     """
 
     @abstractmethod
-    def setCompressor(self, compressor: CompressorInterface) -> None:
+    def setCompressor(self, compressor: CompressionProtocol) -> None:
         """
 
         :param compressor:

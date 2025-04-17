@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 # @author   Markus Kösters
-import logging
 
+import ProjectLogging
 import Runners
-from BusTransactions import Bus
-from BusTransactions.BusFactory import BusFactory
-from ProjectLogging import Logger
-from Runners import ThreadRunner
-from SteeringInput import SteeringDeviceFactory, SteeringDevice
-#Todo: This line will not be needed anymore, using the new frontend.
+from BusTransactions.BusInterface import BusInterface
+from BusTransactions.DefaultBusFactory import DefaultBusFactory
+# Todo: This line will not be needed anymore, using the new frontend.
 #       For now it will stay in, just to get the video-transmission done and get some progress for this project
 #       For the long future, kotlin is going to be used as a frontend, since kotlin supports mobile development and web.
-from GUI.VideoGUI_Contoller import VideoGUI_Controller
-
 # Todo: For now this will not be used. Maybe some time, this is going to substitute The VideoGUI_Controller
 # from Remote.MainGUI import MainGUI
+from GUI.VideoGUI_Contoller import VideoGUI_Controller
+from Runners import ThreadRunner
+from SteeringInput import SteeringDeviceFactory, SteeringDevice
 
 
 class Main:
@@ -34,8 +32,10 @@ class Main:
         'APIPort': 3000,
         'videoPort': 2002,
         'internalVideoPort': 2003
-        }
+    }
 
+    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Main',
+                                                                      'Mainlog.log').getLogger
     def __init__(self):
         """
         Initializes the instance of the class and sets up required runners and configurations.
@@ -50,8 +50,6 @@ class Main:
             The instance of ThreadRunner to handle multithreaded tasks.
         """
         # Initializing a logger. The loglevel can globally be set in 'ProjectLogging.Logger'.
-        self.__logger: Logger.getLogger = Logger('Main',
-                                                'Mainlog.log').getLogger
         self.__logger.info('Initializing Remote-Program...')
         self.__threadRunner: Runners.Runner = ThreadRunner()
         self.videoController: VideoGUI_Controller = None
@@ -74,17 +72,17 @@ class Main:
             """
             Add any setup-code here.
             """
-            self.__readController()
-            self.__recvVideo()
+            self.__setupReadController()
+            self.__setupReceiveVideo()
             self.__threadRunner.runTasks()
             self.__logger.info('Setup completed!')
         except Exception as exceptionMessage:
-            exceptionMessage = f'Exception occurred during setup: {exceptionMessage}'
+            exceptionMessage: str = f'Exception occurred during setup: {exceptionMessage}'
             self.__logger.error(exceptionMessage)
             raise BaseException(exceptionMessage)
         self.videoController.runMainLoop()
 
-    def __readController(self) -> None:
+    def __setupReadController(self) -> None:
         """
         Sets up a controller device and processes its data.
 
@@ -94,14 +92,14 @@ class Main:
         with a task added to the async runner for relaying messages to the UDP bus.
         """
         self.__logger.info('Starting controller-program...')
-        udpBus: Bus = BusFactory.produceUDP_Transceiver(port=self.__ports.get('controllerPort'))
+        udpBus: BusInterface = DefaultBusFactory.produceUDP_Transceiver(port=self.__ports.get('controllerPort'))
         self.__logger.debug(f'UDPTransceiverObject: {udpBus}')
         controller: SteeringDevice = SteeringDeviceFactory.produceController()
         self.__logger.debug(f'SteeringDeviceObject: {controller}')
         self.__threadRunner.addTask(controller.readController, udpBus.writeSingleMessage)
         self.__logger.info('Controller-program started!')
 
-    def __recvVideo(self) -> None:
+    def __setupReceiveVideo(self) -> None:
         """
         Receives video data through a UDP bus and updates the relevant GUI components.
 
@@ -114,7 +112,7 @@ class Main:
         :raises KeyError: If the 'videoPort' key is not found in `self.__ports`.
         """
         self.__logger.info('Starting video-receiver...')
-        udpBus: Bus = BusFactory.produceUDP_ImageDataReceiver(port=self.__ports.get('videoPort'))
+        udpBus: BusInterface = DefaultBusFactory.produceUDP_ImageDataReceiver(port=self.__ports.get('videoPort'))
         self.videoController: VideoGUI_Controller = VideoGUI_Controller()
         self.__threadRunner.addTask(udpBus.readBusUntilStopFlag, self.videoController.updateRootView)
         self.__logger.info('Video-receiver started!')

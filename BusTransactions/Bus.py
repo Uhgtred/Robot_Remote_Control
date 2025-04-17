@@ -3,13 +3,14 @@
 
 import inspect
 import threading
+from inspect import Signature
 
 import ProjectLogging
 from .BusInterface import BusInterface
 from .BusPlugins import BusPluginInterface
-from .Compression.CompressorInterface import CompressorInterface
-from .Encoding.BusEncodings import EncodingProtocol
-from .Serialization.SerializerInterface import SerializerInterface
+from .Compression.CompressionProtocol import CompressionProtocol
+from .Encoding.EncodingProtocol import EncodingProtocol
+from .Serialization.SerializationProtocol import SerializationProtocol
 
 
 class Bus(BusInterface):
@@ -26,8 +27,8 @@ class Bus(BusInterface):
         """
         self.__stopFlag: bool = False
         self.bus: BusPluginInterface = bus
-        self.__compressor: CompressorInterface | None = None
-        self.__serializer: SerializerInterface | None = None
+        self.__compressor: CompressionProtocol | None = None
+        self.__serializer: SerializationProtocol | None = None
         self.__encoder: EncodingProtocol | None = None
 
     def readSingleMessage(self) -> EncodingProtocol.decode:
@@ -41,29 +42,27 @@ class Bus(BusInterface):
         except Exception as exception:
             self.__logger.debug(f'Error while trying to read a message from the bus: {exception}')
             raise BaseException(f'Error while trying to read a message from the bus: {exception}')
-        message: bytes = self.__deCompress(message)
-        message: bytes = self.__deSerialize(message)
-        message: any = self.__decode(message)
+        message: any = self.__postProcessMessageFromReceiving(message)
         self.__logger.debug(f'Message that has been received: {message}')
         return message
 
     def readBusUntilStopFlag(self, callbackMethod: callable, *args, **kwargs) -> None:
         """
-        Reading messages from a bus in a loop until stopFlag is raised.
-        :param callbackMethod: Method that the received messages shall be sent to.
-                                Needs to accept one argument which is the message read from the bus.
-        """
+            Reading messages from a bus in a loop until stopFlag is raised.
+            :param callbackMethod: Method that the received messages shall be sent to.
+                                    Needs to accept one argument which is the message read from the bus.
+            """
         self.__callBackHasInputArg(callbackMethod)
         thread = threading.Thread(target=self.__readLoop, args=(callbackMethod, *args), kwargs=kwargs)
         thread.start()
 
     def __readLoop(self, callbackMethod: callable, *args, **kwargs) -> None:
         """
-        Method that includes the logic to read a message from the bus in a loop until stopFlag is raised.
-        :param callbackMethod: Method that the received messages will be sent to.
-        :param args: Further positional arguments to the callback method.
-        :param kwargs: Further keyword arguments to the callback method.
-        """
+            Method that includes the logic to read a message from the bus in a loop until stopFlag is raised.
+            :param callbackMethod: Method that the received messages will be sent to.
+            :param args: Further positional arguments to the callback method.
+            :param kwargs: Further keyword arguments to the callback method.
+            """
         while not self.__stopFlag:
             try:
                 self.__logger.debug(f'Trying to read a message with callback-method {self.readSingleMessage.__name__}\n'
@@ -85,27 +84,39 @@ class Bus(BusInterface):
         """
         # Checking if the method is callable. Else raising an error.
         if callable(callbackMethod):
-            inputArgs = inspect.signature(callbackMethod)
+            signature: Signature = inspect.signature(callbackMethod)
             # Checking if the method accepts at least one argument. Else raising an error.
-            if len(inputArgs.parameters) < 1:
+            if len(signature.parameters) < 1:
                 raise TypeError("Callback-method missing required input argument.")
         else:
             raise TypeError("Callback-method is not callable.")
 
     def writeSingleMessage(self, message: any) -> None:
         """
-        Sending an encoded message to the bus.
-        :param message: Message that will be sent to the bus.
-        """
+            Sending an encoded message to the bus.
+            :param message: Message that will be sent to the bus.
+            """
         self.__logger.debug(f'Sending message: {message} to bus: {self.bus.__class__.__name__}')
-        message: bytes = self.__encode(message)
-        message: bytes = self.__serialize(message)
-        message: bytes = self.__compress(message)
+        message: bytes = self.__preProcessMessageForTransmission(message)
         try:
             self.bus.writeBus(message)
         except Exception as exception:
             self.__logger.debug(f'Error while trying to send a message to the bus: {exception}!')
             raise BaseException(f'Error while trying to send a message to the bus: {exception}!')
+
+    def __preProcessMessageForTransmission(self, message: any) -> bytes:
+        # The order is important for the following methods.
+        message: bytes = self.__encode(message)
+        message: bytes = self.__serialize(message)
+        message: bytes = self.__compress(message)
+        return message
+
+    def __postProcessMessageFromReceiving(self, message: bytes) -> any:
+        # The order is important for the following methods.
+        message: bytes = self.__deCompress(message)
+        message: bytes = self.__deSerialize(message)
+        message: any = self.__decode(message)
+        return message
 
     @property
     def stopFlag(self) -> bool:
@@ -123,8 +134,9 @@ class Bus(BusInterface):
         """
         self.__stopFlag = state
 
-    def setCompressor(self, compressor: CompressorInterface) -> None:
-        self.__compressor: CompressorInterface = compressor
+    def setCompressor(self, compressor: type(CompressionProtocol)) -> None:
+        # Sets the compressor-object. It is being instanced before setting it, if it has not already been instanced.
+        self.__compressor: CompressionProtocol = compressor() if callable(compressor) else compressor
 
     def __compress(self, data: bytes) -> bytes:
         """
@@ -137,8 +149,9 @@ class Bus(BusInterface):
     def __deCompress(self, data: bytes) -> bytes:
         return self.__compressor.deCompress(data) if self.__compressor else data
 
-    def setEncoder(self, encoder: EncodingProtocol) -> None:
-        self.__encoder: EncodingProtocol = encoder
+    def setEncoder(self, encoder: type(EncodingProtocol)) -> None:
+        # Sets the encoder-object. It is being instanced before setting it, if it has not already been instanced.
+        self.__encoder: EncodingProtocol = encoder() if callable(encoder) else encoder
 
     def __encode(self, data: any) -> bytes:
         return self.__encoder.encode(data) if self.__encoder else data
@@ -146,8 +159,9 @@ class Bus(BusInterface):
     def __decode(self, data: bytes) -> any:
         return self.__encoder.decode(data) if self.__encoder else data
 
-    def setSerializer(self, serializer: SerializerInterface) -> None:
-        self.__serializer: SerializerInterface = serializer
+    def setSerializer(self, serializer: type(SerializationProtocol)) -> None:
+        # Sets the serializer-object. It is being instanced before setting it, if it has not already been instanced.
+        self.__serializer: SerializationProtocol = serializer() if callable(serializer) else serializer
 
     def __serialize(self, data: any) -> bytes:
         return self.__serializer.serialize(data) if self.__serializer else data

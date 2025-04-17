@@ -2,32 +2,23 @@
 # @author: Markus Kösters
 
 from .Bus import Bus
+from .BusBuilder import BusBuilder
+from .BusInterface import BusInterface
 from .BusPlugins import BusPluginInterface
 from .BusPlugins import BusPluginFactory
+from .Compression.CompressorZlib import CompressorZlib
 from .Encoding import EncodingFactory
-from .Encoding.BusEncodings import EncodingProtocol
+from .Encoding.EncodingProtocol import EncodingProtocol
+from .Serialization.SerializerMsgPack import SerializerMsgPack
 
 
-class BusFactory:
+class DefaultBusFactory:
     """
-    Factory for creating an instance of a bus-transceiver.
+    Factory for creating an instance of a bus-transceiver utilizing the BusBuilder.
     """
 
     @staticmethod
-    def produceCustomBusTransceiver(bus: type(BusPluginFactory), encoding: type(EncodingFactory)) -> Bus:
-        """
-        Method for producing an instance of a bus-transceiver.
-        :param bus: Bus-Class that will be communicated with, produced by Factory-class in BusPlugins-Module.
-        :param encoding: Encoding that decides the format of the messages.
-        """
-        # check if encoding has already been instanced
-        if callable(encoding):
-            encoding: EncodingProtocol = encoding()
-        transceiver = Bus(bus, encoding)
-        return transceiver
-
-    @staticmethod
-    def produceSerialTransceiver() -> Bus:
+    def produceSerialTransceiver() -> BusInterface:
         """
         Creates and configures a serial transceiver for Arduino communication. This involves
         initializing an encoding protocol and setting up a bus plugin specific to Arduino,
@@ -41,10 +32,13 @@ class BusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusArduinoPlugin()
-        return Bus(busPlugin, encoding)
+        bus: BusInterface = (BusBuilder(busPlugin)
+                             .setEncoder(encoding)
+                             .build())
+        return bus
 
     @staticmethod
-    def produceSerialTransceiverWithStub() -> Bus:
+    def produceSerialTransceiverWithStub() -> BusInterface:
         """
         Produces a serial transceiver with a stub implementation using the Arduino serial
         encoding protocol. This function sets up a mock serial bus plugin and prepares
@@ -56,10 +50,13 @@ class BusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusStubPlugin()
-        return Bus(busPlugin, encoding)
+        bus: BusInterface = (BusBuilder(busPlugin)
+                             .setEncoder(encoding)
+                             .build())
+        return bus
 
     @staticmethod
-    def produceUDP_Transceiver(port: int) -> Bus:
+    def produceUDP_Transceiver(port: int) -> BusInterface:
         """
         Produces a UDP transceiver bus object configured with the specified port and
         encoding protocol. Depending on whether the stub parameter is set to True, either
@@ -73,10 +70,13 @@ class BusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
-        return Bus(busPlugin, encoding)
+        bus: BusInterface = (BusBuilder(busPlugin)
+                             .setEncoder(encoding)
+                             .build())
+        return bus
 
     @staticmethod
-    def produceUDP_TransceiverWithStub(port: int) -> Bus:
+    def produceUDP_TransceiverWithStub(port: int) -> BusInterface:
         """
         Creates and configures a UDP-based transceiver stub with the specified port.
 
@@ -93,11 +93,14 @@ class BusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
-        return Bus(busPlugin, encoding)
+        bus: BusInterface = (BusBuilder(busPlugin)
+                             .setEncoder(encoding)
+                             .build())
+        return bus
 
 
     @staticmethod
-    def produceUDP_ImageDataReceiver(port: int, stub: bool = False) -> Bus:
+    def produceUDP_ImageDataReceiver(port: int) -> BusInterface:
         """
         Creates an UDP-based Image Data Receiver with options for using a stub plugin or
         a real socket plugin, and returns a configured Bus instance which includes the
@@ -105,17 +108,20 @@ class BusFactory:
 
         :param port: Specifies the UDP port number on which the receiver will operate.
         :type port: int
-        :param stub: Determines whether to use a stub plugin (for testing) or a real socket plugin. Defaults to False.
-        :type stub: bool
         :return: An instance of Bus configured with the chosen UDP plugin and encoding protocol.
         :rtype: Bus
         """
         encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
-        return Bus(busPlugin, encoding)
+        bus: BusInterface = (BusBuilder(busPlugin)
+                             .setSerializer(SerializerMsgPack())
+                             .setEncoder(encoding)
+                             .setCompressor(CompressorZlib)
+                             .build())
+        return bus
 
     @staticmethod
-    def produceUDP_ImageDataReceiverWithStub(port: int) -> Bus:
+    def produceUDP_ImageDataReceiverWithStub(port: int) -> BusInterface:
         """
         Produces an instance of a UDP Image Data Receiver with a stub implementation.
 
@@ -133,4 +139,9 @@ class BusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
-        return Bus(busPlugin, encoding)
+        bus: BusInterface = (BusBuilder(bus=busPlugin)
+                             .setSerializer(SerializerMsgPack())
+                             .setCompressor(CompressorZlib())
+                             .setEncoder(encoding)
+                             .build())
+        return bus

@@ -1,21 +1,24 @@
-# Todo: implement this
 import typing
 
 from BusTransactions.BusInterface import BusInterface
-from BusTransactions.Compression.CompressorInterface import CompressorInterface
+from BusTransactions.Compression.CompressionProtocol import CompressionProtocol
 from BusTransactions.Encoding import EncodingProtocol
+from BusTransactions.Serialization.SerializationProtocol import SerializationProtocol
 
+"""
+Todo: get implementation done.
+"""
 
 class BusBuilder:
 
-    def __init__(self, bus: BusInterface):
+    def __init__(self, bus: type(BusInterface)) -> None:
         self.bus: BusInterface = bus()
 
-    def setCompressor(self, compressor: CompressorInterface) -> typing.Self:
+    def setCompressor(self, compressor: CompressionProtocol) -> typing.Self:
         self.bus.setCompressor(compressor)
         return self
 
-    def setSerializer(self, serializer: SerializerInterface) -> typing.Self:
+    def setSerializer(self, serializer: SerializationProtocol) -> typing.Self:
         self.bus.setSerializer(serializer)
         return self
 

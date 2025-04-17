@@ -1,9 +1,9 @@
 import msgpack
 
-from BusTransactions.Serialization.SerializerInterface import SerializerInterface
+from BusTransactions.Serialization.SerializationProtocol import SerializationProtocol
 
 
-class SerializerMsgPack(SerializerInterface):
+class SerializerMsgPack(SerializationProtocol):
 
     def serialize(self, data: any) -> bytes:
         serializedData: bytes = msgpack.packb(data)

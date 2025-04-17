@@ -1,12 +1,10 @@
-from abc import abstractmethod, ABC
+from typing import Protocol
 
 
-class SerializerInterface(ABC):
+class SerializationProtocol(Protocol):
 
-    @abstractmethod
     def serialize(self, data: any) -> bytes:
         pass
 
-    @abstractmethod
     def deSerialize(self, serializedData: bytes) -> any:
         pass

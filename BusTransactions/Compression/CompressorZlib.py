@@ -1,13 +1,13 @@
 import zlib
 
-from BusTransactions.Compression.CompressorInterface import CompressorInterface
+from BusTransactions.Compression.CompressionProtocol import CompressionProtocol
 
 
-class CompressorZlib(CompressorInterface):
+class CompressorZlib(CompressionProtocol):
 
     def compress(self, data: bytes) -> bytes:
         """
-        Method for compressing data using zlib.
+        Method for compressing data using zlib library.
         :param data:
         :return:
         """
@@ -15,7 +15,7 @@ class CompressorZlib(CompressorInterface):
 
     def deCompress(self, compressedData: bytes) -> bytes:
         """
-        Method for decompressing data using zlib.
+        Method for decompressing data using zlib library.
         :param compressedData:
         :return:
         """

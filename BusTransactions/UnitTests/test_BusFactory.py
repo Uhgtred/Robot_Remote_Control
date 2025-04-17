@@ -5,13 +5,13 @@ import unittest
 
 from BusTransactions import BusPluginFactory, Bus
 from BusTransactions import Encoding
-from BusTransactions.BusFactory import BusFactory
+from BusTransactions.DefaultBusFactory import DefaultBusFactory
 from BusTransactions.BusPlugins.SerialBusPlugin.UnitTests.SerialBusMock import MockSerialBus
 
 
 class MyTestCase(unittest.TestCase):
 
-    busFactory = BusFactory()
+    busFactory = DefaultBusFactory()
     mockLibrary = MockSerialBus
 
     def test_produceBusTransceiver(self):

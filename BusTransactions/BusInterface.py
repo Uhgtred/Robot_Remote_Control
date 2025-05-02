@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 
 from .Compression.CompressionProtocol import CompressionProtocol
 from .Encoding.EncodingProtocol import EncodingProtocol
+from .Serialization.SerializationProtocol import SerializationProtocol
 
 
 class BusInterface(ABC):
@@ -26,7 +27,7 @@ class BusInterface(ABC):
         pass
 
     @abstractmethod
-    def setSerializer(self, serializer: SerializerInterface) -> None:
+    def setSerializer(self, serializer: SerializationProtocol) -> None:
         pass
 
     @abstractmethod

@@ -23,7 +23,8 @@ class ThreadRunner(Runner):
         :param task: Method that shall be executed in a separate thread.
         :param args: Arguments, that shall be passed to the thread.
         """
-        thread = threading.Thread(target=task, args=args, name=f'{str(task).split(" ")[1]}_thread')
+        thread: threading.Thread = threading.Thread(target=task, args=args, name=f'{str(task).split(" ")[1]}_thread')
+
         self.__threads.append(thread)
 
     def runTasks(self) -> None:
@@ -32,7 +33,7 @@ class ThreadRunner(Runner):
         """
         if self.__running:
             return
-        self.__running = True
+        self.__running: bool = True
         while self.__running and len(self.__threads) > 0:
             self.__threads.pop().start()
         self.__running = False

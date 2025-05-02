@@ -1,5 +1,5 @@
 import ProjectLogging
-from BusTransactions.Encoding import EncodingProtocol
+from BusTransactions.Encoding.EncodingProtocol import EncodingProtocol
 
 
 class SocketEncoderJson(EncodingProtocol):

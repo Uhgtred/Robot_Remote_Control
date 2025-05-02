@@ -35,7 +35,7 @@ class Main:
     }
 
     __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Main',
-                                                                      'Mainlog.log').getLogger
+                                                                      'MainLog.log').getLogger
     def __init__(self):
         """
         Initializes the instance of the class and sets up required runners and configurations.
@@ -52,7 +52,7 @@ class Main:
         # Initializing a logger. The loglevel can globally be set in 'ProjectLogging.Logger'.
         self.__logger.info('Initializing Remote-Program...')
         self.__threadRunner: Runners.Runner = ThreadRunner()
-        self.videoController: VideoGUI_Controller = None
+        self.videoController: VideoGUI_Controller | None = None
         self.__setup()
         self.__logger.info('Remote-Program initialized!')
 
@@ -80,7 +80,11 @@ class Main:
             exceptionMessage: str = f'Exception occurred during setup: {exceptionMessage}'
             self.__logger.error(exceptionMessage)
             raise BaseException(exceptionMessage)
-        self.videoController.runMainLoop()
+        # This is needed to run the tk-inter mainloop inside the main-thread.
+        if self.videoController:
+            self.videoController.runMainLoop()
+        else:
+            raise BaseException(f'The VideoController has not been initialized.')
 
     def __setupReadController(self) -> None:
         """

@@ -1,6 +1,6 @@
 name: Unit Tests
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -46,5 +46,6 @@ jobs:
       - name: Deploy documentation to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.ROB_REMOTE_USER }}
+          password: ${{ secrets.ROB_REMOTE_TOKEN }}
           publish_dir: ./site/

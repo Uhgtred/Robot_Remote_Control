@@ -13,7 +13,8 @@ RUN apt-get update && \
     apt-get install -y python3-tk && \
     apt-get install -y xvfb && \
     apt-get install -y ffmpeg libsm6 libxext6 && \
-    apt-get install -y libgl1-mesa-glx && \
+    apt-get install -y libgl1 && \
+    apt-get install -y libglx-mesa0 && \
     rm -rf /var/lib/apt/lists/*
 
 # Defining a dummy display for headless execution

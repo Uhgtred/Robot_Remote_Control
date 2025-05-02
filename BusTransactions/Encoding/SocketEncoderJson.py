@@ -1,3 +1,5 @@
+import json
+
 import ProjectLogging
 from BusTransactions.Encoding.EncodingProtocol import EncodingProtocol
 

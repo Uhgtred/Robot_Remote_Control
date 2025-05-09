@@ -69,14 +69,14 @@ class TestBusEncodings(unittest.TestCase):
         returnValue, buffer = cv2.imencode('.jpg', imageData, encodingParameters)  # returnValue is type boolean.
         serializedData: bytes = msgpack.packb({'frameData': buffer.tobytes()})
         self.__logger.debug(f'Image-Data that is going to be decoded: {type(serializedData)}.')
-        imageEncoder: EncodingProtocol = self.encoding.produceImageReceiverEncoding()
+        imageEncoder: EncodingProtocol = self.encoding.produceImageTransceiverEncoding()
         decodedImageData = imageEncoder.decode(serializedData)
         self.__logger.debug(f'Type of the decoded image-data is: {type(decodedImageData)}.')
 
     def test_VideoEncoding(self):
         imageData: numpy.ndarray = numpy.ones((10, 10, 3), dtype=numpy.uint8) * 255  # White image
         self.__logger.debug(f'Raw image-data before encoding is of type: {type(imageData)}.')
-        imageEncoder: EncodingProtocol = self.encoding.produceImageReceiverEncoding()
+        imageEncoder: EncodingProtocol = self.encoding.produceImageTransceiverEncoding()
         encodedImageData = imageEncoder.encode(imageData)
         self.__logger.debug(f'Encoded image-data is of type: {type(encodedImageData)}.')
         self.assertIsInstance(encodedImageData, bytes)

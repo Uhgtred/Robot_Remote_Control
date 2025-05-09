@@ -100,7 +100,7 @@ class DefaultBusFactory:
 
 
     @staticmethod
-    def produceUDP_ImageDataReceiver(port: int) -> BusInterface:
+    def produceUDP_ImageDataTransceiver(port: int) -> BusInterface:
         """
         Creates an UDP-based Image Data Receiver with options for using a stub plugin or
         a real socket plugin, and returns a configured Bus instance which includes the
@@ -111,7 +111,7 @@ class DefaultBusFactory:
         :return: An instance of Bus configured with the chosen UDP plugin and encoding protocol.
         :rtype: Bus
         """
-        encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()
+        encoding: EncodingProtocol = EncodingFactory.produceImageDataEncoder()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
         bus: BusInterface = (BusBuilder(busPlugin)
                              .setSerializer(SerializerMsgPack())
@@ -121,7 +121,7 @@ class DefaultBusFactory:
         return bus
 
     @staticmethod
-    def produceUDP_ImageDataReceiverWithStub(port: int) -> BusInterface:
+    def produceUDP_ImageDataTransceiverWithStub(port: int) -> BusInterface:
         """
         Produces an instance of a UDP Image Data Receiver with a stub implementation.
 
@@ -137,7 +137,7 @@ class DefaultBusFactory:
             encoding protocol and stub plugin.
         :rtype: Bus
         """
-        encoding: EncodingProtocol = EncodingFactory.produceImageReceiverEncoding()
+        encoding: EncodingProtocol = EncodingFactory.produceImageDataEncoder()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
         bus: BusInterface = (BusBuilder(bus=busPlugin)
                              .setSerializer(SerializerMsgPack())

@@ -57,7 +57,7 @@ class EncodingFactory:
             case default: return SocketEncoderJson()
 
     @staticmethod
-    def produceImageReceiverEncoding() -> EncodingProtocol:
+    def produceImageDataEncoder() -> EncodingProtocol:
         """
         Statically produces an instance of `BusEncodings` that represents the encoding
         for image data as MessagePack encoding. The method constructs and returns a suitable

@@ -118,6 +118,9 @@ class Bus(BusInterface):
         message: any = self.__decode(message)
         return message
 
+    def close(self) -> None:
+        self.bus.close()
+
     @property
     def stopFlag(self) -> bool:
         """

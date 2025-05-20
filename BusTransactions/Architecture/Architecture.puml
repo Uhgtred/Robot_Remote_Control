@@ -1,0 +1,34 @@
+@startuml
+hide empty members
+
+package "BusTransactions"{
+
+    interface BusInterface
+
+    class BusBuilder
+    class Bus
+    class DefaultBusFactory
+
+    package "Encoding"{
+        protocol EncodingProtocol
+        }
+    package "BusPlugins"{
+        protocol BusPluginsProtocol
+        }
+    package "Compression"{
+        protocol CompressionProtocol
+        }
+    package "Serialization"{
+        protocol SerializationProtocol
+        }
+
+    Bus -l--- BusInterface
+    BusBuilder ..|> Bus: <<create>>
+    DefaultBusFactory --> BusBuilder: <<use>>
+    Bus "1" *-r- "1" BusPluginsProtocol
+    Bus "1" o-- "1" EncodingProtocol
+    Bus "1" o-- "1" CompressionProtocol
+    Bus "1" o-- "1" SerializationProtocol
+}
+
+@enduml

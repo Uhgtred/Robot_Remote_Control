@@ -16,7 +16,6 @@ class BusInterface(ABC):
     @abstractmethod
     def setCompressor(self, compressor: CompressionProtocol) -> None:
         """
-
         :param compressor:
         :return:
         """
@@ -39,7 +38,7 @@ class BusInterface(ABC):
         pass
 
     @abstractmethod
-    def readBusUntilStopFlag(self, callbackMethod: callable, stopFlag: bool = False) -> None:
+    def readBusUntilStopFlag(self, callbackMethod: callable, stopFlag: bool = False, *args, **kwargs) -> None:
         """
         Reading messages from a bus in a loop until stopFlag is raised.
         :param callbackMethod: Method that the received messages shall be sent to.

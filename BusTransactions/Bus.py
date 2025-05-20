@@ -7,7 +7,7 @@ from inspect import Signature
 
 import ProjectLogging
 from .BusInterface import BusInterface
-from .BusPlugins import BusPluginInterface
+from .BusPlugins import AbstractBusPlugin
 from .Compression.CompressionProtocol import CompressionProtocol
 from .Encoding.EncodingProtocol import EncodingProtocol
 from .Serialization.SerializationProtocol import SerializationProtocol
@@ -20,13 +20,13 @@ class Bus(BusInterface):
 
     __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
 
-    def __init__(self, bus: BusPluginInterface):
+    def __init__(self, bus: AbstractBusPlugin):
         """
         :param bus: Bus that will be communicated with. Needs to follow the protocol Bus.
         :param bus: Bus that shall be communicated with. Needs to follow the protocol Bus.
         """
         self.__stopFlag: bool = False
-        self.bus: BusPluginInterface = bus
+        self.bus: AbstractBusPlugin = bus
         self.__compressor: CompressionProtocol | None = None
         self.__serializer: SerializationProtocol | None = None
         self.__encoder: EncodingProtocol | None = None
@@ -87,7 +87,8 @@ class Bus(BusInterface):
             signature: Signature = inspect.signature(callbackMethod)
             # Checking if the method accepts at least one argument. Else raising an error.
             if len(signature.parameters) < 1:
-                raise TypeError("Callback-method missing required input argument.")
+                raise TypeError("Callback-method is not accepting any input-arguments."
+                                "At least one input-argument.")
         else:
             raise TypeError("Callback-method is not callable.")
 

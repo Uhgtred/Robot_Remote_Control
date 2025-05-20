@@ -5,10 +5,10 @@ import atexit
 import serial
 
 from .SerialBusConfig import SerialBusConfig
-from ..BusPluginInterface import BusPluginInterface
+from ..AbstractBusPlugin import AbstractBusPlugin
 
 
-class SerialBus(BusPluginInterface):
+class SerialBus(AbstractBusPlugin):
     """
     Class for handling a serial-connection to an Arduino. And reading/writing messages to it.
     """

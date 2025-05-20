@@ -1,0 +1,27 @@
+@startuml
+
+hide empty members
+
+
+package "BusPlugins"{
+
+    abstract class BusPluginInterface
+    class BusPluginFactory
+
+    package "EthernetBusPlugin"{
+        class UdpSocket
+        class SocketConfigs
+        UdpSocket "1" *-- "1" SocketConfigs: <<own>>
+    }
+
+    package "SerialBusPlugin"{
+        class SerialBus
+        class SerialBusConfig
+        SerialBus "1" *-- "1" SerialBusConfig: <<own>>
+    }
+
+    SerialBus -u-|> BusPluginInterface
+    UdpSocket -u-|> BusPluginInterface
+    BusPluginFactory --> BusPluginInterface: <<create>>
+}
+@enduml

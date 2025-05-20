@@ -4,4 +4,4 @@
 from .Bus import Bus
 from .DefaultBusFactory import BusPluginFactory
 from .Encoding import EncodingFactory
-from .BusPlugins import BusPluginInterface
+from .BusPlugins import AbstractBusPlugin

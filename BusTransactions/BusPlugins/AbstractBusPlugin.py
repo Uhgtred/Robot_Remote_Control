@@ -4,7 +4,7 @@
 from abc import ABC, abstractmethod
 
 
-class BusPluginInterface(ABC):
+class AbstractBusPlugin(ABC):
     """
     Abstract class acting as an Interface for the BusPlugins for the Bus-class.
     """

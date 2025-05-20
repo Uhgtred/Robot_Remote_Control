@@ -6,10 +6,10 @@ import socket
 
 import ProjectLogging
 from . import SocketConfigs
-from ..BusPluginInterface import BusPluginInterface
+from ..AbstractBusPlugin import AbstractBusPlugin
 
 
-class UdpSocket(BusPluginInterface):
+class UdpSocket(AbstractBusPlugin):
     """
     Class providing functionality for communication over a UDP socket.
 

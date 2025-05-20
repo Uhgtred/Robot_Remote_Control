@@ -13,7 +13,7 @@ package "BusTransactions"{
         protocol EncodingProtocol
         }
     package "BusPlugins"{
-        protocol BusPluginsProtocol
+        protocol BusPluginInterface
         }
     package "Compression"{
         protocol CompressionProtocol
@@ -25,7 +25,7 @@ package "BusTransactions"{
     Bus -l--- BusInterface
     BusBuilder ..|> Bus: <<create>>
     DefaultBusFactory --> BusBuilder: <<use>>
-    Bus "1" *-r- "1" BusPluginsProtocol
+    Bus "1" -r-|> "1" BusPluginInterface
     Bus "1" o-- "1" EncodingProtocol
     Bus "1" o-- "1" CompressionProtocol
     Bus "1" o-- "1" SerializationProtocol

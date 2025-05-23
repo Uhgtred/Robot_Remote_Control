@@ -3,7 +3,7 @@
 
 import logging
 
-from .Event import Event
+from .AbstractEvent import AbstractEvent
 
 
 class EventManager:
@@ -24,7 +24,7 @@ class EventManager:
     __logger: logging.Logger = logging.getLogger(__name__)
 
     @classmethod
-    def produceEvent(cls, name: str) -> Event:
+    def produceConcreteEvent(cls, name: str) -> AbstractEvent:
         """
         Method producing a new event.
         :return:    An instance of an Event, that can be used to create an update
@@ -32,7 +32,7 @@ class EventManager:
         """
         # Only adds the key to the dictionary if it does not already exist!
         # If the key already exists in the dictionary, its value will be returned.
-        return cls.__events.setdefault(name, Event())
+        return cls.__events.setdefault(name, AbstractEvent())
 
     @property
     def getEventsList(self) -> list[str]:

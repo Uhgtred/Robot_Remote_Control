@@ -3,7 +3,7 @@
 
 import unittest
 
-from BusTransactions import BusPluginFactory, AbstractBusPlugin
+from BusTransactions import BusPluginFactory, BusPluginInterface
 
 
 class TestUDPSockets(unittest.TestCase):
@@ -18,14 +18,14 @@ class TestUDPSockets(unittest.TestCase):
 
     :ivar bus: Instance of BusPluginInterface used to perform bus operations in
         the test cases.
-    :type bus: AbstractBusPlugin
+    :type bus: BusPluginInterface
     :ivar testString: Byte string used to simulate data transmission and
         reception during the tests.
     :type testString: bytes
     """
 
     def setUp(self) -> None:
-        self.bus: AbstractBusPlugin = BusPluginFactory.produceUdpStubPlugin(2333)
+        self.bus: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(2333)
         self.testString = b'Hello World'
 
     def tearDown(self):

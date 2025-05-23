@@ -1,37 +1,30 @@
-#!/usr/bin/env python3
-# @author: Markus Kösters
-import atexit
 import inspect
+from abc import ABC
 from inspect import Signature
 
 import ProjectLogging
 import Runners
-from .BusInterface import BusInterface
-from .BusPlugins import BusPluginInterface
-from .Compression.CompressionProtocol import CompressionProtocol
-from .Encoding.EncodingProtocol import EncodingProtocol
-from .Serialization.SerializationProtocol import SerializationProtocol
+from BusTransactions import BusPluginInterface
+from BusTransactions.Compression.CompressionProtocol import CompressionProtocol
+from BusTransactions.Encoding import EncodingProtocol
+from BusTransactions.Serialization.SerializationProtocol import SerializationProtocol
 
 
-class Bus(BusInterface):
-    """
-    Class for communication with a variety of bus-systems.
-    """
+class AbstractBus(ABC):
 
     __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
 
-    def __init__(self, bus: BusPluginInterface):
+    def __init__(self, busPlugin: BusPluginInterface):
         """
-        :param bus: Bus that will be communicated with. Needs to follow the protocol Bus.
-        :param bus: Bus that shall be communicated with. Needs to follow the protocol Bus.
+        :param busPlugin: Bus that will be communicated with. Needs to follow the protocol Bus.
         """
+        self.__logger.info(f'Creating a Bus-instance with plugin: {busPlugin}')
         self.__stopFlag: bool = False
-        self.bus: BusPluginInterface = bus
+        self.bus: BusPluginInterface = busPlugin
         self.__compressor: CompressionProtocol | None = None
         self.__serializer: SerializationProtocol | None = None
         self.__encoder: EncodingProtocol | None = None
         self.__threadRunner: Runners.ThreadRunner = Runners.ThreadRunner()
-        atexit.register(self.close)
 
     def readSingleMessage(self) -> EncodingProtocol.decode:
         """
@@ -55,7 +48,7 @@ class Bus(BusInterface):
                                     Needs to accept one argument which is the message read from the bus.
             """
         self.__callBackHasInputArg(callbackMethod)
-        self.__threadRunner.addTask(self.__readLoop, args = (callbackMethod, *args), kwargs=kwargs)
+        self.__threadRunner.addTask(self.__readLoop, args=(callbackMethod, *args), kwargs=kwargs)
         self.__threadRunner.runTasks()
 
     def __readLoop(self, callbackMethod: callable, *args, **kwargs) -> None:
@@ -76,7 +69,6 @@ class Bus(BusInterface):
                 callbackMethod(message, *args, **kwargs)
             except Exception as e:
                 self.__logger.error(f'Error while reading message: {e}')
-
 
     @staticmethod
     def __callBackHasInputArg(callbackMethod: callable) -> None:
@@ -140,10 +132,6 @@ class Bus(BusInterface):
         """
         self.__stopFlag = state
 
-    def setCompressor(self, compressor: type(CompressionProtocol)) -> None:
-        # Sets the compressor-object. It is being instanced before setting it, if it has not already been instanced.
-        self.__compressor: CompressionProtocol = compressor() if callable(compressor) else compressor
-
     def __compress(self, data: bytes) -> bytes:
         """
         Method for compressing data before sending it via bus-object.
@@ -155,19 +143,11 @@ class Bus(BusInterface):
     def __deCompress(self, data: bytes) -> bytes:
         return self.__compressor.deCompress(data) if self.__compressor else data
 
-    def setEncoder(self, encoder: type(EncodingProtocol)) -> None:
-        # Sets the encoder-object. It is being instanced before setting it, if it has not already been instanced.
-        self.__encoder: EncodingProtocol = encoder() if callable(encoder) else encoder
-
     def __encode(self, data: any) -> bytes:
         return self.__encoder.encode(data) if self.__encoder else data
 
     def __decode(self, data: bytes) -> any:
         return self.__encoder.decode(data) if self.__encoder else data
-
-    def setSerializer(self, serializer: type(SerializationProtocol)) -> None:
-        # Sets the serializer-object. It is being instanced before setting it, if it has not already been instanced.
-        self.__serializer: SerializationProtocol = serializer() if callable(serializer) else serializer
 
     def __serialize(self, data: any) -> bytes:
         return self.__serializer.serialize(data) if self.__serializer else data

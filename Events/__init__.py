@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
 
-from .Event import Event
+from .AbstractEvent import AbstractEvent
 from .EventManager import EventManager

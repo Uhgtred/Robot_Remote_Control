@@ -3,17 +3,17 @@ hide empty members
 
 package "BusTransactions"{
 
-    interface BusInterface
+    abstract class AbstractBus
 
     class BusBuilder
-    class Bus
+    class ConreteBus
     class DefaultBusFactory
 
     package "Encoding"{
         protocol EncodingProtocol
         }
     package "BusPlugins"{
-        protocol BusPluginInterface
+        interface BusPluginInterface
         }
     package "Compression"{
         protocol CompressionProtocol
@@ -22,13 +22,13 @@ package "BusTransactions"{
         protocol SerializationProtocol
         }
 
-    Bus -l--- BusInterface
-    BusBuilder ..|> Bus: <<create>>
+    ConreteBus -l-|> AbstractBus: <<implement>>
+    BusBuilder --|> ConreteBus: <<create>>
     DefaultBusFactory --> BusBuilder: <<use>>
-    Bus "1" -r-|> "1" BusPluginInterface
-    Bus "1" o-- "1" EncodingProtocol
-    Bus "1" o-- "1" CompressionProtocol
-    Bus "1" o-- "1" SerializationProtocol
+    AbstractBus "1" .u.|> "1" BusPluginInterface
+    AbstractBus "1" o-- "1" EncodingProtocol
+    AbstractBus "1" o-- "1" CompressionProtocol
+    AbstractBus "1" o-- "1" SerializationProtocol
 }
 
 @enduml

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
 
+from abc import ABC
+
 import ProjectLogging
 
 
-class Event:
+class AbstractEvent(ABC):
     """
     This class implements an event subscription and notification mechanism.
 

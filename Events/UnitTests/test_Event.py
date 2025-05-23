@@ -3,7 +3,7 @@
 
 import unittest
 
-from Events import EventManager, Event
+from Events import EventManager, AbstractEvent
 
 
 class MyEvent(unittest.TestCase):
@@ -15,7 +15,7 @@ class MyEvent(unittest.TestCase):
 
 
 class test_Event(unittest.TestCase):
-    event = EventManager().produceEvent('testEvent')
+    event = EventManager().produceConcreteEvent('testEvent')
     myEvent = MyEvent()
 
     def test_subscribe(self):
@@ -33,8 +33,8 @@ class test_Event(unittest.TestCase):
         ensuring no cross-subscriber notifications between different events.
         """
         # Create two separate Event instances
-        event1 = Event()
-        event2 = Event()
+        event1 = AbstractEvent()
+        event2 = AbstractEvent()
 
         # Define two separate subscriber functions
         subscriber1_data = []

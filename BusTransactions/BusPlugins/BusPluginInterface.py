@@ -3,11 +3,15 @@
 
 from abc import ABC, abstractmethod
 
+import ProjectLogging
 
-class AbstractBusPlugin(ABC):
+
+class BusPluginInterface(ABC):
     """
-    Abstract class acting as an Interface for the BusPlugins for the Bus-class.
+    Interface for the BusPlugins used by the Bus-class.
     """
+    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('BusPluginInterface',
+                                                                      'BusPluginInterface.log').getLogger
 
     @abstractmethod
     def readBus(self) -> bytes:
@@ -15,6 +19,7 @@ class AbstractBusPlugin(ABC):
         Interface-method for reading from a bus.
         :return: Bytes containing the message.
         """
+        ...
 
     @abstractmethod
     def writeBus(self, message: bytes) -> None:
@@ -22,3 +27,5 @@ class AbstractBusPlugin(ABC):
         Interface-method for writing to a bus.
         :param message: Message that shall be sent to the bus.
         """
+        ...
+

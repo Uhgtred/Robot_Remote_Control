@@ -5,7 +5,7 @@ hide empty members
 
 package "BusPlugins"{
 
-    abstract class BusPluginInterface
+    interface BusPluginInterface
     class BusPluginFactory
 
     package "EthernetBusPlugin"{

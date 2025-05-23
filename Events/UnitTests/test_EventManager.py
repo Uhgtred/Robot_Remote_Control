@@ -10,7 +10,7 @@ class test_EventManager(unittest.TestCase):
     eventManager = EventManager()
 
     def test_ProduceEvent(self):
-        self.eventManager.produceEvent('testEvent')
+        self.eventManager.produceConcreteEvent('testEvent')
         self.assertIn('testEvent', self.eventManager.getEventsList)
 
 

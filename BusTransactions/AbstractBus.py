@@ -4,7 +4,7 @@ from inspect import Signature
 
 import ProjectLogging
 import Runners
-from BusTransactions import BusPluginInterface
+from BusTransactions.BusPlugins.BusPluginInterface import BusPluginInterface
 from BusTransactions.Compression.CompressionProtocol import CompressionProtocol
 from BusTransactions.Encoding import EncodingProtocol
 from BusTransactions.Serialization.SerializationProtocol import SerializationProtocol

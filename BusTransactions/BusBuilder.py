@@ -1,7 +1,7 @@
 import typing
 
 
-from BusTransactions import BusPluginInterface
+from BusTransactions.BusPlugins.BusPluginInterface import BusPluginInterface
 from BusTransactions.AbstractBus import AbstractBus
 from BusTransactions.Compression.CompressionProtocol import CompressionProtocol
 from BusTransactions.Encoding import EncodingProtocol
@@ -13,7 +13,7 @@ class BusBuilder(AbstractBus):
     def __init__(self, busPlugin: BusPluginInterface) -> None:
         # bus needs to be set on instancing this class, since it is the only thing that is not optional.
         super().__init__(busPlugin)
-        
+
     def setCompressor(self, compressor: CompressionProtocol) -> typing.Self:
         # Sets the compressor-object. It is being instanced before setting it, if it has not already been instanced.
         self.__compressor: CompressionProtocol = compressor() if callable(compressor) else compressor

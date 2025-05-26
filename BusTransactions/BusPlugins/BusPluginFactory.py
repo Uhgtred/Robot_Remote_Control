@@ -3,7 +3,7 @@
 import logging
 
 from .EthernetBusPlugin import UdpSocket, SocketConfigs
-from .EthernetBusPlugin.test_UnitTests import MockSocket
+from .EthernetBusPlugin.UnitTests.SocketMock import MockSocket
 from .SerialBusPlugin import SerialBus, SerialBusConfig
 from .SerialBusPlugin.UnitTests.SerialBusMock import MockSerialBus
 

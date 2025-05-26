@@ -1,8 +1,8 @@
 import typing
 
+
 from BusTransactions import BusPluginInterface
 from BusTransactions.AbstractBus import AbstractBus
-from BusTransactions.BusInterface import BusInterface
 from BusTransactions.Compression.CompressionProtocol import CompressionProtocol
 from BusTransactions.Encoding import EncodingProtocol
 from BusTransactions.Serialization.SerializationProtocol import SerializationProtocol

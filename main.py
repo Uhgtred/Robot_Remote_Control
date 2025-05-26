@@ -3,7 +3,7 @@
 
 import ProjectLogging
 import Runners
-from BusTransactions.BusInterface import BusInterface
+from BusTransactions.AbstractBus import AbstractBus
 from BusTransactions.DefaultBusFactory import DefaultBusFactory
 # Todo: This line will not be needed anymore, using the new frontend.
 #       For now it will stay in, just to get the video-transmission done and get some progress for this project
@@ -96,7 +96,7 @@ class Main:
         with a task added to the async runner for relaying messages to the UDP bus.
         """
         self.__logger.info('Starting controller-program...')
-        udpBus: BusInterface = DefaultBusFactory.produceUDP_Transceiver(port=self.__ports.get('controllerPort'))
+        udpBus: AbstractBus = DefaultBusFactory.produceUDP_Transceiver(port=self.__ports.get('controllerPort'))
         self.__logger.debug(f'UDPTransceiverObject: {udpBus}')
         controller: SteeringDevice = SteeringDeviceFactory.produceController()
         self.__logger.debug(f'SteeringDeviceObject: {controller}')
@@ -116,7 +116,7 @@ class Main:
         :raises KeyError: If the 'videoPort' key is not found in `self.__ports`.
         """
         self.__logger.info('Starting video-receiver...')
-        udpBus: BusInterface = DefaultBusFactory.produceUDP_ImageDataReceiver(port=self.__ports.get('videoPort'))
+        udpBus: AbstractBus = DefaultBusFactory.produceUDP_ImageDataTransceiver(port=self.__ports.get('videoPort'))
         self.videoController: VideoGUI_Controller = VideoGUI_Controller()
         self.__threadRunner.addTask(udpBus.readBusUntilStopFlag, self.videoController.updateRootView)
         self.__logger.info('Video-receiver started!')

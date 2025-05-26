@@ -3,7 +3,6 @@
 
 from .AbstractBus import AbstractBus
 from .BusBuilder import BusBuilder
-from .BusInterface import BusInterface
 from .BusPlugins import BusPluginInterface
 from .BusPlugins import BusPluginFactory
 from .Compression.CompressorZlib import CompressorZlib
@@ -18,7 +17,7 @@ class DefaultBusFactory:
     """
 
     @staticmethod
-    def produceSerialTransceiver() -> BusInterface:
+    def produceSerialTransceiver() -> AbstractBus:
         """
         Creates and configures a serial transceiver for Arduino communication. This involves
         initializing an encoding protocol and setting up a bus plugin specific to Arduino,
@@ -32,13 +31,13 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusArduinoPlugin()
-        bus: BusInterface = (BusBuilder(busPlugin)
+        bus: AbstractBus = (BusBuilder(busPlugin)
                              .setEncoder(encoding)
                              .build())
         return bus
 
     @staticmethod
-    def produceSerialTransceiverWithStub() -> BusInterface:
+    def produceSerialTransceiverWithStub() -> AbstractBus:
         """
         Produces a serial transceiver with a stub implementation using the Arduino serial
         encoding protocol. This function sets up a mock serial bus plugin and prepares
@@ -50,13 +49,13 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusStubPlugin()
-        bus: BusInterface = (BusBuilder(busPlugin)
+        bus: AbstractBus = (BusBuilder(busPlugin)
                              .setEncoder(encoding)
                              .build())
         return bus
 
     @staticmethod
-    def produceUDP_Transceiver(port: int) -> BusInterface:
+    def produceUDP_Transceiver(port: int) -> AbstractBus:
         """
         Produces a UDP transceiver bus object configured with the specified port and
         encoding protocol. Depending on whether the stub parameter is set to True, either
@@ -70,13 +69,13 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
-        bus: BusInterface = (BusBuilder(busPlugin)
+        bus: AbstractBus = (BusBuilder(busPlugin)
                              .setEncoder(encoding)
                              .build())
         return bus
 
     @staticmethod
-    def produceUDP_TransceiverWithStub(port: int) -> BusInterface:
+    def produceUDP_TransceiverWithStub(port: int) -> AbstractBus:
         """
         Creates and configures a UDP-based transceiver stub with the specified port.
 
@@ -93,14 +92,14 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
-        bus: BusInterface = (BusBuilder(busPlugin)
+        bus: AbstractBus = (BusBuilder(busPlugin)
                              .setEncoder(encoding)
                              .build())
         return bus
 
 
     @staticmethod
-    def produceUDP_ImageDataTransceiver(port: int) -> BusInterface:
+    def produceUDP_ImageDataTransceiver(port: int) -> AbstractBus:
         """
         Creates an UDP-based Image Data Receiver with options for using a stub plugin or
         a real socket plugin, and returns a configured AbstractBus instance which includes the
@@ -113,7 +112,7 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.produceImageDataEncoder()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
-        bus: BusInterface = (BusBuilder(busPlugin)
+        bus: AbstractBus = (BusBuilder(busPlugin)
                              .setSerializer(SerializerMsgPack())
                              .setEncoder(encoding)
                              .setCompressor(CompressorZlib)
@@ -121,7 +120,7 @@ class DefaultBusFactory:
         return bus
 
     @staticmethod
-    def produceUDP_ImageDataTransceiverWithStub(port: int) -> BusInterface:
+    def produceUDP_ImageDataTransceiverWithStub(port: int) -> AbstractBus:
         """
         Produces an instance of a UDP Image Data Receiver with a stub implementation.
 
@@ -139,7 +138,7 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.produceImageDataEncoder()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
-        bus: BusInterface = (BusBuilder(bus=busPlugin)
+        bus: AbstractBus = (BusBuilder(bus=busPlugin)
                              .setSerializer(SerializerMsgPack())
                              .setCompressor(CompressorZlib())
                              .setEncoder(encoding)

@@ -4,7 +4,6 @@
 import unittest
 
 from BusTransactions.AbstractBus import AbstractBus
-from BusTransactions.BusInterface import BusInterface
 from BusTransactions.BusPlugins.SerialBusPlugin.UnitTests.SerialBusMock import MockSerialBus
 from BusTransactions.DefaultBusFactory import DefaultBusFactory
 
@@ -15,7 +14,7 @@ class MyTestCase(unittest.TestCase):
     mockLibrary = MockSerialBus
 
     def test_produceBusTransceiver(self):
-        transceiver: BusInterface = self.busFactory.produceUDP_Transceiver(1234)
+        transceiver: AbstractBus = self.busFactory.produceUDP_Transceiver(1234)
         self.assertIsInstance(transceiver, AbstractBus)
 
 

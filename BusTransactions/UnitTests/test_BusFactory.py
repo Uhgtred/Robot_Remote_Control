@@ -3,11 +3,10 @@
 
 import unittest
 
-from BusTransactions import BusPluginFactory, Bus
-from BusTransactions import Encoding
+from BusTransactions.AbstractBus import AbstractBus
 from BusTransactions.BusInterface import BusInterface
-from BusTransactions.DefaultBusFactory import DefaultBusFactory
 from BusTransactions.BusPlugins.SerialBusPlugin.UnitTests.SerialBusMock import MockSerialBus
+from BusTransactions.DefaultBusFactory import DefaultBusFactory
 
 
 class MyTestCase(unittest.TestCase):
@@ -17,7 +16,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_produceBusTransceiver(self):
         transceiver: BusInterface = self.busFactory.produceUDP_Transceiver(1234)
-        self.assertIsInstance(transceiver, Bus)
+        self.assertIsInstance(transceiver, AbstractBus)
 
 
 if __name__ == '__main__':

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
 
-import os.path
-from pathlib import Path
 import PIL
 import cv2
 import numpy
 from PIL import ImageTk, Image
 
 import ProjectLogging
-import Runners
 from .ModelConfig import ModelConfig
 
 

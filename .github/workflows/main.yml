@@ -1,6 +1,6 @@
-name: Unit Tests
+name: Unit Tests and Coverage
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -21,8 +21,75 @@ jobs:
       - name: Set PATH environment variable
         run: echo "PATH=$PATH:/app/venv/bin" >> $GITHUB_ENV
 
-      - name: Run unit tests in Docker container with coverage
+      - name: Run unit tests in Docker container
+        run: docker run --rm robot_image sh -c "xvfb-run --auto-servernum --server-num=99 python3 -m unittest discover -v"
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
         run: |
-          docker run --rm \
-            robot_image \
-            sh -c "xvfb-run --auto-servernum --server-num=99 coverage run -m unittest discover -v && coverage xml"
+          pip install -r requirements.txt
+
+      - name: Run tests with coverage
+        run: |
+          python -m coverage run --source=. -m unittest discover -v
+          python -m coverage report -m
+          python -m coverage xml
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: Check coverage threshold
+        run: |
+          python -m coverage report --fail-under=80
+
+      - name: Generate HTML coverage report
+        run: |
+          python -m coverage html
+
+      - name: Upload coverage report as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: htmlcov/
+
+  # MKDocs documentation generation
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: |
+          pip install mkdocs
+          pip install mkdocs-material
+          pip install mkdocs-include-markdown-plugin
+
+      - name: Build documentation
+        run: mkdocs build
+
+      - name: Deploy documentation to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site/

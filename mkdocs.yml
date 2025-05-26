@@ -2,7 +2,26 @@ site_name: Robot_Remote_Control
 site_description: Documentation for Remote-Control Project for HomeExplorer
 theme:
   name: material
+docs_dir: .
+plugins:
+  - search
+  - include-markdown
 nav:
-  - Home: index.md
-  - Features: features.md
-  - Setup: setup.md
+  - Home: docs/index.md
+  - Features: docs/features.md
+  - Setup: docs/setup.md
+  - Packages:
+    - BusTransactions: 
+      - Overview: BusTransactions/README.md
+      - BusPlugins:
+        - Overview: BusTransactions/BusPlugins/README.md
+        - EthernetBusPlugin: BusTransactions/BusPlugins/EthernetBusPlugin/README.md
+        - SerialBusPlugin: BusTransactions/BusPlugins/SerialBusPlugin/README.md
+      - Compression: BusTransactions/Compression/README.md
+      - Encoding: BusTransactions/Encoding/README.md
+      - Serialization: BusTransactions/Serialization/README.md
+    - Configurations: Configurations/README.md
+    - Events: Events/README.md
+    - GUI: GUI/README.md
+    - ProjectLogging: ProjectLogging/README.md
+    - Runners: Runners/README.md

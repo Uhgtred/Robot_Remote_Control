@@ -8,17 +8,43 @@ import os.path
 class Logger:
     """
     Class for logging. The logfiles will be created inside the "ProjectLogging"-package by default.
+
+    This class provides a centralized logging mechanism for the application. It supports both
+    file and console logging with customizable log levels. Old log files are automatically
+    deleted when the class is loaded to prevent storage issues.
+
     Console-logs are activated by default and can be deactivated by passing "consoleOutput = False" to the instance.
     This class has to be instanced BEFORE calling the "getLogger" property.
+
+    Attributes
+    ----------
+    __logger : logging.Logger
+        The internal logger instance used for logging
+
+    Examples
+    --------
+    >>> logger = Logger('MyComponent', 'component.log').getLogger
+    >>> logger.info('This is an information message')
+    >>> logger.error('An error occurred')
     """
 
     def __init__(self, name: str, logFile: str = './MainLog.log', logLevel: int = logging.DEBUG, consoleOutput: bool = True):
         """
-        Change default logLevel to set global log-level.
-        :param name: Name of the logger.
-        :param logFile: Name of the log-file.
-        :param logLevel: Level of the logs.
-        :param consoleOutput: Defines whether the logs shall be streamed to the console.
+        Initialize a new Logger instance with specified configuration.
+
+        This constructor sets up the logger with the specified name, log file, log level, and console output settings.
+        It automatically adds the '.log' extension to the log file name if not present.
+
+        Parameters
+        ----------
+        name : str
+            Name of the logger, used to identify the source of log messages
+        logFile : str, optional
+            Name of the log file (default is './MainLog.log')
+        logLevel : int, optional
+            Level of the logs (default is logging.DEBUG)
+        consoleOutput : bool, optional
+            Whether to output logs to the console (default is True)
         """
         if not logFile.endswith('.log'):
             logFile += '.log'
@@ -32,10 +58,23 @@ class Logger:
     @staticmethod
     def __setupConsoleHandler(loglevel: int, formatter: logging.Formatter, logger: logging.Logger) -> None:
         """
-        Method for setting up a console-log-handler.
-        :param loglevel: Defines which log messages shall be streamed to the console.
-        :param formatter: Defines the style of the log-messages in the console.
-        :param logger: The logger that this console-streamer is being attached to.
+        Set up a console log handler for displaying log messages in the console.
+
+        This method creates and configures a StreamHandler that outputs log messages to the console
+        with the specified log level and formatting.
+
+        Parameters
+        ----------
+        loglevel : int
+            The minimum log level for messages to be displayed in the console
+        formatter : logging.Formatter
+            The formatter that defines the style and format of log messages
+        logger : logging.Logger
+            The logger instance to which the console handler will be attached
+
+        Returns
+        -------
+        None
         """
         consoleHandler: logging.StreamHandler = logging.StreamHandler()
         consoleHandler.setLevel(loglevel)  # Only log INFO and above to the console
@@ -45,10 +84,25 @@ class Logger:
     @staticmethod
     def __setupFileHandler(logLevel: int, logFile: str, formatter: logging.Formatter, logger: logging.Logger) -> None:
         """
-        Method for creating a file-handler for the logging.
-        :param logLevel: Defines which log messages shall be stored into the log-file.
-        :param formatter: Defines the style of the log-messages in the log-file.
-        :param logFile: The log-file that the logs shall be stored in. Base-path is the "ProjectLogging" package.
+        Set up a file handler for writing log messages to a file.
+
+        This method creates and configures a FileHandler that writes log messages to the specified file
+        with the specified log level and formatting. The log file is created in the ProjectLogging directory.
+
+        Parameters
+        ----------
+        logLevel : int
+            The minimum log level for messages to be written to the log file
+        logFile : str
+            The name of the log file. Base path is the "ProjectLogging" package
+        formatter : logging.Formatter
+            The formatter that defines the style and format of log messages
+        logger : logging.Logger
+            The logger instance to which the file handler will be attached
+
+        Returns
+        -------
+        None
         """
         fileHandler: logging.FileHandler = logging.FileHandler(os.path.join(os.path.dirname(__file__), logFile))
         fileHandler.setLevel(logLevel)
@@ -58,8 +112,20 @@ class Logger:
     @staticmethod
     def __setupFormatter(name: str) -> logging.Formatter:
         """
-        Method defining the format of the logs.
-        :return: Formatter, that will be used to set up the style of the logging.
+        Create and configure a formatter for log messages.
+
+        This method defines the format of log messages, including timestamp, log level, 
+        logger name, and the actual message content.
+
+        Parameters
+        ----------
+        name : str
+            The name of the logger, used in the formatted log message
+
+        Returns
+        -------
+        logging.Formatter
+            A configured formatter object that will be used to format log messages
         """
         return logging.Formatter('%(asctime)s - [%(levelname)s][%(name)s]: %(message)s\t',
                                  datefmt='%d-%m-%Y %H:%M:%S')
@@ -67,15 +133,31 @@ class Logger:
     @property
     def getLogger(self):
         """
-        Getter for the Logger-instance.
-        :return: Logger that can be used to create file-logs and console-logs (can be deactivated while instancing).
+        Get the configured logger instance.
+
+        This property provides access to the internal logger instance that has been configured
+        with the specified handlers and formatters. The returned logger can be used to create
+        log messages at various levels (debug, info, warning, error, critical).
+
+        Returns
+        -------
+        logging.Logger
+            The configured logger instance that can be used to create file and console logs
         """
         return self.__logger
 
     @staticmethod
     def __deleteExistingLogFiles() -> None:
         """
-        Method for deleting old logs. So they do not stack up and waste memory.
+        Delete all existing log files in the ProjectLogging directory.
+
+        This method is automatically called when the Logger class is loaded by the interpreter.
+        It ensures that old log data doesn't accumulate and waste storage space. All files with
+        the '.log' extension in the same directory as this module will be removed.
+
+        Returns
+        -------
+        None
         """
         logPath = os.path.dirname(__file__)
         files = os.listdir(logPath)

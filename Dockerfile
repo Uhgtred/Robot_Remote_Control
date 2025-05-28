@@ -34,7 +34,7 @@ RUN python3 -m venv /app/venv && \
     /app/venv/bin/pip3 install -r /app/requirements.txt
 
 # Copy SourceCode to app-folder
-COPY ../ /app/
+COPY . /app/
 
 ## set environment for python-version
 ENV PATH="/app/venv/bin:${PATH}"

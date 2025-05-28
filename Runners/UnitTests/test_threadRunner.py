@@ -12,6 +12,11 @@ def testTask(*args):
     time.sleep(1)
 
 
+def testTaskWithKwargs(*args, **kwargs):
+    # print(f"Testing {args} with kwargs {kwargs}")
+    time.sleep(1)
+
+
 def test2Task():
     time.sleep(1)
 
@@ -30,6 +35,15 @@ class test_ThreadRunner(unittest.TestCase):
         thread = self.testRunner._ThreadRunner__threads[0]
         self.testRunner.runTasks()
         self.assertEqual(len(self.testRunner._ThreadRunner__threads), 0)
+        self.assertTrue(thread.is_alive())
+        time.sleep(2)
+        self.assertFalse(thread.is_alive())
+
+    def test_taskWithKwargs(self):
+        self.testRunner.addTask(testTaskWithKwargs, ['test'], kwargs={'key': 'value'})
+        self.assertIn('testTaskWithKwargs_thread', (task.name for task in self.testRunner._ThreadRunner__threads))
+        thread = self.testRunner._ThreadRunner__threads[0]
+        self.testRunner.runTasks()
         self.assertTrue(thread.is_alive())
         time.sleep(2)
         self.assertFalse(thread.is_alive())

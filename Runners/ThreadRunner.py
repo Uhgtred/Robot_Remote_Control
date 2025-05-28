@@ -22,9 +22,12 @@ class ThreadRunner(Runner):
         Method for adding a task to the task-list.
         :param task: Method that shall be executed in a separate thread.
         :param args: Arguments, that shall be passed to the thread.
+        :param kwargs: Keyword arguments, that shall be passed to the thread.
         """
-        thread: threading.Thread = threading.Thread(target=task, args=args, name=f'{str(task).split(" ")[1]}_thread')
-
+        thread: threading.Thread = threading.Thread(target=task,
+                                                    args=args,
+                                                    kwargs=kwargs,
+                                                    name=f'{str(task).split(" ")[1]}_thread')
         self.__threads.append(thread)
 
     def runTasks(self) -> None:

@@ -14,7 +14,7 @@ class MyTestCase(unittest.TestCase):
     mockLibrary = MockSerialBus
 
     def test_produceBusTransceiver(self):
-        transceiver: AbstractBus = self.busFactory.produceUDP_Transceiver(1234)
+        transceiver: AbstractBus = self.busFactory.produceUDP_TransceiverWithStub(1234)
         self.assertIsInstance(transceiver, AbstractBus)
 
 

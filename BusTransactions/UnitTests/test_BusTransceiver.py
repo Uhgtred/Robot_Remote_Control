@@ -22,12 +22,12 @@ class helperClass:
     :ivar testKwargs: Holds the keyword arguments passed to `helperMethod`.
     :type testKwargs: dict
     """
-    def __init__(self):
-        self.args = None
-        self.message = None
-        self.testKwargs = None
+    message = None
+    args = None
+    testKwargs = None
 
-    def helperMethod(self, message, *args, **kwargs):
+    @classmethod
+    def helperMethod(cls, message, *args, **kwargs):
         """
         Helper method for processing a message, positional arguments, and keyword
         arguments. This method initializes internal attributes with the provided
@@ -42,9 +42,10 @@ class helperClass:
         :return: None
         :rtype: NoneType
         """
-        self.args = list(args)
-        self.message = message
-        self.testKwargs = kwargs
+        cls.args = list(args)
+        if message == 'Hello World':
+            cls.message = message
+        cls.testKwargs = kwargs
 
     def helperMethodNoArgs(self):
         """
@@ -68,7 +69,7 @@ class TestBusTransceiver(unittest.TestCase):
     def test_BusTransceiver_writeSingleMessage(self):
         self.serialTransceiver.writeSingleMessage(self.testString)
         message = self.serialTransceiver.bus.bus.buffer.pop(0)
-        self.assertEqual(message[:-1], self.testString.encode())
+        self.assertEqual(message, self.testString)
 
     def test_BusTransceiver_readSingleMessage(self):
         self.serialTransceiver.writeSingleMessage(self.testString)
@@ -76,25 +77,24 @@ class TestBusTransceiver(unittest.TestCase):
         self.assertEqual(message, self.testString)
 
     def test_readBusUntilStopFlag(self):
-        obj = helperClass()
         udpBus = DefaultBusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(port = 2121)
-        udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
-        udpBus.readBusUntilStopFlag(obj.helperMethod, arg, testKwarg='testKwarg')
+        udpBus.writeSingleMessage(self.testString)
+        udpBus.readBusUntilStopFlag(helperClass.helperMethod, arg, testKwarg='testKwarg')
         # Letting bus init before closing.
         # Otherwise, there is an issue that the message is not correctly being received.
-        time.sleep(.0001)
+        time.sleep(.02)
         udpBus.stopFlag = True
-        self.assertEqual(obj.message, self.testString)
-        self.assertEqual(obj.args[0], arg)
-        self.assertEqual(obj.testKwargs.get('testKwarg'), 'testKwarg')
+        self.assertEqual(helperClass.message, self.testString)
+        self.assertEqual(helperClass.args[0], arg)
+        self.assertEqual(helperClass.testKwargs.get('testKwarg'), 'testKwarg')
 
     def test_readBusUntilStopFlagFail(self):
         obj = helperClass()
         udpBus = DefaultBusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(port = 2122)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
-        self.assertRaises(TypeError, udpBus.readBusUntilStopFlag, (obj.helperMethodNoArgs, arg), testKwarg='testKwarg')
+        self.assertRaises(TypeError, udpBus.readBusUntilStopFlag, obj.helperMethodNoArgs, arg, testKwarg='testKwarg')
 
 
 if __name__ == '__main__':

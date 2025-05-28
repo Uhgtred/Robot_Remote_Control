@@ -69,7 +69,7 @@ class MockSocket:
             return message[:messageSize], cls.address
         else:
             cls.__logger.debug('No messages in buffer. Returning some predefined message.')
-            return 'Some predefined message.', cls.address
+            return None, cls.address
 
     @staticmethod
     def bind(address):
@@ -81,7 +81,7 @@ class MockSocket:
         :type address: Any
         :return: None
         """
-        MockSocket.__logger.debug(f'Address of socket: {address}')
+        MockSocket.__logger.debug(f'Address of socket-MOCK!: {address}')
 
     @classmethod
     def socket(cls, *args):
@@ -114,7 +114,7 @@ class MockSocket:
         cls.state = False
 
     @classmethod
-    def sendto(cls, message, address):
+    def sendto(cls, message: bytes, address: tuple[str, int]):
         """
         Sends a given message to the specified address and logs the action.
 
@@ -126,7 +126,7 @@ class MockSocket:
         :param address: The address of the socket to which the message will be sent.
         :return: None
         """
-        cls.__logger.debug(f'Sending message: {message} to socket: {address}')
+        cls.__logger.debug(f'Sending mock-message: "{message}" to socket: [{address}]')
         cls.address: tuple[str, int] = address
         cls.buffer.append(message)
 

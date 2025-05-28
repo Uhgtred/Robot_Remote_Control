@@ -112,7 +112,7 @@ class AbstractBus(ABC):
             If the callback method is not callable or doesn't accept at least one argument
         """
         self.__callBackHasInputArg(callbackMethod)
-        self.__threadRunner.addTask(self.__readLoop, args=(callbackMethod, *args), kwargs=kwargs)
+        self.__threadRunner.addTask(self.__readLoop, *[callbackMethod, *args], **kwargs)
         self.__threadRunner.runTasks()
 
     def __readLoop(self, callbackMethod: callable, *args, **kwargs) -> None:
@@ -203,7 +203,7 @@ class AbstractBus(ABC):
         BaseException
             If an error occurs while sending the message to the bus
         """
-        self.__logger.debug(f'Sending message: {message} to bus: {self.bus.__class__.__name__}')
+        self.__logger.debug(f'Sending message: "{message}" to bus: [{self.bus.__class__.__name__}]')
         message: bytes = self.__preProcessMessageForTransmission(message)
         try:
             self.bus.writeBus(message)

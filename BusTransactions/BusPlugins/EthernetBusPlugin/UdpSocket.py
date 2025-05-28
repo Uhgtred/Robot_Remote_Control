@@ -91,7 +91,7 @@ class UdpSocket(BusPluginInterface):
             raise BaseException('Port already in use')
         # Creating a udp-socket object.
         self.sock: socket.socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
-        self.__logger.debug(f'Trying to bind to Address: {self.__myIPAddress}:{port}.')
+        self.__logger.debug(f'Trying to bind to Address: {self.__myIPAddress}:{port}, with socket-library: {sock}')
         # Binding the socket with provided address and port. It can be used for transmission and receiving now.
         self.sock.bind((self.__myIPAddress, port))
         # Adding port to the set of open sockets.
@@ -119,6 +119,10 @@ class UdpSocket(BusPluginInterface):
         Method for closing the sockets that are still opened.
         """
         self.__logger.debug(f'Shutting down the socket with port: {self.__port}')
-        self.sock.close()
-        if self.__port in self.__openSocketPorts:
-            self.__openSocketPorts.remove(self.__port)
+        try:
+            self.sock.close()
+            if self.__port in self.__openSocketPorts:
+                self.__openSocketPorts.remove(self.__port)
+        except Exception as exception:
+            self.__logger.warning(f'Error while trying to close the socket [{self.sock}]! '
+                                  f'Original Exception: {exception}')

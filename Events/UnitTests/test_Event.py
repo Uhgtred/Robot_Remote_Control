@@ -20,7 +20,7 @@ class test_Event(unittest.TestCase):
 
     def test_subscribe(self):
         self.event.subscribe(self.myEvent.myFunction)
-        self.assertTrue(self.myEvent.myFunction in self.event._Event__subscribers)
+        self.assertTrue(self.myEvent.myFunction in self.event._AbstractEvent__subscribers)
 
     def test_notifySubscribers(self):
         self.event.subscribe(self.myEvent.myFunction)
@@ -59,8 +59,8 @@ class test_Event(unittest.TestCase):
         self.assertEqual(subscriber2_data, ["Event2 Message"])
 
         # Ensure each event's subscriber list is independent
-        self.assertNotIn(subscriber2, event1._Event__subscribers)
-        self.assertNotIn(subscriber1, event2._Event__subscribers)
+        self.assertNotIn(subscriber2, event1._AbstractEvent__subscribers)
+        self.assertNotIn(subscriber1, event2._AbstractEvent__subscribers)
 
 
 if __name__ == '__main__':

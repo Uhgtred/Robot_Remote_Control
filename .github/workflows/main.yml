@@ -24,6 +24,12 @@ jobs:
       - name: Run unit tests in Docker container
         run: docker run --rm robot_image sh -c "xvfb-run --auto-servernum --server-num=99 python3 -m unittest discover -v"
 
+      - name: Run coverage in Docker container
+        run: |
+          docker run --name coverage_container robot_image sh -c "python -m coverage run --rcfile=.coveragerc -m unittest discover -v && python -m coverage xml --rcfile=.coveragerc -o /app/coverage.xml && python -m coverage report --rcfile=.coveragerc"
+          docker cp coverage_container:/app/coverage.xml ./coverage.xml
+          docker rm coverage_container
+
   coverage:
     runs-on: ubuntu-latest
     steps:

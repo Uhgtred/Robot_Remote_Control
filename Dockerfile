@@ -38,3 +38,7 @@ COPY . /app/
 
 ## set environment for python-version
 ENV PATH="/app/venv/bin:${PATH}"
+
+# Create symbolic links for coverage commands in /usr/local/bin
+RUN ln -sf /app/venv/bin/coverage /usr/local/bin/coverage && \
+    ln -sf /app/venv/bin/coverage-3 /usr/local/bin/coverage-3

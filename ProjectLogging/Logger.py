@@ -27,6 +27,7 @@ class Logger:
     >>> logger.info('This is an information message')
     >>> logger.error('An error occurred')
     """
+    __loggingActive: bool = True
 
     def __init__(self, name: str, logFile: str = './MainLog.log', logLevel: int = logging.DEBUG, consoleOutput: bool = True):
         """
@@ -54,6 +55,9 @@ class Logger:
         self.__setupFileHandler(logLevel, logFile, formatter, self.__logger)
         if consoleOutput:
             self.__setupConsoleHandler(logLevel, formatter, self.__logger)
+
+    def __deactivateLogging(self):
+        passEmptyLogger = logging.getLogger('empty')
 
     @staticmethod
     def __setupConsoleHandler(loglevel: int, formatter: logging.Formatter, logger: logging.Logger) -> None:
@@ -144,6 +148,8 @@ class Logger:
         logging.Logger
             The configured logger instance that can be used to create file and console logs
         """
+        if not self.__loggingActive:
+            return self.emptyLogger
         return self.__logger
 
     @staticmethod

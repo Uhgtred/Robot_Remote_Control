@@ -36,9 +36,9 @@ class AbstractBus(ABC):
         Flag to control continuous reading loops
     """
 
-    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
+    __logger: ProjectLogging.Logger.getLogger or None = None
 
-    def __init__(self, busPlugin: BusPluginInterface):
+    def __init__(self, busPlugin: BusPluginInterface, logger: type(ProjectLogging.Logger)) -> None:
         """
         Initialize a new Bus instance with the specified bus plugin.
 
@@ -51,6 +51,7 @@ class AbstractBus(ABC):
             The bus plugin that will handle the actual communication.
             Must implement the AbstractBusPlugin interface.
         """
+        self.__logger: ProjectLogging.Logger.getLogger = logger('Bus', 'Bus.log').getLogger
         self.__logger.info(f'Creating a Bus-instance with plugin: {busPlugin}')
         self.__stopFlag: bool = False
         self.bus: BusPluginInterface = busPlugin
@@ -139,9 +140,10 @@ class AbstractBus(ABC):
         """
         while not self.__stopFlag:
             try:
-                self.__logger.debug(f'Trying to read a message with callback-method {self.readSingleMessage.__name__}\n'
+                self.__logger.debug(f'Trying to read a message with callback-method '
+                                    f'[{self.readSingleMessage.__name__}]\n'
                                     f'\twith args: {args}\n'
-                                    f'\tand kwargs: {kwargs}'
+                                    f'\tand kwargs: {kwargs}\n'
                                     f'\ton bus: {self.bus.__class__.__name__}')
                 message: any = self.readSingleMessage()
                 self.__logger.debug(f'Message received: {message}')
@@ -276,7 +278,11 @@ class AbstractBus(ABC):
         -------
         None
         """
-        self.bus.close()
+        try:
+            self.__logger.info(f'Closing bus [{self.bus}]!')
+            self.bus.close()
+        except Exception as exception:
+            self.__logger.warning(f'Bus [{self.bus}] could not be closed properly! Original exception: {exception}')
 
     @property
     def stopFlag(self) -> bool:

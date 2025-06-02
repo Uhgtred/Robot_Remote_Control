@@ -1,3 +1,5 @@
+from BusTransactions.BusBuilder import BusBuilderfrom BusTransactions import BusPluginFactory
+
 # BusPlugins Package
 
 ## Overview
@@ -17,13 +19,18 @@ Bus plugins are typically instantiated and passed to a Bus object:
 
 ```python
 from BusTransactions.AbstractBus import AbstractBus
-from BusTransactions.BusPlugins.EthernetBusPlugin import EthernetBusPlugin
+from BusTransactions.BusPlugins import BusPluginFactory
+from BusTransactions.BusBuilder import BusBuilder
 
-# Create an Ethernet bus plugin
-ethernet_plugin = EthernetBusPlugin(host="192.168.1.100", port=5000)
+# Create an Ethernet bus plugin using the BusPluginFactory
+udp_socket_plugin = BusPluginFactory.produceUdpSocketPlugin(port=5000)
 
-# Create a bus with the plugin
-bus = AbstractBus(ethernet_plugin)
+# Create a bus with the plugin using the BusBuilder
+bus = BusBuilder(udp_socket_plugin)\
+        .setEncoder(someEncoder)\
+        .setCompressor(someCompressor)\
+        .setSerializer(someSerializer)\
+        .build()
 
 # Now you can use the bus to communicate over Ethernet
 ```

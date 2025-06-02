@@ -31,9 +31,9 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusArduinoPlugin()
-        bus: AbstractBus = (BusBuilder(busPlugin)
-                             .setEncoder(encoding)
-                             .build())
+        bus: AbstractBus = BusBuilder(busPlugin)\
+                             .setEncoder(encoding)\
+                             .build()
         return bus
 
     @staticmethod
@@ -49,9 +49,9 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.arduinoSerialEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceSerialBusStubPlugin()
-        bus: AbstractBus = (BusBuilder(busPlugin)
-                             .setEncoder(encoding)
-                             .build())
+        bus: AbstractBus = BusBuilder(busPlugin)\
+                             .setEncoder(encoding)\
+                             .build()
         return bus
 
     @staticmethod
@@ -69,9 +69,9 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
-        bus: AbstractBus = (BusBuilder(busPlugin)
-                             .setEncoder(encoding)
-                             .build())
+        bus: AbstractBus = BusBuilder(busPlugin)\
+                             .setEncoder(encoding)\
+                             .build()
         return bus
 
     @staticmethod
@@ -92,9 +92,9 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.socketEncoding()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
-        bus: AbstractBus = (BusBuilder(busPlugin)
-                             .setEncoder(encoding)
-                             .build())
+        bus: AbstractBus = BusBuilder(busPlugin)\
+                             .setEncoder(encoding)\
+                             .build()
         return bus
 
 
@@ -112,11 +112,11 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.produceImageDataEncoder()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpSocketPlugin(port=port)
-        bus: AbstractBus = (BusBuilder(busPlugin)
-                             .setSerializer(SerializerMsgPack())
-                             .setEncoder(encoding)
-                             .setCompressor(CompressorZlib)
-                             .build())
+        bus: AbstractBus = BusBuilder(busPlugin)\
+                             .setSerializer(SerializerMsgPack())\
+                             .setEncoder(encoding)\
+                             .setCompressor(CompressorZlib)\
+                             .build()
         return bus
 
     @staticmethod
@@ -138,9 +138,9 @@ class DefaultBusFactory:
         """
         encoding: EncodingProtocol = EncodingFactory.produceImageDataEncoder()
         busPlugin: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin(port=port)
-        bus: AbstractBus = (BusBuilder(bus=busPlugin)
-                             .setSerializer(SerializerMsgPack())
-                             .setCompressor(CompressorZlib())
-                             .setEncoder(encoding)
-                             .build())
+        bus: AbstractBus = BusBuilder(bus=busPlugin)\
+                             .setSerializer(SerializerMsgPack())\
+                             .setCompressor(CompressorZlib())\
+                             .setEncoder(encoding)\
+                             .build()
         return bus

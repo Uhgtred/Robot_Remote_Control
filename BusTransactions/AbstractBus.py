@@ -38,7 +38,7 @@ class AbstractBus(ABC):
 
     __logger: ProjectLogging.Logger.getLogger or None = None
 
-    def __init__(self, busPlugin: BusPluginInterface, logger: type(ProjectLogging.Logger)) -> None:
+    def __init__(self, busPlugin: BusPluginInterface) -> None:
         """
         Initialize a new Bus instance with the specified bus plugin.
 
@@ -51,7 +51,7 @@ class AbstractBus(ABC):
             The bus plugin that will handle the actual communication.
             Must implement the AbstractBusPlugin interface.
         """
-        self.__logger: ProjectLogging.Logger.getLogger = logger('Bus', 'Bus.log').getLogger
+        self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
         self.__logger.info(f'Creating a Bus-instance with plugin: {busPlugin}')
         self.__stopFlag: bool = False
         self.bus: BusPluginInterface = busPlugin

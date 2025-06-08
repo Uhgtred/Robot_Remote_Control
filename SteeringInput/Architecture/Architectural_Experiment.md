@@ -3,7 +3,7 @@
 ```plantuml
 @startuml
 package InputControl{
-    interface InputDevice{
+    abstract class InputDevice{
         -callbackMethod: callable
         -delay: float
         --
@@ -124,7 +124,7 @@ package InputControl{
     InputController -d- InputDevice
     InputDevice -l-> Delay
     AbstractTouchScreen .l.|> InputDevice
-    AbstractController .u.|> InputDevice
+    AbstractController -u-|> InputDevice
     XboxController -u-|> AbstractController
     XboxController "1" *-d- "1" ControllerElements
     PlaystationController -u-|> AbstractController

@@ -3,7 +3,7 @@ name: Unit Tests and Coverage
 on: [push]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
@@ -18,38 +18,12 @@ jobs:
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag robot_image
 
-      - name: Set PATH environment variable
-        run: echo "PATH=$PATH:/app/venv/bin" >> $GITHUB_ENV
-
-      - name: Run unit tests in Docker container
-        run: docker run --rm robot_image sh -c "xvfb-run --auto-servernum --server-num=99 python3 -m unittest discover -v"
-
-      - name: Run coverage in Docker container
+      - name: Run unit tests and coverage in Docker container
         run: |
-          docker run --name coverage_container robot_image sh -c "python -m coverage run --rcfile=.coveragerc -m unittest discover -v && python -m coverage xml --rcfile=.coveragerc -o /app/coverage.xml && python -m coverage report --rcfile=.coveragerc"
+          docker run --name coverage_container robot_image sh -c "xvfb-run --auto-servernum --server-num=99 python -m coverage run --rcfile=.coveragerc -m unittest discover -v && python -m coverage xml --rcfile=.coveragerc -o /app/coverage.xml && python -m coverage html --rcfile=.coveragerc -d /app/htmlcov && python -m coverage report --rcfile=.coveragerc"
           docker cp coverage_container:/app/coverage.xml ./coverage.xml
+          docker cp coverage_container:/app/htmlcov ./htmlcov
           docker rm coverage_container
-
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      - name: Run tests with coverage
-        run: |
-          python -m coverage run --source=. -m unittest discover -v
-          python -m coverage report -m
-          python -m coverage xml
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v3
@@ -62,13 +36,8 @@ jobs:
         run: |
           python -m coverage report --fail-under=80
 
-      - name: Generate HTML coverage report
-        run: |
-          python -m coverage html
-
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: htmlcov/
-

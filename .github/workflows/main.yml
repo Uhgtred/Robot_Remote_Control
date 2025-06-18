@@ -25,6 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Create empty config files
+        run: |
+          touch config-3.py
+          touch config.py
+
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag robot_image
 
@@ -43,6 +48,7 @@ jobs:
           conn = sqlite3.connect('.coverage')
           c = conn.cursor()
           c.execute('UPDATE file SET path = REPLACE(path, \"/app/\", \"\")')
+          c.execute('UPDATE file SET path = REPLACE(path, \"/home/runner/work/Robot_Remote_Control/Robot_Remote_Control/\", \"\")')
           conn.commit()
           conn.close()
           "

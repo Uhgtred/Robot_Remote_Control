@@ -36,16 +36,27 @@ jobs:
           docker cp coverage_container:/app/.coverage ./.coverage
           docker rm coverage_container
 
+      - name: Fix coverage paths
+        run: |
+          python -c "
+          import sqlite3
+          conn = sqlite3.connect('.coverage')
+          c = conn.cursor()
+          c.execute('UPDATE file SET path = REPLACE(path, \"/app/\", \"\")')
+          conn.commit()
+          conn.close()
+          "
+
       - name: Generate coverage report
         run: |
           echo "### Coverage Report" >> $GITHUB_STEP_SUMMARY
           echo "| Category | Percentage |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|------------|" >> $GITHUB_STEP_SUMMARY
-          PYTHONPATH=. python -m coverage report --rcfile=.coveragerc | tail -n 1 | awk '{print "| Total | " $4 " |"}' >> $GITHUB_STEP_SUMMARY
+          python -m coverage report | tail -n 1 | awk '{print "| Total | " $4 " |"}' >> $GITHUB_STEP_SUMMARY
 
       - name: Check coverage threshold
         run: |
-          PYTHONPATH=. python -m coverage report --rcfile=.coveragerc --fail-under=80
+          python -m coverage report --fail-under=80
 
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4

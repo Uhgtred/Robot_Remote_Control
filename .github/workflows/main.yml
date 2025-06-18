@@ -33,6 +33,7 @@ jobs:
           docker run --name coverage_container robot_image sh -c "xvfb-run --auto-servernum --server-num=99 python -m coverage run --rcfile=.coveragerc -m unittest discover -v && python -m coverage xml --rcfile=.coveragerc -o /app/coverage.xml && python -m coverage html --rcfile=.coveragerc -d /app/htmlcov && python -m coverage report --rcfile=.coveragerc"
           docker cp coverage_container:/app/coverage.xml ./coverage.xml
           docker cp coverage_container:/app/htmlcov ./htmlcov
+          docker cp coverage_container:/app/.coverage ./.coverage
           docker rm coverage_container
 
       - name: Generate coverage report
@@ -53,4 +54,5 @@ jobs:
           path: |
             htmlcov/
             coverage.xml
+            .coverage
           retention-days: 14

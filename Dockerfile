@@ -32,9 +32,6 @@ RUN python3 -m venv /app/venv && \
 # Copy SourceCode to app-folder
 COPY . /app/
 
-# Create empty config files
-RUN touch /app/config-3.py && touch /app/config.py
-
 ## set environment for python-version
 ENV PATH="/app/venv/bin:${PATH}"
 

@@ -1,10 +1,6 @@
 FROM ubuntu:24.04
 LABEL authors="Markus"
 
-# set timezone
-ENV TZ=Europe/London
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
 # Install python and pip
 RUN apt-get update && \
     apt-get install -y python3 python3-pip && \

@@ -30,7 +30,7 @@ jobs:
 
       - name: Run unit tests and coverage in Docker container
         run: |
-          docker run --name coverage_container robot_image sh -c "xvfb-run --auto-servernum --server-num=99 python -m coverage run --rcfile=.coveragerc -m unittest discover -v && python -m coverage xml --rcfile=.coveragerc -o /app/coverage.xml && python -m coverage html --rcfile=.coveragerc -d /app/htmlcov && python -m coverage report --rcfile=.coveragerc"
+          docker run --name coverage_container robot_image sh -c "cd /app && xvfb-run --auto-servernum --server-num=99 python -m coverage run --rcfile=.coveragerc -m unittest discover -v && python -m coverage xml --rcfile=.coveragerc -o coverage.xml && python -m coverage html --rcfile=.coveragerc -d htmlcov && python -m coverage report --rcfile=.coveragerc"
           docker cp coverage_container:/app/coverage.xml ./coverage.xml
           docker cp coverage_container:/app/htmlcov ./htmlcov
           docker cp coverage_container:/app/.coverage ./.coverage
@@ -41,11 +41,11 @@ jobs:
           echo "### Coverage Report" >> $GITHUB_STEP_SUMMARY
           echo "| Category | Percentage |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|------------|" >> $GITHUB_STEP_SUMMARY
-          python -m coverage report | tail -n 1 | awk '{print "| Total | " $4 " |"}' >> $GITHUB_STEP_SUMMARY
+          PYTHONPATH=. python -m coverage report --rcfile=.coveragerc | tail -n 1 | awk '{print "| Total | " $4 " |"}' >> $GITHUB_STEP_SUMMARY
 
       - name: Check coverage threshold
         run: |
-          python -m coverage report --fail-under=80
+          PYTHONPATH=. python -m coverage report --rcfile=.coveragerc --fail-under=80
 
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4

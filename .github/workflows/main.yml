@@ -6,6 +6,9 @@ jobs:
 
   call-docker-login:
     uses: ./.github/workflows/docker-login.yml
+    secrets:
+      ROB_REMOTE_USER: ${{ secrets.ROB_REMOTE_USER }}
+      ROB_REMOTE_TOKEN: ${{ secrets.ROB_REMOTE_TOKEN }}
 
   build-and-test:
     runs-on: ubuntu-latest

@@ -1,5 +1,13 @@
-name: docker-login.yml
-on: [workflow_call]
+# .github/workflows/docker-login.yml
+name: Docker Login
+
+on:
+  workflow_call:
+    secrets:
+      ROB_REMOTE_USER:
+        required: true
+      ROB_REMOTE_TOKEN:
+        required: true
 
 jobs:
   login:

@@ -42,8 +42,19 @@ jobs:
       - name: Copy HTML coverage report
         run: docker cp coverage_container:/app/coverage_html ./coverage_html
 
-      - name: Upload HTML coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: ./coverage_html
+      - name: Report coverage in GitHub summary
+        run: |
+          docker cp coverage_container:/app/.coverage .coverage
+          pip install coverage  # locally install coverage CLI
+          coverage report > coverage.txt
+          tail -n 10 coverage.txt
+          echo '### Test Coverage Summary' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat coverage.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+#      - name: Upload HTML coverage report
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: coverage-html
+#          path: ./coverage_html

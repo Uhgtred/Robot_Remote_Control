@@ -37,7 +37,13 @@ jobs:
           xvfb-run --auto-servernum --server-num=99 \
           python -m coverage run --branch --source=/app --rcfile=.coveragerc \
           -m unittest discover -v -s BusTransactions/UnitTests -p 'test_*.py' && \
-          coverage xml -o coverage.xml"
+          coverage html -o coverage_html"
 
-      - name: Copy coverage report
-        run: docker cp coverage_container:/app/coverage.xml coverage.xml
+      - name: Copy HTML coverage report
+        run: docker cp coverage_container:/app/coverage_html ./coverage_html
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: ./coverage_html

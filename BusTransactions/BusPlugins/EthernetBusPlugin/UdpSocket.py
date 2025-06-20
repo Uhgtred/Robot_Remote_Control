@@ -118,11 +118,14 @@ class UdpSocket(BusPluginInterface):
         """
         Method for closing the sockets that are still opened.
         """
+        if self.sock is None:
+            return
         self.__logger.debug(f'Shutting down the socket with port: {self.__port}')
         try:
             self.sock.close()
             if self.__port in self.__openSocketPorts:
                 self.__openSocketPorts.remove(self.__port)
+            self.sock: None or socket = None
         except Exception as exception:
             self.__logger.warning(f'Error while trying to close the socket [{self.sock}]! '
-                                  f'Original Exception: {exception}')
+                                f'Original Exception: {exception}')

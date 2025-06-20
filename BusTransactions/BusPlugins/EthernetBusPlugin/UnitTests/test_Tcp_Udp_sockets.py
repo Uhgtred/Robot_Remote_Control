@@ -4,6 +4,7 @@
 import unittest
 
 from BusTransactions import BusPluginFactory, BusPluginInterface
+from BusTransactions.BusPlugins.EthernetBusPlugin.UnitTests import MockSocket
 
 
 class TestUDPSockets(unittest.TestCase):
@@ -29,7 +30,17 @@ class TestUDPSockets(unittest.TestCase):
         self.testString = b'Hello World'
 
     def tearDown(self):
-        self.bus.close()
+        if hasattr(self, 'bus'):
+            self.bus.close()
+            delattr(self, 'bus')
+
+    @classmethod
+    def setUpClass(cls):
+        # Clear any leftover mock sockets from previous test runs
+        MockSocket.buffer = []
+        MockSocket.state = False
+        MockSocket.__openSocketPorts = set()
+
 
     def test_write(self) -> None:
         """

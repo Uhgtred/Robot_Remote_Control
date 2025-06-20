@@ -30,26 +30,44 @@ jobs:
         run: docker build . --file Dockerfile --tag robot_image
 
       - name: Run unit tests and coverage in Docker container
+        id: test_step
         run: |
+          # Create a temporary file for the full output
           docker run --name coverage_container robot_image sh -c "cd /app && \
           PYTHONPATH=/app \
           xvfb-run --auto-servernum --server-num=99 \
           python -m coverage run --branch --source=/app --rcfile=.coveragerc \
-          -m unittest discover -v -s BusTransactions/UnitTests -p 'test_*.py' && \
+          -m unittest discover -v -s BusTransactions/UnitTests -p 'test_*.py' 2>&1 | tee /app/test_output.log && \
           coverage report > /app/coverage.txt && \
           coverage html -d /app/coverage_html"
-
-      - name: Copy coverage files from container
-        run: |
+          
+          # Copy output files from container
+          docker cp coverage_container:/app/test_output.log ./test_output.log
           docker cp coverage_container:/app/coverage.txt ./coverage.txt
           docker cp coverage_container:/app/coverage_html ./coverage_html
           
+          # Check if there were any errors in the test output
+          if grep -q "Error:" test_output.log; then
+            echo "::error::Test errors found. Check the detailed log below."
+            cat test_output.log
+            exit 1
+          fi
+          
       - name: Report coverage in GitHub summary
+        if: always()  # Run even if tests fail
         run: |
           echo '### Test Coverage Summary' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat coverage.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          # Add detailed test output if available
+          if [ -f test_output.log ]; then
+            echo '### Detailed Test Output' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat test_output.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
           
           # Add coverage percentage to summary
           COVERAGE=$(tail -n 1 coverage.txt | grep -o '[0-9]*%' | sed 's/%//')
@@ -66,7 +84,17 @@ jobs:
           fi
 
       - name: Upload HTML coverage report
+        if: always()  # Run even if tests fail
         uses: actions/upload-artifact@v4
         with:
           name: coverage-html
           path: ./coverage_html
+
+      - name: Upload test logs
+        if: failure()  # Only upload logs if the test step failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: |
+            ./test_output.log
+            ./coverage.txt

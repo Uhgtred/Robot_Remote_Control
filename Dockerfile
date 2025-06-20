@@ -1,5 +1,4 @@
-FROM python:3.12
-#ARG DEBIAN_FRONTEND=noninteractive
+FROM python:3.12-slim
 LABEL authors="Markus"
 
 # Install python and pip

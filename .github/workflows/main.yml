@@ -3,7 +3,6 @@ name: Unit Tests and Coverage
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-
   call-docker-login:
     uses: ./.github/workflows/docker-login.yml
     secrets:
@@ -37,23 +36,37 @@ jobs:
           xvfb-run --auto-servernum --server-num=99 \
           python -m coverage run --branch --source=/app --rcfile=.coveragerc \
           -m unittest discover -v -s BusTransactions/UnitTests -p 'test_*.py' && \
-          coverage html -d coverage_html"
+          coverage report > /app/coverage.txt && \
+          coverage html -d /app/coverage_html"
 
-      - name: Copy HTML coverage report
-        run: docker cp coverage_container:/app/coverage_html ./coverage_html
-
+      - name: Copy coverage files from container
+        run: |
+          docker cp coverage_container:/app/coverage.txt ./coverage.txt
+          docker cp coverage_container:/app/coverage_html ./coverage_html
+          
       - name: Report coverage in GitHub summary
         run: |
-          docker cp coverage_container:/app/.coverage .coverage
-          coverage report > coverage.txt
-          tail -n 10 coverage.txt
           echo '### Test Coverage Summary' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat coverage.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          # Add coverage percentage to summary
+          COVERAGE=$(tail -n 1 coverage.txt | grep -o '[0-9]*%' | sed 's/%//')
+          if [ ! -z "$COVERAGE" ]; then
+            echo "#### Overall Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+            
+            if [ $(echo "$COVERAGE >= 90" | bc -l) -eq 1 ]; then
+              echo "✅ **High Coverage**" >> $GITHUB_STEP_SUMMARY
+            elif [ $(echo "$COVERAGE >= 75" | bc -l) -eq 1 ]; then
+              echo "⚠️ **Moderate Coverage**" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **Low Coverage**" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
 
-#      - name: Upload HTML coverage report
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: coverage-html
-#          path: ./coverage_html
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: ./coverage_html

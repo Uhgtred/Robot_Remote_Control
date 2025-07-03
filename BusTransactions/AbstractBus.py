@@ -26,17 +26,17 @@ class AbstractBus(ABC):
     ----------
     bus : AbstractBusPlugin
         The underlying bus plugin that handles the actual communication
-    __compressor : CompressionProtocol | None
+    _compressor : CompressionProtocol | None
         Optional component for compressing/decompressing messages
-    __serializer : SerializationProtocol | None
+    _serializer : SerializationProtocol | None
         Optional component for serializing/deserializing messages
-    __encoder : EncodingProtocol | None
+    _encoder : EncodingProtocol | None
         Optional component for encoding/decoding messages
-    __stopFlag : bool
+    _stopFlag : bool
         Flag to control continuous reading loops
     """
 
-    __logger: ProjectLogging.Logger.getLogger or None = None
+    _logger: ProjectLogging.Logger.getLogger or None = None
 
     def __init__(self, busPlugin: BusPluginInterface) -> None:
         """
@@ -51,14 +51,14 @@ class AbstractBus(ABC):
             The bus plugin that will handle the actual communication.
             Must implement the AbstractBusPlugin interface.
         """
-        self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
-        self.__logger.info(f'Creating a Bus-instance with plugin: {busPlugin}')
-        self.__stopFlag: bool = False
+        self._logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
+        self._logger.info(f'Creating a Bus-instance with plugin: {busPlugin}')
+        self._stopFlag: bool = False
         self.bus: BusPluginInterface = busPlugin
-        self.__compressor: CompressionProtocol | None = None
-        self.__serializer: SerializationProtocol | None = None
-        self.__encoder: EncodingProtocol | None = None
-        self.__threadRunner: Runners.ThreadRunner = Runners.ThreadRunner()
+        self._compressor: CompressionProtocol | None = None
+        self._serializer: SerializationProtocol | None = None
+        self._encoder: EncodingProtocol | None = None
+        self._threadRunner: Runners.ThreadRunner = Runners.ThreadRunner()
 
     def readSingleMessage(self) -> EncodingProtocol.decode:
         """
@@ -79,14 +79,14 @@ class AbstractBus(ABC):
         BaseException
             If an error occurs while reading from the bus
         """
-        self.__logger.debug(f'Reading message from bus: {self.bus.__class__.__name__}')
+        self._logger.debug(f'Reading message from bus: {self.bus._class_._name_}')
         try:
             message: bytes = self.bus.readBus()
         except Exception as exception:
-            self.__logger.debug(f'Error while trying to read a message from the bus: {exception}')
+            self._logger.debug(f'Error while trying to read a message from the bus: {exception}')
             raise BaseException(f'Error while trying to read a message from the bus: {exception}')
-        message: any = self.__postProcessMessageFromReceiving(message)
-        self.__logger.debug(f'Message that has been received: {message}')
+        message: any = self._postProcessMessageFromReceiving(message)
+        self._logger.debug(f'Message that has been received: {message}')
         return message
 
     def readBusUntilStopFlag(self, callbackMethod: callable, *args, **kwargs) -> None:
@@ -112,11 +112,11 @@ class AbstractBus(ABC):
         TypeError
             If the callback method is not callable or doesn't accept at least one argument
         """
-        self.__callBackHasInputArg(callbackMethod)
-        self.__threadRunner.addTask(self.__readLoop, *[callbackMethod, *args], **kwargs)
-        self.__threadRunner.runTasks()
+        self._callBackHasInputArg(callbackMethod)
+        self._threadRunner.addTask(self._readLoop, *[callbackMethod, *args], **kwargs)
+        self._threadRunner.runTasks()
 
-    def __readLoop(self, callbackMethod: callable, *args, **kwargs) -> None:
+    def _readLoop(self, callbackMethod: callable, *args, **kwargs) -> None:
         """
         Internal method that implements the continuous reading loop.
 
@@ -138,21 +138,21 @@ class AbstractBus(ABC):
         -------
         None
         """
-        while not self.__stopFlag:
+        while not self._stopFlag:
             try:
-                self.__logger.debug(f'Trying to read a message with callback-method '
-                                    f'[{self.readSingleMessage.__name__}]\n'
+                self._logger.debug(f'Trying to read a message with callback-method '
+                                    f'[{self.readSingleMessage._name_}]\n'
                                     f'\twith args: {args}\n'
                                     f'\tand kwargs: {kwargs}\n'
-                                    f'\ton bus: {self.bus.__class__.__name__}')
+                                    f'\ton bus: {self.bus._class_._name_}')
                 message: any = self.readSingleMessage()
-                self.__logger.debug(f'Message received: {message}')
+                self._logger.debug(f'Message received: {message}')
                 callbackMethod(message, *args, **kwargs)
             except Exception as e:
-                self.__logger.error(f'Error while reading message: {e}')
+                self._logger.error(f'Error while reading message: {e}')
 
     @staticmethod
-    def __callBackHasInputArg(callbackMethod: callable) -> None:
+    def _callBackHasInputArg(callbackMethod: callable) -> None:
         """
         Validate that the provided callback method meets the required interface.
 
@@ -205,15 +205,15 @@ class AbstractBus(ABC):
         BaseException
             If an error occurs while sending the message to the bus
         """
-        self.__logger.debug(f'Sending message: "{message}" to bus: [{self.bus.__class__.__name__}]')
-        message: bytes = self.__preProcessMessageForTransmission(message)
+        self._logger.debug(f'Sending message: "{message}" to bus: [{self.bus._class_._name_}]')
+        message: bytes = self._preProcessMessageForTransmission(message)
         try:
             self.bus.writeBus(message)
         except Exception as exception:
-            self.__logger.debug(f'Error while trying to send a message to the bus: {exception}!')
+            self._logger.debug(f'Error while trying to send a message to the bus: {exception}!')
             raise BaseException(f'Error while trying to send a message to the bus: {exception}!')
 
-    def __preProcessMessageForTransmission(self, message: any) -> bytes:
+    def _preProcessMessageForTransmission(self, message: any) -> bytes:
         """
         Apply pre-processing steps to a message before transmission.
 
@@ -234,12 +234,12 @@ class AbstractBus(ABC):
             The processed message ready for transmission
         """
         # The order is important for the following methods.
-        message: bytes = self.__encode(message)
-        message: bytes = self.__serialize(message)
-        message: bytes = self.__compress(message)
+        message: bytes = self._encode(message)
+        message: bytes = self._serialize(message)
+        message: bytes = self._compress(message)
         return message
 
-    def __postProcessMessageFromReceiving(self, message: bytes) -> any:
+    def _postProcessMessageFromReceiving(self, message: bytes) -> any:
         """
         Apply post-processing steps to a received message.
 
@@ -261,9 +261,9 @@ class AbstractBus(ABC):
             the configured decoder.
         """
         # The order is important for the following methods.
-        message: bytes = self.__deCompress(message)
-        message: bytes = self.__deSerialize(message)
-        message: any = self.__decode(message)
+        message: bytes = self._deCompress(message)
+        message: bytes = self._deSerialize(message)
+        message: any = self._decode(message)
         return message
 
     def close(self) -> None:
@@ -279,10 +279,10 @@ class AbstractBus(ABC):
         None
         """
         try:
-            self.__logger.info(f'Closing bus [{self.bus}]!')
+            self._logger.info(f'Closing bus [{self.bus}]!')
             self.bus.close()
         except Exception as exception:
-            self.__logger.warning(f'Bus [{self.bus}] could not be closed properly! Original exception: {exception}')
+            self._logger.warning(f'Bus [{self.bus}] could not be closed properly! Original exception: {exception}')
 
     @property
     def stopFlag(self) -> bool:
@@ -298,7 +298,7 @@ class AbstractBus(ABC):
         bool
             The current state of the stop flag
         """
-        return self.__stopFlag
+        return self._stopFlag
 
     @stopFlag.setter
     def stopFlag(self, state: bool) -> None:
@@ -318,9 +318,9 @@ class AbstractBus(ABC):
         -------
         None
         """
-        self.__stopFlag = state
+        self._stopFlag = state
 
-    def __compress(self, data: bytes) -> bytes:
+    def _compress(self, data: bytes) -> bytes:
         """
         Compress data before sending it via the bus.
 
@@ -337,9 +337,9 @@ class AbstractBus(ABC):
         bytes
             The compressed data if a compressor is set, otherwise the original data
         """
-        return self.__compressor.compress(data) if self.__compressor else data
+        return self._compressor.compress(data) if self._compressor else data
 
-    def __deCompress(self, data: bytes) -> bytes:
+    def _deCompress(self, data: bytes) -> bytes:
         """
         Decompress data received from the bus.
 
@@ -356,9 +356,9 @@ class AbstractBus(ABC):
         bytes
             The decompressed data if a compressor is set, otherwise the original data
         """
-        return self.__compressor.deCompress(data) if self.__compressor else data
+        return self._compressor.deCompress(data) if self._compressor else data
 
-    def __encode(self, data: any) -> bytes:
+    def _encode(self, data: any) -> bytes:
         """
         Encode data before sending it via the bus.
 
@@ -375,9 +375,9 @@ class AbstractBus(ABC):
         bytes
             The encoded data if an encoder is set, otherwise the original data
         """
-        return self.__encoder.encode(data) if self.__encoder else data
+        return self._encoder.encode(data) if self._encoder else data
 
-    def __decode(self, data: bytes) -> any:
+    def _decode(self, data: bytes) -> any:
         """
         Decode data received from the bus.
 
@@ -395,9 +395,9 @@ class AbstractBus(ABC):
             The decoded data if an encoder is set, otherwise the original data.
             The exact return type depends on the configured encoder.
         """
-        return self.__encoder.decode(data) if self.__encoder else data
+        return self._encoder.decode(data) if self._encoder else data
 
-    def __serialize(self, data: any) -> bytes:
+    def _serialize(self, data: any) -> bytes:
         """
         Serialize data before sending it via the bus.
 
@@ -414,9 +414,9 @@ class AbstractBus(ABC):
         bytes
             The serialized data if a serializer is set, otherwise the original data
         """
-        return self.__serializer.serialize(data) if self.__serializer else data
+        return self._serializer.serialize(data) if self._serializer else data
 
-    def __deSerialize(self, data: bytes) -> any:
+    def _deSerialize(self, data: bytes) -> any:
         """
         Deserialize data received from the bus.
 
@@ -434,4 +434,4 @@ class AbstractBus(ABC):
             The deserialized data if a serializer is set, otherwise the original data.
             The exact return type depends on the configured serializer.
         """
-        return self.__serializer.deSerialize(data) if self.__serializer else data
+        return self._serializer.deSerialize(data) if self._serializer else data

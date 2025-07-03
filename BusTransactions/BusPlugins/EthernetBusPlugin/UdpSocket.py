@@ -86,6 +86,7 @@ class UdpSocket(BusPluginInterface):
         :param sock: Socket that will be setup and bound.
         """
         self.__logger.debug(f'Ports that are already in use: {self.__openSocketPorts}')
+        self.__logger.debug(f'Trying to bind to port: {port}.')
         if port in self.__openSocketPorts:
             # Raising exception if port is already in use, so that conflicts can be avoided.
             raise BaseException('Port already in use')

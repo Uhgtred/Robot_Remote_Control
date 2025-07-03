@@ -36,7 +36,7 @@ class AbstractBus(ABC):
         Flag to control continuous reading loops
     """
 
-    _logger: ProjectLogging.Logger.getLogger or None = None
+    __logger: ProjectLogging.Logger.getLogger or None = None
 
     def __init__(self, busPlugin: BusPluginInterface) -> None:
         """
@@ -51,14 +51,14 @@ class AbstractBus(ABC):
             The bus plugin that will handle the actual communication.
             Must implement the AbstractBusPlugin interface.
         """
-        self._logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
-        self._logger.info(f'Creating a Bus-instance with plugin: {busPlugin}')
+        self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
+        self.__logger.info(f'Creating a Bus-instance with plugin: {busPlugin}')
         self._stopFlag: bool = False
         self.bus: BusPluginInterface = busPlugin
         self._compressor: CompressionProtocol | None = None
         self._serializer: SerializationProtocol | None = None
         self._encoder: EncodingProtocol | None = None
-        self._threadRunner: Runners.ThreadRunner = Runners.ThreadRunner()
+        self.__threadRunner: Runners.ThreadRunner = Runners.ThreadRunner()
 
     def readSingleMessage(self) -> EncodingProtocol.decode:
         """
@@ -79,14 +79,14 @@ class AbstractBus(ABC):
         BaseException
             If an error occurs while reading from the bus
         """
-        self._logger.debug(f'Reading message from bus: {self.bus._class_._name_}')
+        self.__logger.debug(f'Reading message from bus: {self.bus.__class__.__name__}')
         try:
             message: bytes = self.bus.readBus()
         except Exception as exception:
-            self._logger.debug(f'Error while trying to read a message from the bus: {exception}')
+            self.__logger.debug(f'Error while trying to read a message from the bus: {exception}')
             raise BaseException(f'Error while trying to read a message from the bus: {exception}')
         message: any = self._postProcessMessageFromReceiving(message)
-        self._logger.debug(f'Message that has been received: {message}')
+        self.__logger.debug(f'Message that has been received: {message}')
         return message
 
     def readBusUntilStopFlag(self, callbackMethod: callable, *args, **kwargs) -> None:
@@ -113,8 +113,8 @@ class AbstractBus(ABC):
             If the callback method is not callable or doesn't accept at least one argument
         """
         self._callBackHasInputArg(callbackMethod)
-        self._threadRunner.addTask(self._readLoop, *[callbackMethod, *args], **kwargs)
-        self._threadRunner.runTasks()
+        self.__threadRunner.addTask(self._readLoop, *[callbackMethod, *args], **kwargs)
+        self.__threadRunner.runTasks()
 
     def _readLoop(self, callbackMethod: callable, *args, **kwargs) -> None:
         """
@@ -140,16 +140,16 @@ class AbstractBus(ABC):
         """
         while not self._stopFlag:
             try:
-                self._logger.debug(f'Trying to read a message with callback-method '
-                                    f'[{self.readSingleMessage._name_}]\n'
+                self.__logger.debug(f'Trying to read a message with callback-method '
+                                    f'[{self.readSingleMessage.__name__}]\n'
                                     f'\twith args: {args}\n'
                                     f'\tand kwargs: {kwargs}\n'
-                                    f'\ton bus: {self.bus._class_._name_}')
+                                    f'\ton bus: {self.bus.__class__.__name__}')
                 message: any = self.readSingleMessage()
-                self._logger.debug(f'Message received: {message}')
+                self.__logger.debug(f'Message received: {message}')
                 callbackMethod(message, *args, **kwargs)
             except Exception as e:
-                self._logger.error(f'Error while reading message: {e}')
+                self.__logger.error(f'Error while reading message: {e}')
 
     @staticmethod
     def _callBackHasInputArg(callbackMethod: callable) -> None:
@@ -205,12 +205,12 @@ class AbstractBus(ABC):
         BaseException
             If an error occurs while sending the message to the bus
         """
-        self._logger.debug(f'Sending message: "{message}" to bus: [{self.bus._class_._name_}]')
+        self.__logger.debug(f'Sending message: "{message}" to bus: [{self.bus.__class__.__name__}]')
         message: bytes = self._preProcessMessageForTransmission(message)
         try:
             self.bus.writeBus(message)
         except Exception as exception:
-            self._logger.debug(f'Error while trying to send a message to the bus: {exception}!')
+            self.__logger.debug(f'Error while trying to send a message to the bus: {exception}!')
             raise BaseException(f'Error while trying to send a message to the bus: {exception}!')
 
     def _preProcessMessageForTransmission(self, message: any) -> bytes:
@@ -279,10 +279,10 @@ class AbstractBus(ABC):
         None
         """
         try:
-            self._logger.info(f'Closing bus [{self.bus}]!')
+            self.__logger.info(f'Closing bus [{self.bus}]!')
             self.bus.close()
         except Exception as exception:
-            self._logger.warning(f'Bus [{self.bus}] could not be closed properly! Original exception: {exception}')
+            self.__logger.warning(f'Bus [{self.bus}] could not be closed properly! Original exception: {exception}')
 
     @property
     def stopFlag(self) -> bool:

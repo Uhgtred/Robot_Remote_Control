@@ -13,10 +13,8 @@ class ArduinoSerialEncoder(EncodingProtocol):
         :param message: Message from bus that needs to be decoded.
         """
         if isinstance(message, bytes):
-            message = message.decode()
-        if message.endswith('&'):
-            message = message[:-1]
-        return message
+            message: str = message.decode()
+        return message[:-1] if message.endswith('&') else message
 
     @staticmethod
     def encode(message: str) -> bytes:

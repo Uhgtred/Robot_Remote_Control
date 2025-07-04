@@ -68,7 +68,9 @@ class TestBusTransceiver(unittest.TestCase):
 
     def test_BusTransceiver_writeSingleMessage(self):
         self.serialTransceiver.writeSingleMessage(self.testString)
-        message = self.serialTransceiver.bus.bus.buffer.pop(0)
+        # intentionally not using the readSingleMessage, since this would rely on
+        # the readSingleMessage for the test to run. But this test is about writing only.
+        message = self.serialTransceiver.bus.bus.buffer.pop(0)[:-1]
         self.assertEqual(message, self.testString)
 
     def test_BusTransceiver_readSingleMessage(self):

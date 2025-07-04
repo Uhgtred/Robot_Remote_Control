@@ -85,7 +85,7 @@ class AbstractBus(ABC):
         except Exception as exception:
             self.__logger.debug(f'Error while trying to read a message from the bus: {exception}')
             raise BaseException(f'Error while trying to read a message from the bus: {exception}')
-        message: any = self._postProcessMessageFromReceiving(message)
+        message: str = self._postProcessMessageFromReceiving(message)
         self.__logger.debug(f'Message that has been received: {message}')
         return message
 
@@ -239,7 +239,7 @@ class AbstractBus(ABC):
         message: bytes = self._compress(message)
         return message
 
-    def _postProcessMessageFromReceiving(self, message: bytes) -> any:
+    def _postProcessMessageFromReceiving(self, message: bytes) -> str:
         """
         Apply post-processing steps to a received message.
 
@@ -263,7 +263,7 @@ class AbstractBus(ABC):
         # The order is important for the following methods.
         message: bytes = self._deCompress(message)
         message: bytes = self._deSerialize(message)
-        message: any = self._decode(message)
+        message: str = self._decode(message)
         return message
 
     def close(self) -> None:

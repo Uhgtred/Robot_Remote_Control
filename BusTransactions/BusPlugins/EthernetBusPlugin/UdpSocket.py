@@ -5,6 +5,9 @@ import atexit
 import socket
 
 import logging
+import typing
+from typing import Any, Generator
+
 from . import SocketConfigs
 from ..BusPluginInterface import BusPluginInterface
 
@@ -35,15 +38,17 @@ class UdpSocket(BusPluginInterface):
     # Initializing a Logger. The loglevel can globally be set in ProjectLogging.Logger.
     __logger: logging.getLogger = logging.getLogger(__name__)
 
+
     def __init__(self, config: SocketConfigs.UdpSocketConfig):
         self.sock: socket.socket | None = None
         self.__maxMessageSize = config.messageSize
         self.__myIPAddress = config.MyIPAddress
         self.__yourIPAddress = config.YourIPAddress
-        self.__port = config.port
+        # setting port dynamically if string 'dynamic' was set as port
+        self.__port = self.__selectPortDynamically() if config.port == 'dynamic' else config.port
         self._setupSocket(config.busLibrary, config.port)
         atexit.register(self.close)
-
+    
     def readBus(self) -> bytes:
         """
         Reads data from a bus using a custom UDP protocol implementation. This method
@@ -77,7 +82,7 @@ class UdpSocket(BusPluginInterface):
         """
         self.sock.sendto(message, (self.__yourIPAddress, self.__port))
 
-    def _setupSocket(self, sock: socket, port: int) -> None:
+    def _setupSocket(self, sock: socket, port: int | str) -> None:
         """
         Private Method for setting up UDP-socket.
         This method is being called on instancing this class.

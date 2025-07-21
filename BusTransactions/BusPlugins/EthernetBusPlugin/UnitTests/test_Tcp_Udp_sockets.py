@@ -57,6 +57,9 @@ class TestUDPSockets(unittest.TestCase):
         print(f'message: {message}')
         self.assertEqual(message, self.testString)
 
+    def test___selectPortDynamically(self) -> None:
+        self.bus: BusPluginInterface = BusPluginFactory.produceUdpStubPlugin()
+
 
 if __name__ == '__main__':
     unittest.main()

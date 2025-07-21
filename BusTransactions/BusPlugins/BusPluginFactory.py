@@ -3,7 +3,7 @@
 import logging
 
 from .EthernetBusPlugin import UdpSocket, SocketConfigs
-from .EthernetBusPlugin.test_UnitTests import MockSocket
+from .EthernetBusPlugin.UnitTests import MockSocket
 from .SerialBusPlugin import SerialBus, SerialBusConfig
 from .SerialBusPlugin.UnitTests.SerialBusMock import MockSerialBus
 
@@ -71,7 +71,7 @@ class BusPluginFactory:
         return UdpSocket(config)
 
     @staticmethod
-    def produceUdpStubPlugin(port: int) -> UdpSocket:
+    def produceUdpStubPlugin(port: int = 0) -> UdpSocket:
         """
         Produces an UDP stub plugin for mock testing or emulation. This method creates a UDP
         socket configuration and initializes an UDP socket instance using a mock socket library.
@@ -82,5 +82,6 @@ class BusPluginFactory:
                  the mock socket library.
         :rtype: UdpSocket
         """
+        port: str | int = "dynamic" if port == 0 else port
         config: SocketConfigs = SocketConfigs.UdpSocketConfig(port=port, busLibrary=MockSocket)
         return UdpSocket(config)

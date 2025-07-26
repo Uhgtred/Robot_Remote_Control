@@ -1,53 +1,68 @@
 #!/usr/bin/env python3
-# @author: Markus Kösters
-import threading
-import time
 import unittest
+from unittest.mock import Mock, patch
+import time
+import concurrent.futures
 
-from Runners import ThreadRunner
-
-
-def testTask(*args):
-    # print(f"Testing {args}")
-    time.sleep(1)
+from Runners.ThreadRunner import ThreadRunner
 
 
-def testTaskWithKwargs(*args, **kwargs):
-    # print(f"Testing {args} with kwargs {kwargs}")
-    time.sleep(1)
+class TestHelper:
+    """Helper class for testing ThreadRunner tasks"""
+    value = None
+
+    @classmethod
+    def store_value(cls, input_value):
+        """Store the input value for later verification"""
+        cls.value = input_value
+
+    @classmethod
+    def clear(cls):
+        """Clear the stored value"""
+        cls.value = None
+
+    @classmethod
+    def get_value(cls):
+        """Get the stored value and clear it"""
+        value = cls.value
+        cls.clear()
+        return value
 
 
-def test2Task():
-    time.sleep(1)
+class TestThreadRunner(unittest.TestCase):
+    def setUp(self):
+        self.runner = ThreadRunner(max_workers=2)
+        TestHelper.clear()
 
+    def tearDown(self):
+        self.runner.cleanUp()
+        TestHelper.clear()
 
-class test_ThreadRunner(unittest.TestCase):
-    testRunner = ThreadRunner()
+    def test_task_execution(self):
+        """Test that tasks are executed and results are properly stored"""
+        def task(value):
+            TestHelper.store_value(value)
 
-    def test_addTasks(self):
-        self.testRunner.addTask(testTask, ['test', 'test2'])
-        self.assertIn('testTask_thread', (task.name for task in self.testRunner._ThreadRunner__threads))
-        self.testRunner.addTask(test2Task)
-        self.assertEqual(len(self.testRunner._ThreadRunner__threads), 2)
+        test_value = "test_value"
+        task_id = self.runner.addTask(task, test_value)
 
-    def test_runTasks(self):
-        self.testRunner.addTask(test2Task)
-        thread = self.testRunner._ThreadRunner__threads[0]
-        self.testRunner.runTasks()
-        self.assertEqual(len(self.testRunner._ThreadRunner__threads), 0)
-        self.assertTrue(thread.is_alive())
-        time.sleep(2)
-        self.assertFalse(thread.is_alive())
+        # Give the task time to complete
+        time.sleep(0.1)
 
-    def test_taskWithKwargs(self):
-        self.testRunner.addTask(testTaskWithKwargs, ['test'], kwargs={'key': 'value'})
-        self.assertIn('testTaskWithKwargs_thread', (task.name for task in self.testRunner._ThreadRunner__threads))
-        thread = self.testRunner._ThreadRunner__threads[0]
-        self.testRunner.runTasks()
-        self.assertTrue(thread.is_alive())
-        time.sleep(2)
-        self.assertFalse(thread.is_alive())
+        # Verify the value was stored correctly
+        self.assertEqual(TestHelper.get_value(), test_value)
 
+    def test_multiple_tasks(self):
+        """Test that multiple tasks execute in order"""
+        def task(value, *args, **kwargs):
+            TestHelper.store_value(value)
+            return value
 
-if __name__ == '__main__':
-    unittest.main()
+        # Launch tasks
+        self.runner.addTask(task, "value1")
+        time.sleep(0.1)  # Ensure first task completes
+        self.assertEqual(TestHelper.get_value(), "value1")
+
+        self.runner.addTask(task, "value2")
+        time.sleep(0.1)  # Ensure second task completes
+        self.assertEqual(TestHelper.get_value(), "value2")

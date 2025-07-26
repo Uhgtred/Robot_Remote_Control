@@ -121,11 +121,14 @@ class UdpSocket(BusPluginInterface):
         """
         if self.sock is None:
             return
-        self.__logger.debug(f'Shutting down the socket with port: {self.__port}')
         try:
+            self.__logger.info(f'Shutting down the socket with port: {self.__port}')
             self.sock.close()
+            self.__logger.debug(f'Socket with port: {self.__port} has been closed.')
+            self.__logger.debug(f'Removing port from open sockets: {self.__openSocketPorts}')
             if self.__port in self.__openSocketPorts:
                 self.__openSocketPorts.remove(self.__port)
+            self.__logger.debug(f'Open sockets after closing: {self.__openSocketPorts}')
             self.sock: None or socket = None
         except Exception as exception:
             self.__logger.warning(f'Error while trying to close the socket [{self.sock}]! '

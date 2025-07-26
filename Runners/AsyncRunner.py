@@ -4,7 +4,7 @@
 import asyncio
 import time
 
-from Runners.AbstractRunner import Runner
+from Runners.AbstractRunner import AbstractRunner
 
 
 class AsyncRunner:

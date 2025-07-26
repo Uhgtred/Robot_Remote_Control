@@ -51,7 +51,7 @@ class Main:
         """
         # Initializing a logger. The loglevel can globally be set in 'ProjectLogging.Logger'.
         self.__logger.info('Initializing Remote-Program...')
-        self.__threadRunner: Runners.Runner = ThreadRunner()
+        self.__threadRunner: Runners.AbstractRunner = ThreadRunner()
         self.videoController: VideoGUI_Controller | None = None
         self.__setup()
         self.__logger.info('Remote-Program initialized!')

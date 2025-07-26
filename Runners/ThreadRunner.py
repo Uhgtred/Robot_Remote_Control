@@ -1,48 +1,109 @@
 #!/usr/bin/env python3
-# @author: Markus Kösters
 import atexit
-import threading
+import concurrent.futures
+import inspect
+from concurrent.futures import ThreadPoolExecutor, Future
+from threading import Event
+from typing import Callable, Dict
 
-from Runners.AbstractRunner import Runner
+import ProjectLogging
+from .AbstractRunner import AbstractRunner
 
 
-class ThreadRunner(Runner):
+class ThreadRunner(AbstractRunner):
     """
-    Method for organizing threads and keeping track of opened tracks.
+    Represents a threaded task runner for managing and executing tasks concurrently.
+
+    The ThreadRunner is designed to facilitate the execution of multiple tasks with
+    thread pooling. It enables task submission, tracking, stopping, and resource
+    cleanup, leveraging a thread pool executor for concurrency.
+
+    :ivar max_workers: Maximum number of workers for thread pool executor.
+    :type max_workers: int
     """
 
-    def __init__(self):
-        self.__threads: list = []
-        self.__running: bool = False
-        # Todo: kill all threads that are still running
-        # atexit.register()
+    __logger = ProjectLogging.Logger(__name__, f'{__name__}.log').getLogger
 
-    def addTask(self, task, *args, **kwargs) -> None:
+    def __init__(self, max_workers: int = None) -> None:
         """
-        Method for adding a task to the task-list.
-        :param task: Method that shall be executed in a separate thread.
-        :param args: Arguments, that shall be passed to the thread.
-        :param kwargs: Keyword arguments, that shall be passed to the thread.
-        """
-        thread: threading.Thread = threading.Thread(target=task,
-                                                    args=args,
-                                                    kwargs=kwargs,
-                                                    name=f'{str(task).split(" ")[1]}_thread')
-        self.__threads.append(thread)
+        Initializes a custom threaded Executor with a specified maximum number of workers.
 
-    def runTasks(self) -> None:
+        This class implements a thread pool executor and maintains a registry of futures
+        to manage asynchronous tasks. The number of worker threads can be customized,
+        and the tasks submitted will run concurrently within the pool.
+
+        :param max_workers: The maximum number of threads that can be used to execute tasks.
+            If None, the default value is used, which is derived from the system configuration.
+        :type max_workers: int, optional
         """
-        Method for running all .
+        super().__init__()
+        self.__executor: ThreadPoolExecutor = ThreadPoolExecutor(max_workers=max_workers)
+        self.__futures: Dict[str, Future] = {}
+        self.__stop_event: Event = Event()
+        atexit.register(self.cleanUp)
+
+    def addTask(self, task: Callable, *args, **kwargs) -> str:
         """
-        if self.__running:
-            return
-        self.__running: bool = True
-        while self.__running and len(self.__threads) > 0:
-            self.__threads.pop().start()
-        self.__running = False
+        Adds a task to the executor for execution.
+
+        This method allows submission of a callable task, along with its positional
+        and keyword arguments, to be executed asynchronously. The submitted task
+        is associated with a unique identifier (task ID), which can be used for
+        tracking or management purposes after the submission.
+
+        :param task: Callable object representing the task to execute.
+        :param args: Positional arguments to be passed to the task.
+        :param kwargs: Keyword arguments to be passed to the task.
+        :return: A unique string identifier (task ID) for the submitted task.
+        :rtype: str
+        """
+        if not self.__checkTaskSignature(task, 1):
+            raise ValueError(f"Task {task.__name__} does not have enough arguments in its signature.")
+        task_id: str = str(id(task))
+        future: concurrent.futures.Future = self.__executor.submit(task, *args, **kwargs)
+        self.__futures[task_id]: concurrent.futures.Future = future
+        return task_id
+
+    def __checkTaskSignature(self, task: callable, minNumberofArgumentsInSignature: int) -> bool:
+        """
+        Checks whether the given task function has at least the specified minimum number
+        of arguments in its signature. The function's signature is inspected to count
+        the number of parameters and determine compliance with the given threshold.
+
+        :param task: The callable task whose signature needs to be checked.
+        :param minNumberofArgumentsInSignature: The minimum number of arguments
+            required in the signature of the given callable.
+        :return: A boolean value indicating whether the task has at least the
+            required number of arguments in its signature.
+        :rtype: bool
+        """
+        signature: inspect.Signature = inspect.signature(task)
+        return True if len(signature.parameters) >= minNumberofArgumentsInSignature else False
 
     def stopTasks(self) -> None:
         """
-        Method for stopping the thread-execution.
+        Stops and cancels all ongoing tasks managed by the instance.
+
+        This method iterates through all current futures, cancels them, shuts down the
+        executor service without waiting for tasks to complete, and clears the
+        internal future tracking collection. Use this method when you need to
+        terminate all asynchronous tasks immediately.
+
+        :return: None
         """
-        self.__running = False
+        for future in self.__futures.values():
+            future.cancel()
+        self.__executor.shutdown(wait=False, cancel_futures=True)
+        self.__futures.clear()
+
+    def cleanUp(self) -> None:
+        """
+        Stops all running tasks and performs cleanup operations.
+
+        This method ensures that any background tasks or ongoing processes associated with
+        the object are stopped gracefully. It is intended to clean up resources and prepare
+        the system for a safe shutdown or reinitialization.
+
+        :return: None
+        """
+        self.stopTasks()

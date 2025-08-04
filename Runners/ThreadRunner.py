@@ -2,6 +2,7 @@
 import atexit
 import concurrent.futures
 import inspect
+import sys
 from concurrent.futures import ThreadPoolExecutor, Future
 from threading import Event
 from typing import Callable, Dict
@@ -40,7 +41,10 @@ class ThreadRunner(AbstractRunner):
         self.__executor: ThreadPoolExecutor = ThreadPoolExecutor(max_workers=max_workers)
         self.__futures: Dict[str, Future] = {}
         self.__stop_event: Event = Event()
-        atexit.register(self.cleanUp)
+        # Don't register atexit handler in test environments to prevent infinite loops
+        # Tests should call cleanUp explicitly in tearDown methods
+        if 'unittest' not in sys.modules:
+            atexit.register(self.cleanUp)
 
     def addTask(self, task: Callable, *args, **kwargs) -> str:
         """

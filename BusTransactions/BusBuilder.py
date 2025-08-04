@@ -1,3 +1,4 @@
+import atexit
 import typing
 
 from BusTransactions.BusPlugins.BusPluginInterface import BusPluginInterface

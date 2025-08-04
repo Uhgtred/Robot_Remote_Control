@@ -76,15 +76,15 @@ class Main:
             self.__setupReceiveVideo()
             self.__threadRunner.runTasks()
             self.__logger.info('Setup completed!')
+            # The log-message comes after the last task, since the last task is the one
+            # that runs the main-loop of the video-controller. So the log-message is would not be shown otherwise.
+            self.videoController.runMainLoop()
         except Exception as exceptionMessage:
             exceptionMessage: str = f'Exception occurred during setup: {exceptionMessage}'
             self.__logger.error(exceptionMessage)
             raise BaseException(exceptionMessage)
-        # This is needed to run the tk-inter mainloop inside the main-thread.
-        if self.videoController:
-            self.videoController.runMainLoop()
-        else:
-            raise BaseException(f'The VideoController has not been initialized.')
+        finally:
+            self.__threadRunner.stopTasks()
 
     def __setupReadController(self) -> None:
         """

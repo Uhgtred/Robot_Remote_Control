@@ -41,10 +41,6 @@ class ThreadRunner(AbstractRunner):
         self.__executor: ThreadPoolExecutor = ThreadPoolExecutor(max_workers=max_workers)
         self.__futures: Dict[str, Future] = {}
         self.__stop_event: Event = Event()
-        # Don't register atexit handler in test environments to prevent infinite loops
-        # Tests should call cleanUp explicitly in tearDown methods
-        if 'unittest' not in sys.modules:
-            atexit.register(self.cleanUp)
 
     def addTask(self, task: Callable, *args, **kwargs) -> str:
         """

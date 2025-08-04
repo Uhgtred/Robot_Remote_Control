@@ -43,7 +43,6 @@ class UdpSocket(BusPluginInterface):
         self.__yourIPAddress = config.YourIPAddress
         self.__port = config.port
         self._setupSocket(config.busLibrary, config.port)
-        atexit.register(self.close)
 
     def readBus(self) -> bytes:
         """

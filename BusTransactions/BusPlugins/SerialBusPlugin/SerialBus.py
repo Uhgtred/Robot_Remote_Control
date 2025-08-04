@@ -18,8 +18,6 @@ class SerialBus(BusPluginInterface):
         self.__port = None
         self.__baudRate = None
         self.setConfig(config)
-        # Making sure the bus is closed when instance dies.
-        atexit.register(self.bus.close)
 
     def readBus(self) -> bytes:
         """

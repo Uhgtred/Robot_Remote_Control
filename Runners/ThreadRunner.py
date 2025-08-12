@@ -3,7 +3,7 @@ import concurrent.futures
 import inspect
 from concurrent.futures import ThreadPoolExecutor, Future
 from threading import Event
-from typing import Callable, Dict
+from typing import Callable
 
 import ProjectLogging
 from .AbstractRunner import AbstractRunner
@@ -22,6 +22,7 @@ class ThreadRunner(AbstractRunner):
     """
 
     __logger = ProjectLogging.Logger(__name__, f'{__name__}.log').getLogger
+    __stopFlagSetters: set[property] = set()
 
     def __init__(self, max_workers: int = None) -> None:
         """
@@ -37,31 +38,33 @@ class ThreadRunner(AbstractRunner):
         """
         super().__init__()
         self.__executor: ThreadPoolExecutor = ThreadPoolExecutor(max_workers=max_workers)
-        self.__futures: Dict[str, Future] = {}
+        self.__futures: set[Future] = ()
+
         self.__stop_event: Event = Event()
 
-    def addTask(self, task: Callable, *args, **kwargs) -> None:
+    def addTask(self, task: Callable, *args, **kwargs, stopFlagSetter: property = None) -> None:
         """
-        Adds a task to the executor for execution.
+        Adds a new task to be executed by the internal executor. The task must meet the required
+        signature criteria. If the task does not match the expected signature with at least one
+        argument, a `ValueError` is raised. Upon successful submission, the task future will
+        be stored for later tracking or management.
 
-        This method allows submission of a callable task, along with its positional
-        and keyword arguments, to be executed asynchronously. The submitted task
-        is associated with a unique identifier (task ID), which can be used for
-        tracking or management purposes after the submission.
-
-        :param task: Callable object representing the task to execute.
-        :param args: Positional arguments to be passed to the task.
-        :param kwargs: Keyword arguments to be passed to the task.
-        :return: A unique string identifier (task ID) for the submitted task.
-        :rtype: str
+        :param task: The callable task to be executed.
+        :type task: Callable
+        :param args: Positional arguments to pass to the task.
+        :param kwargs: Keyword arguments to pass to the task.
+        :return: None
+        :rtype: None
+        :raises ValueError: If the provided task does not meet the required signature criteria.
         """
         if not self.__checkTaskSignature(task, 1):
             raise ValueError(f"Task {task.__name__} does not have enough arguments in its signature.")
-        task_id: str = str(id(task))
         future: concurrent.futures.Future = self.__executor.submit(task, *args, **kwargs)
-        self.__futures[task_id]: concurrent.futures.Future = future
+        if stopFlagSetter:
+            self.__stopFlagSetters.add(stopFlagSetter)
+        self.__futures.add(future)
 
-    def __checkTaskSignature(self, task: callable, minNumberofArgumentsInSignature: int) -> bool:
+    def __checkTaskSignature(self, task: Callable, minNumberofArgumentsInSignature: int) -> bool:
         """
         Checks whether the given task function has at least the specified minimum number
         of arguments in its signature. The function's signature is inspected to count
@@ -88,10 +91,12 @@ class ThreadRunner(AbstractRunner):
 
         :return: None
         """
-        futureTasksToCancel: list = [future for future in self.__futures.values() if not future.done()]
+        futureTasksToCancel: list = [future for future in self.__futures if not future.done()]
         for future in futureTasksToCancel:
             future.cancel()
-        self.__executor.shutdown(wait=False, cancel_futures=True)
+        for stopFlagSetterObject, stopFlagSetterName in self.__stopFlagSetters:
+            setattr(stopFlagSetterObject, stopFlagSetterName, False)
+        self.__executor.shutdown(wait=True, cancel_futures=True)
         self.__futures.clear()
 
     def cleanUp(self) -> None:

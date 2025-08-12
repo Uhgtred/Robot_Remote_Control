@@ -38,23 +38,20 @@ class ThreadRunner(AbstractRunner):
         """
         super().__init__()
         self.__executor: ThreadPoolExecutor = ThreadPoolExecutor(max_workers=max_workers)
-        self.__futures: set[Future] = ()
+        self.__futures: set[Future] = set()
 
-        self.__stop_event: Event = Event()
-
-    def addTask(self, task: Callable, *args, **kwargs, stopFlagSetter: property = None) -> None:
+    def addTask(self, task: Callable, stopFlagSetter: property = None, *args, **kwargs) -> None:
         """
         Adds a new task to be executed by the internal executor. The task must meet the required
         signature criteria. If the task does not match the expected signature with at least one
         argument, a `ValueError` is raised. Upon successful submission, the task future will
         be stored for later tracking or management.
 
+        :param stopFlagSetter:
         :param task: The callable task to be executed.
         :type task: Callable
         :param args: Positional arguments to pass to the task.
         :param kwargs: Keyword arguments to pass to the task.
-        :return: None
-        :rtype: None
         :raises ValueError: If the provided task does not meet the required signature criteria.
         """
         if not self.__checkTaskSignature(task, 1):

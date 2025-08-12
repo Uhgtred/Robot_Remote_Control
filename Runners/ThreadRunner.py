@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-import atexit
 import concurrent.futures
 import inspect
-import sys
 from concurrent.futures import ThreadPoolExecutor, Future
 from threading import Event
 from typing import Callable, Dict
@@ -42,7 +40,7 @@ class ThreadRunner(AbstractRunner):
         self.__futures: Dict[str, Future] = {}
         self.__stop_event: Event = Event()
 
-    def addTask(self, task: Callable, *args, **kwargs) -> str:
+    def addTask(self, task: Callable, *args, **kwargs) -> None:
         """
         Adds a task to the executor for execution.
 
@@ -62,7 +60,6 @@ class ThreadRunner(AbstractRunner):
         task_id: str = str(id(task))
         future: concurrent.futures.Future = self.__executor.submit(task, *args, **kwargs)
         self.__futures[task_id]: concurrent.futures.Future = future
-        return task_id
 
     def __checkTaskSignature(self, task: callable, minNumberofArgumentsInSignature: int) -> bool:
         """
@@ -91,7 +88,8 @@ class ThreadRunner(AbstractRunner):
 
         :return: None
         """
-        for future in self.__futures.values():
+        futureTasksToCancel: list = [future for future in self.__futures.values() if not future.done()]
+        for future in futureTasksToCancel:
             future.cancel()
         self.__executor.shutdown(wait=False, cancel_futures=True)
         self.__futures.clear()

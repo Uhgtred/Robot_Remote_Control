@@ -23,6 +23,7 @@ class ThreadRunner(AbstractRunner):
 
     __logger = ProjectLogging.Logger(__name__, f'{__name__}.log').getLogger
     __stopFlagSetters: set[property] = set()
+    __futures: set[Future] = set()
 
     def __init__(self, max_workers: int = None) -> None:
         """
@@ -38,7 +39,6 @@ class ThreadRunner(AbstractRunner):
         """
         super().__init__()
         self.__executor: ThreadPoolExecutor = ThreadPoolExecutor(max_workers=max_workers)
-        self.__futures: set[Future] = set()
 
     def addTask(self, task: Callable, stopFlagSetter: property = None, *args, **kwargs) -> None:
         """
@@ -61,21 +61,21 @@ class ThreadRunner(AbstractRunner):
             self.__stopFlagSetters.add(stopFlagSetter)
         self.__futures.add(future)
 
-    def __checkTaskSignature(self, task: Callable, minNumberofArgumentsInSignature: int) -> bool:
+    def __checkTaskSignature(self, task: Callable, minNumberOfArgumentsInSignature: int) -> bool:
         """
         Checks whether the given task function has at least the specified minimum number
         of arguments in its signature. The function's signature is inspected to count
         the number of parameters and determine compliance with the given threshold.
 
         :param task: The callable task whose signature needs to be checked.
-        :param minNumberofArgumentsInSignature: The minimum number of arguments
+        :param minNumberOfArgumentsInSignature: The minimum number of arguments
             required in the signature of the given callable.
         :return: A boolean value indicating whether the task has at least the
             required number of arguments in its signature.
         :rtype: bool
         """
         signature: inspect.Signature = inspect.signature(task)
-        return True if len(signature.parameters) >= minNumberofArgumentsInSignature else False
+        return True if len(signature.parameters) >= minNumberOfArgumentsInSignature else False
 
     def stopTasks(self) -> None:
         """
@@ -88,11 +88,11 @@ class ThreadRunner(AbstractRunner):
 
         :return: None
         """
-        futureTasksToCancel: list = [future for future in self.__futures if not future.done()]
-        for future in futureTasksToCancel:
-            future.cancel()
         for stopFlagSetterObject, stopFlagSetterName in self.__stopFlagSetters:
             setattr(stopFlagSetterObject, stopFlagSetterName, False)
+        futuresCancelled: list = [future.cancel() for future in self.__futures if not future.done()]
+        if not any(futuresCancelled):
+            self.__logger.warning('Not all futures were cancelled.')
         self.__executor.shutdown(wait=True, cancel_futures=True)
         self.__futures.clear()
 

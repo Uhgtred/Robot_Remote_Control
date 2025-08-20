@@ -24,7 +24,7 @@ package "BusTransactions"{
 
     ConreteBus -l-|> AbstractBus: <<implement>>
     BusBuilder --|> ConreteBus: <<create>>
-    DefaultBusFactory --> BusBuilder: <<use>>
+    DefaultBusFactory ..> BusBuilder: <<use>>
     AbstractBus "1" .u.|> "1" BusPluginInterface
     AbstractBus "1" o-- "1" EncodingProtocol
     AbstractBus "1" o-- "1" CompressionProtocol

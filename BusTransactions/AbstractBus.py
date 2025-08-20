@@ -1,9 +1,10 @@
 import inspect
+import threading
 from abc import ABC
 from inspect import Signature
+from typing import Callable, Any
 
 import ProjectLogging
-import Runners
 from BusTransactions.BusPlugins.BusPluginInterface import BusPluginInterface
 from BusTransactions.Compression.CompressionProtocol import CompressionProtocol
 from BusTransactions.Encoding import EncodingProtocol
@@ -36,7 +37,7 @@ class AbstractBus(ABC):
         Flag to control continuous reading loops
     """
 
-    __logger: ProjectLogging.Logger.getLogger or None = None
+    __logger: type[ProjectLogging.Logger] = None
 
     def __init__(self, busPlugin: BusPluginInterface) -> None:
         """
@@ -51,16 +52,17 @@ class AbstractBus(ABC):
             The bus plugin that will handle the actual communication.
             Must implement the AbstractBusPlugin interface.
         """
-        self.__logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
+        self.__threadRunner: threading.Thread = None
+        self.__logger: type[ProjectLogging.Logger.getLogger] = ProjectLogging.Logger('AbstractBus',
+                                                                     'AbstractBus.log').getLogger
         self.__logger.info(f'Creating a Bus-instance with plugin: {busPlugin}')
         self._stopFlag: bool = False
         self.bus: BusPluginInterface = busPlugin
         self._compressor: CompressionProtocol | None = None
         self._serializer: SerializationProtocol | None = None
         self._encoder: EncodingProtocol | None = None
-        self.__threadRunner: Runners.ThreadRunner = Runners.ThreadRunner()
 
-    def readSingleMessage(self) -> EncodingProtocol.decode:
+    def readSingleMessage(self) -> str:
         """
         Read and process a single message from the bus.
 
@@ -89,7 +91,7 @@ class AbstractBus(ABC):
         self.__logger.debug(f'Message that has been received: {message}')
         return message
 
-    def readBusUntilStopFlag(self, callbackMethod: callable, *args, **kwargs) -> None:
+    def readBusUntilStopFlag(self, callbackMethod: Callable, *args, **kwargs) -> None:
         """
         Read messages from the bus continuously until the stop flag is set.
 
@@ -113,10 +115,10 @@ class AbstractBus(ABC):
             If the callback method is not callable or doesn't accept at least one argument
         """
         self._callBackHasInputArg(callbackMethod)
-        self.__threadRunner.addTask(self._readLoop, *[callbackMethod, *args], **kwargs)
-        self.__threadRunner.runTasks()
+        self.__threadRunner = threading.Thread(target= self._readLoop, args=[callbackMethod, *args], kwargs=kwargs)
+        self.__threadRunner.start()
 
-    def _readLoop(self, callbackMethod: callable, *args, **kwargs) -> None:
+    def _readLoop(self, callbackMethod: Callable, *args, **kwargs) -> None:
         """
         Internal method that implements the continuous reading loop.
 
@@ -145,14 +147,14 @@ class AbstractBus(ABC):
                                     f'\twith args: {args}\n'
                                     f'\tand kwargs: {kwargs}\n'
                                     f'\ton bus: {self.bus.__class__.__name__}')
-                message: any = self.readSingleMessage()
+                message: Any = self.readSingleMessage()
                 self.__logger.debug(f'Message received: {message}')
                 callbackMethod(message, *args, **kwargs)
             except Exception as e:
                 self.__logger.error(f'Error while reading message: {e}')
 
     @staticmethod
-    def _callBackHasInputArg(callbackMethod: callable) -> None:
+    def _callBackHasInputArg(callbackMethod: Callable) -> None:
         """
         Validate that the provided callback method meets the required interface.
 
@@ -183,7 +185,7 @@ class AbstractBus(ABC):
         else:
             raise TypeError("Callback-method is not callable.")
 
-    def writeSingleMessage(self, message: any) -> None:
+    def writeSingleMessage(self, message: Any) -> None:
         """
         Send a single message to the bus with pre-processing.
 
@@ -213,7 +215,7 @@ class AbstractBus(ABC):
             self.__logger.debug(f'Error while trying to send a message to the bus: {exception}!')
             raise BaseException(f'Error while trying to send a message to the bus: {exception}!')
 
-    def _preProcessMessageForTransmission(self, message: any) -> bytes:
+    def _preProcessMessageForTransmission(self, message: Any) -> bytes:
         """
         Apply pre-processing steps to a message before transmission.
 
@@ -280,6 +282,8 @@ class AbstractBus(ABC):
         """
         try:
             self.__logger.info(f'Closing bus [{self.bus}]!')
+            self.stopFlag: bool = True
+            self.__threadRunner.join()
             self.bus.close()
         except Exception as exception:
             self.__logger.warning(f'Bus [{self.bus}] could not be closed properly! Original exception: {exception}')
@@ -359,7 +363,7 @@ class AbstractBus(ABC):
         """
         return self._compressor.deCompress(data) if self._compressor else data
 
-    def _encode(self, data: any) -> bytes:
+    def _encode(self, data: Any) -> bytes:
         """
         Encode data before sending it via the bus.
 
@@ -378,7 +382,7 @@ class AbstractBus(ABC):
         """
         return self._encoder.encode(data) if self._encoder else data
 
-    def _decode(self, data: bytes) -> any:
+    def _decode(self, data: bytes) -> Any:
         """
         Decode data received from the bus.
 
@@ -398,7 +402,7 @@ class AbstractBus(ABC):
         """
         return self._encoder.decode(data) if self._encoder else data
 
-    def _serialize(self, data: any) -> bytes:
+    def _serialize(self, data: Any) -> bytes:
         """
         Serialize data before sending it via the bus.
 
@@ -417,7 +421,7 @@ class AbstractBus(ABC):
         """
         return self._serializer.serialize(data) if self._serializer else data
 
-    def _deSerialize(self, data: bytes) -> any:
+    def _deSerialize(self, data: bytes) -> Any:
         """
         Deserialize data received from the bus.
 

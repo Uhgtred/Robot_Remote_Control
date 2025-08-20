@@ -14,7 +14,7 @@ class SerialBus(BusPluginInterface):
     """
 
     def __init__(self, config: SerialBusConfig):
-        self.bus = None
+        self.serialBus: serial.Serial | None = None
         self.__port = None
         self.__baudRate = None
         self.setConfig(config)
@@ -24,24 +24,24 @@ class SerialBus(BusPluginInterface):
         Method for reading from the serial-bus.
         :return: Bytes containing the message.
         """
-        return self.bus.read()
+        return self.serialBus.read()
 
     def writeBus(self, message: bytes) -> None:
         """
         Method for writing to the serial-bus.
         :param message: Message that shall be sent to the bus.
         """
-        self.bus.write(message)
+        self.serialBus.write(message)
 
-    def _setupBus(self, bus: type(serial.Serial)) -> type(serial.Serial):
+    def _setupSerialBus(self, serialBus: serial.Serial) -> serial.Serial:
         """
         Initializing the microcontroller bus-settings.
         """
-        bus.baudrate = self.__baudRate  # baudrate is of type int
-        bus.port = self.__port  # port is of type str
-        if not bus.is_open:
-            bus.open()
-        return bus
+        serialBus.baudrate = self.__baudRate  # baudrate is of type int
+        serialBus.port = self.__port  # port is of type str
+        if not serialBus.is_open:
+            serialBus.open()
+        return serialBus
 
     def setConfig(self, config: SerialBusConfig) -> None:
         """
@@ -49,15 +49,15 @@ class SerialBus(BusPluginInterface):
         :param config: Dictionary containing the information about the bus.
         """
         # check if the busLibrary-object has already been instanced
-        bus: type(serial.Serial) = config.busLibrary() if callable(config.busLibrary) else config.busLibrary
+        bus: serial.Serial = config.busLibrary() if callable(config.busLibrary) else config.busLibrary
         self.__port: str = config.port
         self.__baudRate: int = config.baudRate
-        self.bus: type(serial.Serial) = self._setupBus(bus)
+        self.serialBus: serial.Serial = self._setupSerialBus(bus)
 
-    def close(self) -> None:
+    def closeBus(self) -> None:
         try:
-            self.__logger.info(f"Serialbus [{self.bus}] is being closed!")
-            self.bus.close()
+            self.__logger.info(f"Serialbus [{self.serialBus}] is being closed!")
+            self.serialBus.close()
         except Exception as exception:
-            self.__logger.warning(f"Serialbus [{self.bus}] could not be closed properly! "
+            self.__logger.warning(f"Serialbus [{self.serialBus}] could not be closed properly! "
                                   f"Original Error-message: {exception}")

@@ -29,5 +29,5 @@ class BusPluginInterface(ABC):
         """
         ...
 
-    def close(self) -> None:
+    def closeBus(self) -> None:
         ...

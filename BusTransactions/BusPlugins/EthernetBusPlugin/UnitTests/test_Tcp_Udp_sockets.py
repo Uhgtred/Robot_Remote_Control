@@ -31,7 +31,7 @@ class TestUDPSockets(unittest.TestCase):
 
     def tearDown(self):
         if hasattr(self, 'bus'):
-            self.bus.close()
+            self.bus.closeBus()
             delattr(self, 'bus')
 
     @classmethod

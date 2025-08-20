@@ -26,7 +26,7 @@ import serial
 # Create a configuration for the serial connection
 config = SerialBusConfig(
     port="/dev/ttyUSB0",  # Serial port
-    baudRate=9600,        # Baud rate
+    baudRate=9600,  # Baud rate
     busLibrary=serial.Serial  # Serial library to use
 )
 
@@ -41,7 +41,7 @@ message = serial_bus.readBus()
 print(message)
 
 # Close the connection when done
-serial_bus.close()
+serial_bus.closeBus()
 ```
 
 ## Integration with Bus

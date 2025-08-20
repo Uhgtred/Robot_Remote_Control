@@ -37,4 +37,3 @@ class Bus(AbstractBus):
 
     def __init__(self, busPlugin: BusPluginInterface) -> None:
         super().__init__(busPlugin)
-        atexit.register(self.close)

@@ -27,9 +27,9 @@ import socket
 config = UdpSocketConfig(
     MyIPAddress="192.168.1.100",  # Local IP address
     YourIPAddress="192.168.1.200",  # Remote IP address
-    port=5000,                     # Port number
-    messageSize=1024,              # Maximum message size
-    busLibrary=socket              # Socket library to use
+    port=5000,  # Port number
+    messageSize=1024,  # Maximum message size
+    busLibrary=socket  # Socket library to use
 )
 
 # Create a UDP socket
@@ -43,7 +43,7 @@ message = udp_socket.readBus()
 print(message)
 
 # Close the socket when done
-udp_socket.close()
+udp_socket.closeBus()
 ```
 
 ## Integration with Bus

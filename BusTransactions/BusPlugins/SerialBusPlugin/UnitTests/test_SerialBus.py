@@ -17,7 +17,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_write(self):
         self.bus.writeBus(self.testString)
-        message = self.bus.bus.buffer.pop(0)
+        message = self.bus.serialBus.buffer.pop(0)
         self.assertEqual(message, self.testString)
 
     def test_read(self):

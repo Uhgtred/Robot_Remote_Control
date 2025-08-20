@@ -33,7 +33,7 @@ class UdpSocket(BusPluginInterface):
 
     __openSocketPorts: set = set()
     # Initializing a Logger. The loglevel can globally be set in ProjectLogging.Logger.
-    __logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('UdpSocket',
+    __logger: type[ProjectLogging.Logger.getLogger] = ProjectLogging.Logger('UdpSocket',
                                                                       'UdpSocket.log').getLogger
 
     def __init__(self, config: SocketConfigs.UdpSocketConfig):
@@ -77,7 +77,7 @@ class UdpSocket(BusPluginInterface):
         """
         self.sock.sendto(message, (self.__yourIPAddress, self.__port))
 
-    def _setupSocket(self, sock: socket, port: int) -> None:
+    def _setupSocket(self, sock: type[socket], port: int) -> None:
         """
         Private Method for setting up UDP-socket.
         This method is being called on instancing this class.
@@ -114,7 +114,7 @@ class UdpSocket(BusPluginInterface):
         # Returning data only if it is received from the expected IP-Address (for safety).
         return None if address != (self.__yourIPAddress, self.__port) else message
 
-    def close(self) -> None:
+    def closeBus(self) -> None:
         """
         Method for closing the sockets that are still opened.
         """
@@ -128,7 +128,7 @@ class UdpSocket(BusPluginInterface):
             if self.__port in self.__openSocketPorts:
                 self.__openSocketPorts.remove(self.__port)
             self.__logger.debug(f'Open sockets after closing: {self.__openSocketPorts}')
-            self.sock: None or socket = None
+            self.sock: type[socket] | None = None
         except Exception as exception:
             self.__logger.warning(f'Error while trying to close the socket [{self.sock}]! '
                                 f'Original Exception: {exception}')

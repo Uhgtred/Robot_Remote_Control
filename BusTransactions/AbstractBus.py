@@ -323,7 +323,6 @@ class AbstractBus(ABC):
         None
         """
         self._stopFlag: bool = state
-        self.close()
 
     def _compress(self, data: bytes) -> bytes:
         """

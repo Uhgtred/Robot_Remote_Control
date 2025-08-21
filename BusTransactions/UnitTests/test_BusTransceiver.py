@@ -61,25 +61,27 @@ class helperClass:
 
 
 class TestBusTransceiver(unittest.TestCase):
-    bus = BusPluginFactory.produceSerialBusStubPlugin()
-    serialTransceiver = DefaultBusFactory.DefaultBusFactory.produceSerialTransceiverWithStub()
-    testString = 'Hello World'
-    messages = []
+    def setUp(self):
+        self.testString = 'Hello World'
 
     def test_BusTransceiver_writeSingleMessage(self):
-        self.serialTransceiver.writeSingleMessage(self.testString)
+        serialTransceiver = DefaultBusFactory.DefaultBusFactory.produceSerialTransceiverWithStub()
+        serialTransceiver.writeSingleMessage(self.testString)
         # intentionally not using the readSingleMessage, since this would rely on
         # the readSingleMessage for the test to run. But this test is about writing only.
-        message = self.serialTransceiver.bus.serialBus.buffer.pop(0)[:-1].decode()
+        message = serialTransceiver.bus.serialBus.buffer.pop(0)[:-1].decode()
         self.assertEqual(message, self.testString)
+        serialTransceiver.close()
 
     def test_BusTransceiver_readSingleMessage(self):
-        self.serialTransceiver.writeSingleMessage(self.testString)
-        message = self.serialTransceiver.readSingleMessage()
+        serialTransceiver = DefaultBusFactory.DefaultBusFactory.produceSerialTransceiverWithStub()
+        serialTransceiver.writeSingleMessage(self.testString)
+        message = serialTransceiver.readSingleMessage()
         self.assertEqual(message, self.testString)
+        serialTransceiver.close()
 
     def test_readBusUntilStopFlag(self):
-        udpBus = DefaultBusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(port = 2121)
+        udpBus = DefaultBusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(2121)
         arg = 'testArg'
         udpBus.writeSingleMessage(self.testString)
         udpBus.readBusUntilStopFlag(helperClass.helperMethod, arg, testKwarg='testKwarg')
@@ -90,14 +92,17 @@ class TestBusTransceiver(unittest.TestCase):
         self.assertEqual(helperClass.message, self.testString)
         self.assertEqual(helperClass.args[0], arg)
         self.assertEqual(helperClass.testKwargs.get('testKwarg'), 'testKwarg')
+        udpBus.close()
 
     def test_readBusUntilStopFlagFail(self):
+        udpBus = DefaultBusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(2121)
         obj = helperClass()
-        udpBus = DefaultBusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(port = 2122)
+        # udpBus = DefaultBusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(port = 2122)
         udpBus.writeSingleMessage(self.testString)
         arg = 'testArg'
-        self.assertRaises(TypeError, udpBus.readBusUntilStopFlag, obj.helperMethodNoArgs, arg, testKwarg='testKwarg')
-
+        self.assertRaises(TypeError, udpBus.readBusUntilStopFlag, obj.helperMethodNoArgs, arg,
+                          testKwarg='testKwarg')
+        udpBus.close()
 
 if __name__ == '__main__':
     unittest.main()

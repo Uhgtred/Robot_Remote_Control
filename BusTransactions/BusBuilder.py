@@ -1,6 +1,7 @@
 import atexit
 import typing
 
+import ProjectLogging
 from BusTransactions.BusPlugins.BusPluginInterface import BusPluginInterface
 from BusTransactions.AbstractBus import AbstractBus
 from BusTransactions.Compression.CompressionProtocol import CompressionProtocol
@@ -11,9 +12,13 @@ from BusTransactions.Serialization.SerializationProtocol import SerializationPro
 class BusBuilder:
 
     def __init__(self, busPlugin: BusPluginInterface) -> None:
+        self.__logger: type[ProjectLogging.Logger].getLogger = ProjectLogging.Logger('BusBuilder',
+                                                                     'BusBuilder.log').getLogger
         # bus needs to be set on instancing this class, since it is the only thing that is not optional.
         busPlugin: BusPluginInterface = busPlugin
+        self.__logger.debug(f'BusPlugin created: {busPlugin}')
         self.busInstance = Bus(busPlugin)
+        self.__logger.debug(f'Bus instance created: {self.busInstance}')
 
     def setCompressor(self, compressor: CompressionProtocol | type[CompressionProtocol]) -> typing.Self:
         # Sets the compressor-object. It is being instanced before setting it, if it has not already been instanced.

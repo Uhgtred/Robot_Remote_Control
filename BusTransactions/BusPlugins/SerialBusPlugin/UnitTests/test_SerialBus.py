@@ -9,11 +9,13 @@ from .SerialBusMock import MockSerialBus
 
 
 class MyTestCase(unittest.TestCase):
-    # print(MockBus)
-    config = SerialBusConfig('test', 123, MockSerialBus)
-    # print(config)
-    bus = SerialBus(config)
-    testString = b'Hello World'
+
+    def setUp(self):
+        # print(MockBus)
+        self.config = SerialBusConfig('test', 123, MockSerialBus)
+        # print(config)
+        self.bus = SerialBus(self.config)
+        self.testString = b'Hello World'
 
     def test_write(self):
         self.bus.writeBus(self.testString)

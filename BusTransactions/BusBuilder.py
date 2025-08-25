@@ -11,13 +11,15 @@ from BusTransactions.Serialization.SerializationProtocol import SerializationPro
 
 class BusBuilder:
 
+    __logger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
+
     def __init__(self, busPlugin: BusPluginInterface) -> None:
         self.__logger: type[ProjectLogging.Logger].getLogger = ProjectLogging.Logger('BusBuilder',
                                                                      'BusBuilder.log').getLogger
         # bus needs to be set on instancing this class, since it is the only thing that is not optional.
         busPlugin: BusPluginInterface = busPlugin
         self.__logger.debug(f'BusPlugin created: {busPlugin}')
-        self.busInstance = Bus(busPlugin)
+        self.busInstance = Bus(busPlugin, self.__logger)
         self.__logger.debug(f'Bus instance created: {self.busInstance}')
 
     def setCompressor(self, compressor: CompressionProtocol | type[CompressionProtocol]) -> typing.Self:
@@ -40,5 +42,5 @@ class BusBuilder:
 
 class Bus(AbstractBus):
 
-    def __init__(self, busPlugin: BusPluginInterface) -> None:
-        super().__init__(busPlugin)
+    def __init__(self, busPlugin: BusPluginInterface, logger) -> None:
+        super().__init__(busPlugin, logger)

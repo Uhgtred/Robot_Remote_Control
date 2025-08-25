@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # @author: Markus Kösters
 
-import atexit
 import socket
 
 import ProjectLogging
@@ -32,11 +31,10 @@ class UdpSocket(BusPluginInterface):
     """
 
     __openSocketPorts: set = set()
-    # Initializing a Logger. The loglevel can globally be set in ProjectLogging.Logger.
-    __logger: type[ProjectLogging.Logger.getLogger] = ProjectLogging.Logger('UdpSocket',
-                                                                      'UdpSocket.log').getLogger
 
     def __init__(self, config: SocketConfigs.UdpSocketConfig):
+        self.__logger: type[ProjectLogging.Logger].getLogger = ProjectLogging.Logger('UdpSocket',
+                                                                                'UdpSocket.log').getLogger
         self.sock: socket.socket | None = None
         self.__maxMessageSize = config.messageSize
         self.__myIPAddress = config.MyIPAddress

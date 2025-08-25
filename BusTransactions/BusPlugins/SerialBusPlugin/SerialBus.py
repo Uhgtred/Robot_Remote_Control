@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # @author      Markus Kösters
 
-import atexit
 import serial
 
+import ProjectLogging
 from .SerialBusConfig import SerialBusConfig
 from ..BusPluginInterface import BusPluginInterface
 
@@ -14,6 +14,8 @@ class SerialBus(BusPluginInterface):
     """
 
     def __init__(self, config: SerialBusConfig):
+        self.__logger: type[ProjectLogging.Logger].getLogger = ProjectLogging.Logger('SerialBus',
+                                                                                     'SerialBus.log').getLogger
         self.serialBus: serial.Serial | None = None
         self.__port = None
         self.__baudRate = None

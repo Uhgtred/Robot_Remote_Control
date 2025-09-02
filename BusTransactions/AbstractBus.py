@@ -10,6 +10,7 @@ from BusTransactions.Compression.CompressionProtocol import CompressionProtocol
 from BusTransactions.Encoding import EncodingProtocol
 from BusTransactions.Serialization.SerializationProtocol import SerializationProtocol
 
+
 class AbstractBus(ABC):
     """
     A flexible communication interface for various bus systems.
@@ -36,7 +37,9 @@ class AbstractBus(ABC):
         Flag to control continuous reading loops
     """
 
-    def __init__(self, busPlugin: BusPluginInterface, logger) -> None:
+    __logger: type[ProjectLogging.Logger] = None
+
+    def __init__(self, busPlugin: BusPluginInterface) -> None:
         """
         Initialize a new Bus instance with the specified bus plugin.
 
@@ -50,7 +53,8 @@ class AbstractBus(ABC):
             Must implement the AbstractBusPlugin interface.
         """
         self.__threadRunner: threading.Thread = None
-        self.__logger: type[ProjectLogging.Logger].getLogger = logger
+        self.__logger: type[ProjectLogging.Logger.getLogger] = ProjectLogging.Logger('AbstractBus',
+                                                                     'AbstractBus.log').getLogger
         self.__logger.info(f'Creating a Bus-instance with plugin: {busPlugin}')
         self._stopFlag: bool = False
         self.bus: BusPluginInterface = busPlugin
@@ -276,8 +280,8 @@ class AbstractBus(ABC):
         -------
         None
         """
-        self.__logger.info(f'Closing bus [{self.bus}]!')
         try:
+            self.__logger.info(f'Closing bus [{self.bus}]!')
             self.stopFlag: bool = True
             if self.__threadRunner:
                 self.__threadRunner.join()

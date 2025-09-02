@@ -51,10 +51,19 @@ class Logger:
             logFile += '.log'
         self.__logger = logging.getLogger(name)
         self.__logger.setLevel(logLevel)
+        # Prevent messages from being propagated to the root logger to avoid duplicates
+        self.__logger.propagate = False
         formatter: logging.Formatter = self.__setupFormatter(name)
-        self.__setupFileHandler(logLevel, logFile, formatter, self.__logger)
-        if consoleOutput:
-            self.__setupConsoleHandler(logLevel, formatter, self.__logger)
+
+        # Add handlers only once per named logger to prevent duplicated log records
+        if not self.__logger.handlers:
+            self.__setupFileHandler(logLevel, logFile, formatter, self.__logger)
+            if consoleOutput:
+                self.__setupConsoleHandler(logLevel, formatter, self.__logger)
+        else:
+            # Keep configuration minimal on re-instantiation; avoid adding duplicate handlers
+            # Ensure logger level reflects the most recent request
+            self.__logger.setLevel(logLevel)
 
     def __deactivateLogging(self):
         passEmptyLogger = logging.getLogger('empty')

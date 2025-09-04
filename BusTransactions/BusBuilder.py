@@ -11,8 +11,6 @@ from BusTransactions.Serialization.SerializationProtocol import SerializationPro
 
 class BusBuilder:
 
-    __logger = ProjectLogging.Logger('Bus', 'Bus.log').getLogger
-
     def __init__(self, busPlugin: BusPluginInterface) -> None:
         self.__logger: type[ProjectLogging.Logger].getLogger = ProjectLogging.Logger('BusBuilder',
                                                                      'BusBuilder.log').getLogger

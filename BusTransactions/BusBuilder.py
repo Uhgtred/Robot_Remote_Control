@@ -19,7 +19,7 @@ class BusBuilder:
         # bus needs to be set on instancing this class, since it is the only thing that is not optional.
         busPlugin: BusPluginInterface = busPlugin
         self.__logger.debug(f'BusPlugin created: {busPlugin}')
-        self.busInstance = Bus(busPlugin, self.__logger)
+        self.busInstance = Bus(busPlugin)
         self.__logger.debug(f'Bus instance created: {self.busInstance}')
 
     def setCompressor(self, compressor: CompressionProtocol | type[CompressionProtocol]) -> typing.Self:
@@ -42,5 +42,5 @@ class BusBuilder:
 
 class Bus(AbstractBus):
 
-    def __init__(self, busPlugin: BusPluginInterface, logger) -> None:
-        super().__init__(busPlugin, logger)
+    def __init__(self, busPlugin: BusPluginInterface) -> None:
+        super().__init__(busPlugin)

@@ -283,9 +283,9 @@ class AbstractBus(ABC):
         try:
             self.__logger.info(f'Closing bus [{self.bus}]!')
             self.stopFlag: bool = True
+            self.bus.closeBus()
             if self.__threadRunner:
                 self.__threadRunner.join()
-            self.bus.closeBus()
         except Exception as exception:
             self.__logger.warning(f'Bus [{self.bus}] could not be closed properly! Original exception: {exception}')
 

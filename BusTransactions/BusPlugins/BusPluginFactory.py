@@ -50,7 +50,6 @@ class BusPluginFactory:
         :rtype: SerialBus
         """
         config: SerialBusConfig = SerialBusConfig('/dev/ttyACM0', 115200, MockSerialBus)
-
         return SerialBus(config)
 
     @staticmethod

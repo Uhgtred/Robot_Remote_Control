@@ -56,7 +56,7 @@ class helperClass:
         :return: None
         """
         # does not need to do anything since this is only used
-        # to check wether the exception is being raised
+        # to check whether the exception is being raised
         pass
 
 
@@ -87,7 +87,7 @@ class TestBusTransceiver(unittest.TestCase):
         udpBus.readBusUntilStopFlag(helperClass.helperMethod, arg, testKwarg='testKwarg')
         # Letting bus init before closing.
         # Otherwise, there is an issue that the message is not correctly being received.
-        time.sleep(.2)
+        time.sleep(.02)
         udpBus.stopFlag = True
         self.assertEqual(helperClass.message, self.testString)
         self.assertEqual(helperClass.args[0], arg)

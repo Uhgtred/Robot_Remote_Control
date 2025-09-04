@@ -148,7 +148,6 @@ class AbstractBus(ABC):
                                     f'\tand kwargs: {kwargs}\n'
                                     f'\ton bus: {self.bus.__class__.__name__}')
                 message: Any = self.readSingleMessage()
-                self.__logger.debug(f'Message received: {message}')
                 callbackMethod(message, *args, **kwargs)
             except Exception as e:
                 self.__logger.error(f'Error while reading message: {e}')

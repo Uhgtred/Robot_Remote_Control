@@ -55,10 +55,8 @@ class UdpSocket(BusPluginInterface):
         :return: The data payload received from the bus, as a sequence of bytes.
         :rtype: Bytes
         """
-        self.__logger.debug(f'Reading from bus: {self.__yourIPAddress}:{self.__port}.')
-        data = self.__receiver()
-        self.__logger.debug(f'Received data: {data}.')
-        return data
+        # self.__logger.debug(f'Reading from bus: {self.__yourIPAddress}:{self.__port}.')
+        return self.__receiver()
 
     def writeBus(self, message: bytes) -> None:
         """
@@ -90,7 +88,7 @@ class UdpSocket(BusPluginInterface):
         # Creating a udp-socket object.
         self.sock: socket.socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
         self.__logger.debug(f'Trying to bind to Address: {self.__myIPAddress}:{port}, with socket-library: {sock}')
-        # Binding the socket with provided address and port. It can be used for transmission and receiving now.
+        # Binding the socket with the provided address and port. It can be used for transmission and receiving now.
         self.sock.bind((self.__myIPAddress, port))
         # Adding port to the set of open sockets.
         self.__openSocketPorts.add(port)

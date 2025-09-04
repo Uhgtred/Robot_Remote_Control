@@ -89,10 +89,10 @@ class TestBusTransceiver(unittest.TestCase):
         # Otherwise, there is an issue that the message is not correctly being received.
         time.sleep(.02)
         udpBus.stopFlag = True
+        udpBus.close()
         self.assertEqual(helperClass.message, self.testString)
         self.assertEqual(helperClass.args[0], arg)
         self.assertEqual(helperClass.testKwargs.get('testKwarg'), 'testKwarg')
-        udpBus.close()
 
     def test_readBusUntilStopFlagFail(self):
         udpBus = DefaultBusFactory.DefaultBusFactory.produceUDP_TransceiverWithStub(2121)

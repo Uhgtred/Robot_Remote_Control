@@ -44,35 +44,6 @@ jobs:
           docker cp coverage_container:/app/coverage.txt ./coverage.txt
           docker cp coverage_container:/app/coverage_html ./coverage_html
 
-      - name: Report coverage in GitHub summary
-        shell: bash
-        run: |
-          set +e
-          echo '### Test Coverage Summary' >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          if [ -f coverage.txt ]; then
-            cat coverage.txt >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "coverage.txt not found" >> "$GITHUB_STEP_SUMMARY"
-          fi
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-
-          # Add coverage percentage to summary (robust parsing without bc)
-          if [ -f coverage.txt ]; then
-            LAST_LINE=$(tail -n 1 coverage.txt || true)
-            COVERAGE=$(printf "%s" "$LAST_LINE" | grep -o '[0-9]\+%' | tail -n 1 | tr -d '%' || true)
-            if [ -n "$COVERAGE" ]; then
-              echo "#### Overall Coverage: ${COVERAGE}%" >> "$GITHUB_STEP_SUMMARY"
-              if [ "$COVERAGE" -ge 90 ] 2>/dev/null; then
-                echo "✅ **High Coverage**" >> "$GITHUB_STEP_SUMMARY"
-              elif [ "$COVERAGE" -ge 75 ] 2>/dev/null; then
-                echo "⚠️ **Moderate Coverage**" >> "$GITHUB_STEP_SUMMARY"
-              else
-                echo "❌ **Low Coverage**" >> "$GITHUB_STEP_SUMMARY"
-              fi
-            fi
-          fi
-
       - name: Upload HTML coverage report
         uses: actions/upload-artifact@v4
         with:

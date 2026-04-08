@@ -6,15 +6,7 @@ from typing import Protocol
 
 
 @dataclass
-class ButtonData(Protocol):
-    # Defining the attributes of a single button.
-    ID: int
-    value: int
-
-
-@dataclass
-class ButtonsInterface(Protocol):
-    buttonData: ButtonData
+class ButtonsProtocol(Protocol):
 
     @property
     def getButtonDict(self) -> dict:

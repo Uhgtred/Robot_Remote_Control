@@ -2,11 +2,13 @@
 # @author   Markus Kösters
 
 import subprocess
+import typing
 from dataclasses import fields
 import evdev
 
 import ProjectLogging
-from .SteeringDeviceConfig import SteeringDeviceConfig, ButtonData, ButtonsInterface
+from .ButtonToActorMapping import ButtonToActorMapping
+from .SteeringDeviceConfig import SteeringDeviceConfig, ButtonData, ButtonsProtocol
 
 
 class SteeringDevice:
@@ -25,13 +27,13 @@ class SteeringDevice:
     :type __controller: Optional[evdev.InputDevice]
     """
 
+    logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('SteeringDevice',
+                                                                         'SteeringDevice.log').getLogger
     def __init__(self, config: SteeringDeviceConfig):
-        self.logger: ProjectLogging.Logger.getLogger = ProjectLogging.Logger('SteeringDevice',
-                                                                             'SteeringDevice.log').getLogger
-        self.__conf = config
-        self.__controller = None
+        self.__conf: SteeringDeviceConfig = config
+        self.__controller: evdev.InputDevice = None
 
-    def __setSteeringValues(self, event: evdev.InputEvent) -> ButtonsInterface:
+    def __setSteeringValues(self, event: evdev.InputEvent) -> ButtonsProtocol:
         """
         Sets the steering values based on the event received and updates the button
         configuration.
@@ -44,7 +46,7 @@ class SteeringDevice:
         :type event: evdev.InputEvent
         :return: Updated buttons configuration with modified button values based on
                  the received event.
-        :rtype: ButtonsInterface
+        :rtype: ButtonsProtocol
         """
         for field in fields(self.__conf.buttons):
             # getting the content of each field
@@ -108,6 +110,7 @@ class SteeringDevice:
         Searches for available devices in a given directory path by listing all items
         in the directory. This function utilizes the `ls` command to fetch the
         directory contents and processes the result into a list of device names.
+        This is why this method is only Linux-compatible.
 
         :param path: The directory path to search for available devices. Should be a
             valid string representing a directory path on the filesystem.
@@ -119,7 +122,40 @@ class SteeringDevice:
         directoryListing = subprocess.Popen(['ls', path], stdout=subprocess.PIPE).communicate()
         return (directoryListing[0]).decode().strip().split('\n')
 
-    def readController(self, callbackMethod: callable) -> None:
+    @staticmethod
+    def __remapButtons(buttons: ButtonsProtocol, robotControlConfig: typing.Type[ButtonToActorMapping]) -> dict:
+        """
+        Remaps the keys of a given dictionary that represents buttons using a configuration
+        dictionary mapping old keys to new keys. This functionality is typically used
+        to adjust configurations dynamically based on user preferences or system specifications.
+
+        .. note::
+           This method performs logging for debugging purposes before the remapping process begins.
+
+        :param buttonDict: A dictionary where keys represent current buttons and values
+           represent associated data or actions bound to those buttons.
+        :param configDict: A dictionary that defines the mapping of old button keys
+           to new button keys. The keys are existing buttons, and the values are the
+           new keys to replace them.
+        :return: A new dictionary where keys of `buttonDict` have been remapped using
+           `configDict`. If a key in `buttonDict` does not have a corresponding key in
+           `configDict`, it will not appear in the resulting dictionary.
+        :rtype: dict
+        """
+        buttonDict: dict = buttons.getButtonDict
+        activeController: str = 'xbox' # Todo: this needs to be set somewhere else!
+        match activeController:
+            case 'xbox': buttonConfig: dict = robotControlConfig.xBox
+            case default: buttonConfig: dict = robotControlConfig.xBox
+        SteeringDevice.logger.debug(f'Buttons that are going to be remapped: {buttonDict}, '
+                                    f'with config: {buttonConfig}')
+        remappedButtonsDict: dict = {}
+        for key in buttonDict.keys():
+            newKey: str = str(buttonDict.get(key))
+            remappedButtonsDict[newKey] = buttonDict.get(key)
+        return remappedButtonsDict
+
+    def readController(self, callbackMethod: typing.Callable) -> None:
         """
         Reads input events from the controller and processes them using the provided
         callback method. This function ensures that the controller is exclusively
@@ -138,6 +174,6 @@ class SteeringDevice:
         for event in self.__controller.read_loop():
             if event.type == 0:
                 continue
-            steeringValues: dict = self.__setSteeringValues(event).getButtonDict
+            steeringValues: dict = self.__remapButtons(self.__setSteeringValues(event), ButtonToActorMapping)
             self.logger.debug(f'Button-Dictionary (contains information about buttons pressed): {steeringValues}')
             callbackMethod(steeringValues)

@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, field
 
-from SteeringInput.ButtonsInterface import ButtonsInterface
+from SteeringInput.ButtonsProtocol import ButtonsProtocol
 
 
 @dataclass
@@ -39,10 +39,12 @@ class ButtonsXBox:
         return {
             self.LXAxis.ID: self.LXAxis.value,
             self.LYAxis.ID: self.LYAxis.value,
+            # Sets the value positive if the negator-button is not being pressed.
             self.LTrigger.ID: self.LTrigger.value if not self.LBtn.value else -self.LTrigger.value,
             self.L3.ID: self.L3.value,
             self.RXAxis.ID: self.RXAxis.value,
             self.RYAxis.ID: self.RYAxis.value,
+            # Sets the value positive if the negator-button is not being pressed.
             self.RTrigger.ID: self.RTrigger.value if not self.RBtn.value else -self.RTrigger.value,
             self.R3.ID: self.R3.value,
             self.StartBtn.ID: self.StartBtn.value,
@@ -61,5 +63,5 @@ class SteeringDeviceConfig:
     # defining the default configuration of a controller!
     ControllerPath: str = '/dev/input/'
     DeviceVendorID: int = 1118
-    buttons: ButtonsInterface = field(default_factory=ButtonsXBox)
+    buttons: ButtonsProtocol = field(default_factory=ButtonsXBox)
 

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from evdev import InputDevice, InputEvent
 
 from SteeringInput import SteeringDevice
-from SteeringInput.ButtonsInterface import ButtonsInterface
+from SteeringInput.ButtonsProtocol import ButtonsProtocol
 from SteeringInput.SteeringDeviceConfig import SteeringDeviceConfig
 
 
@@ -110,7 +110,7 @@ class TestSteeringDevice(unittest.TestCase):
         mock_config.ControllerPath = "/dev/input/"
 
         # Create a mock ButtonsInterface
-        mock_buttons = MagicMock(spec=ButtonsInterface)
+        mock_buttons = MagicMock(spec=ButtonsProtocol)
         mock_config.buttons = mock_buttons
 
         # Create the SteeringDevice instance with the mock config
